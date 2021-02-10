@@ -25,3 +25,25 @@ class GetStreamers(generics.ListAPIView):
             streamers = Streamer.objects.all()
         return streamers
 
+
+class GetFaq(generics.ListAPIView):
+    serializer_class = FaqSerializer
+    queryset = Faq.objects.all()
+
+
+class GetHowTo(generics.ListAPIView):
+    serializer_class = HowToSerializer
+    queryset = HowTo.objects.all()
+
+
+class GetTickets(generics.ListAPIView):
+    serializer_class = TicketSerializer
+    queryset = Ticket.objects.all()
+
+
+class GetCart(generics.RetrieveAPIView):
+    serializer_class = TicketSerializer
+
+    def get_object(self):
+        session_id = self.request.query_params.get('session_id')
+        return check_if_cart_exists(session_id)
