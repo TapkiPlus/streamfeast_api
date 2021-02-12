@@ -42,8 +42,29 @@ class GetTickets(generics.ListAPIView):
 
 
 class GetCart(generics.RetrieveAPIView):
-    serializer_class = TicketSerializer
+    serializer_class = CartSerializer
 
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
         return check_if_cart_exists(session_id)
+
+class AddItem(APIView):
+    def post(self,request):
+        print(request.data)
+        session_id = request.data.get('session_id')
+        item_id = request.data.get('item_id')
+        streamer_id = request.data.get('streamer_id')
+        cart = check_if_cart_exists(session_id)
+        print(cart)
+
+        try:
+            ticket = CartItem.objects.get(t_id=f'{session_id}-{item_id}-{streamer_id}')
+            ticket.quantity += 1
+            ticket.save()
+        except CartItem.DoesNotExist:
+            item = CartItem.objects.create(t_id=f'{session_id}-{item_id}-{streamer_id}',
+                                    ticket_id=item_id,
+                                    streamer_id=streamer_id if streamer_id != 0 else None)
+            cart.tickets.add(item)
+
+        return Response(status=200)

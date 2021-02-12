@@ -89,6 +89,7 @@ class Ticket(models.Model):
 
 
 class CartItem(models.Model):
+    t_id = models.CharField(max_length=255, blank=True, null=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Билет')
     streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
     quantity = models.IntegerField('Количество', default=1)
@@ -111,7 +112,7 @@ class CartItem(models.Model):
 
 class Cart(models.Model):
     session = models.CharField('Сессия', max_length=255, blank=True, null=True)
-    tickets = models.ManyToManyField(Ticket, blank=True, verbose_name='Билеты')
+    tickets = models.ManyToManyField(CartItem, blank=True, verbose_name='Билеты')
     total_price = models.IntegerField('Стоимось корзины', default=0)
 
     def __str__(self):

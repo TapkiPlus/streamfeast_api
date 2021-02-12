@@ -27,6 +27,7 @@ class StreamerSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
+    ticket = TicketSerializer(many=False, read_only=True, required=False)
     streamer = StreamerSerializer(many=False, read_only=True, required=False)
 
     class Meta:
@@ -35,7 +36,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True, required=False)
+    tickets = CartItemSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = Cart
