@@ -5,22 +5,23 @@ from rest_framework import generics
 from .serializers import *
 from .models import *
 from .services import *
-
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 class GetStreamer(generics.RetrieveAPIView):
     serializer_class = StreamerSerializer
 
     def get_object(self):
         return Streamer.objects.get(nickNameSlug=self.request.query_params.get('name_slug'))
-
-
+ 
+ 
 class GetStreamers(generics.ListAPIView):
     serializer_class = StreamerSerializer
-
+ 
     def get_queryset(self):
         print()
         if self.request.query_params.get('at_home') == 'show':
-            streamers = Streamer.objects.filter(isAtHome=True)
+            streamers = Streamer.objects.filter(isAtHome=True).order_by('?')[:10]
         else:
             streamers = Streamer.objects.all()
         return streamers
@@ -47,6 +48,21 @@ class GetCart(generics.RetrieveAPIView):
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
         return check_if_cart_exists(session_id)
+
+class SubscribeEmail(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            validate_email(email)
+            try:
+                subscribe_model_instance = Subscribe.objects.get(email=email)
+            except Subscribe.DoesNotExist as e:
+                subscribe_model_instance = Subscribe()
+                subscribe_model_instance.email = email
+            subscribe_model_instance.save() 
+            return Response(status=200)
+        except ValidationError:
+            return Response(status=400)
 
 class DeleteItem(APIView):
     def post(self, request):
