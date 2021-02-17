@@ -20,7 +20,22 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SocialIconSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SocialIcon
+        fields = '__all__'
+
+class SocialLinkSerializer(serializers.ModelSerializer):
+    icon = SocialIconSerializer(many=False, read_only=True, required=False)
+
+    class Meta:
+        model = SocialLink
+        fields = '__all__'
+
+
 class StreamerSerializer(serializers.ModelSerializer):
+    links = SocialLinkSerializer(many=True, read_only=True, required=False)
+
     class Meta:
         model = Streamer
         fields = '__all__'

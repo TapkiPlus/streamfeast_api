@@ -36,13 +36,25 @@ class HowTo(models.Model):
         verbose_name = "HowTo"
         verbose_name_plural = "HowTo"
 
+class SocialIcon(models.Model):
+    name = models.CharField('Название сети', max_length=255, blank=False, null=True)
+    icon = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+    class Meta:
+        verbose_name = "Иконка соц. сети"
+        verbose_name_plural = "Иконки соц. сетей"
+
+
 
 class Streamer(models.Model):
     orderPP = models.IntegerField('Номер ПП', default=10)
-    name = models.CharField('ФИО', max_length=255, blank=False, null=True)
     nickName = models.CharField('Ник', max_length=255, blank=False, null=True, db_index=True)
-    photo = models.ImageField('Фото)', upload_to='speaker_img/', blank=False, null=True)
-    pageHeader = models.ImageField('Изображение для шапки страницы', upload_to='speaker_img/', blank=False, null=True)
+    name = models.CharField('Имя Фамилия', max_length=255, blank=False, null=True)
+    photo = models.ImageField('Аватар', upload_to='speaker_img/', blank=False, null=True)
+    pageHeader = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
     nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True, editable=False)
     linkVK = models.CharField('Ссылка на VK', max_length=255, blank=True, null=True )
     linkTW = models.CharField('Ссылка на Twitch', max_length=255, blank=True, null=True )
@@ -52,6 +64,7 @@ class Streamer(models.Model):
     about = RichTextUploadingField('Описание', blank=True, null=True)
     streaming = RichTextUploadingField('Что стримит', blank=True, null=True)
     isAtHome = models.BooleanField('Отображать на главной?', default=False)
+    isActive = models.BooleanField('Отображать?', default=True)
     uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)', max_length=100,  blank=True,null=True, editable=False)
 
     def save(self, *args, **kwargs):
@@ -72,6 +85,21 @@ class Streamer(models.Model):
     class Meta:
         verbose_name = "Стример"
         verbose_name_plural = "Стримеры"
+
+
+class SocialLink(models.Model):
+    icon = models.ForeignKey(SocialIcon,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True,
+                             verbose_name='Иконка')
+    user = models.ForeignKey(Streamer,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True,
+                             verbose_name='Стример',
+                             related_name='links')
+    link = models.CharField('Ссылка', max_length=255, blank=True, null=True)
 
 
 class Ticket(models.Model):

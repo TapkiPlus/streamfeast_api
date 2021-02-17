@@ -20,9 +20,9 @@ class GetStreamers(generics.ListAPIView):
     def get_queryset(self):
         print()
         if self.request.query_params.get('at_home') == 'show':
-            streamers = Streamer.objects.filter(isAtHome=True)
+            streamers = Streamer.objects.filter(isAtHome=True, isActive=True)
         else:
-            streamers = Streamer.objects.all()
+            streamers = Streamer.objects.filter(isActive=True)
         return streamers
 
 
@@ -97,9 +97,11 @@ class AddItem(APIView):
             ticket.save()
             calculate_cart_price(cart)
         except CartItem.DoesNotExist:
-            item = CartItem.objects.create(t_id=f'{session_id}-{item_id}-{streamer_id}',
-                                           ticket_id=item_id,
-                                           streamer_id=streamer_id if streamer_id != 0 else None)
+            item = CartItem.objects.create(
+                t_id=f'{session_id}-{item_id}-{streamer_id}',
+                ticket_id=item_id,
+                streamer_id=streamer_id if streamer_id != 0 else None
+            )
             cart.tickets.add(item)
             calculate_cart_price(cart)
 
