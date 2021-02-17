@@ -3,7 +3,10 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from pytils.translit import slugify
 from random import choices
 import string
-
+import uuid
+import pyqrcode
+from django.db.models.signals import post_save
+from streamfeast_api.settings import BASE_DIR,BASE_URL
 
 class Faq(models.Model):
     order_number = models.IntegerField('№ П/П', default=100)
@@ -18,7 +21,6 @@ class Faq(models.Model):
         verbose_name = "FAQ"
         verbose_name_plural = "FAQ"
 
-
 class HowTo(models.Model):
     order_number = models.IntegerField('№ П/П', default=100)
     question = models.CharField('Вопрос', max_length=255, blank=False, null=True)
@@ -32,7 +34,6 @@ class HowTo(models.Model):
         ordering = ('order_number',)
         verbose_name = "HowTo"
         verbose_name_plural = "HowTo"
-
 
 class Streamer(models.Model):
     orderPP = models.IntegerField('Номер ПП', default=10)
@@ -70,7 +71,6 @@ class Streamer(models.Model):
         verbose_name = "Стример"
         verbose_name_plural = "Стримеры"
 
-
 class Ticket(models.Model):
     price = models.IntegerField('Цена', blank=False, null=True)
     is_one_day = models.BooleanField('На один день?', default=False)
@@ -87,6 +87,13 @@ class Ticket(models.Model):
         verbose_name = "Билет"
         verbose_name_plural = "Билеты"
 
+class Subscribe(models.Model):
+    email = models.EmailField(unique=True)
+    def __str__(self):
+        return self.email
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
 
 class CartItem(models.Model):
     t_id = models.CharField(max_length=255, blank=True, null=True)
@@ -117,7 +124,42 @@ class Cart(models.Model):
 
     def __str__(self):
         return f'Стоимость корзины : {self.total_price}'
-
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
+class OrderItem(models.Model):
+    u_id = models.UUIDField(null=True, blank=True)
+    o_id = models.UUIDField(null=True, blank=True)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Билет')
+    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
+    quantity = models.IntegerField('Количество', default=1)
+    qr = models.ImageField('QR', blank=True, null=True, upload_to='ticket_qr/')
+
+class Order(models.Model):
+    u_id = models.UUIDField(default=uuid.uuid4)
+    name = models.CharField('Имя', max_length=255, blank=True, null=True)
+    family = models.CharField('Фамилия', max_length=255, blank=True, null=True)
+    email = models.CharField('Email', max_length=255, blank=True, null=True)
+    phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
+    tickets = models.ManyToManyField(OrderItem, blank=True, verbose_name='Билеты')
+    is_payed = models.BooleanField('Оплачен?', default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f'Заказ от {self.created_at}'
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+def createOrderItem(sender, instance, created, **kwargs):
+    if created:
+        print('Create QR')
+        codeQR = str(uuid.uuid4())
+        instance.u_id = codeQR
+        url = pyqrcode.create(f'{BASE_URL}/ticket/{codeQR}')
+        url.png(f'{BASE_DIR}/media/ticket_qr/{codeQR}.png', scale=10)
+        instance.qr = f'/ticket_qr/{codeQR}.png'
+        instance.save()
+
+post_save.connect(createOrderItem, sender=OrderItem)

@@ -3,4 +3,5 @@ django-cors-headers
 pillow
 pytils
 django-ckeditor
-
+pyqrcode
+pypng
