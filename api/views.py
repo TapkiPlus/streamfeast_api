@@ -48,14 +48,16 @@ class GetCart(generics.RetrieveAPIView):
         session_id = self.request.query_params.get('session_id')
         return check_if_cart_exists(session_id)
 
+
 class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
         ticket = CartItem.objects.get(id=item_id)
         ticket.delete()
-        calculate_cart_price(cart = check_if_cart_exists(session_id))
+        calculate_cart_price(cart=check_if_cart_exists(session_id))
         return Response(status=200)
+
 
 class AddItemQuantity(APIView):
     def post(self, request):

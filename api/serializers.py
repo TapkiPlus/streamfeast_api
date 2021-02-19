@@ -25,6 +25,7 @@ class SocialIconSerializer(serializers.ModelSerializer):
         model = SocialIcon
         fields = '__all__'
 
+
 class SocialLinkSerializer(serializers.ModelSerializer):
     icon = SocialIconSerializer(many=False, read_only=True, required=False)
 
@@ -56,7 +57,6 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = '__all__'
-
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -95,6 +95,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     tickets = OrderItemSerializer(many=True, read_only=True, required=False)
+
     class Meta:
         model = Order
         fields = '__all__'
