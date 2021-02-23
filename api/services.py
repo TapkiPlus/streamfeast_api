@@ -14,7 +14,6 @@ def calculate_cart_price(cart):
     cart.total_price = price
     cart.save()
 
-
 def clear_cart(cart):
     items = cart.tickets.all()
     for i in items:

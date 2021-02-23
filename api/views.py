@@ -8,7 +8,6 @@ from .serializers import *
 from .models import *
 from .services import *
 
-
 class GetStreamer(generics.RetrieveAPIView):
     serializer_class = StreamerSerializer
 
@@ -22,7 +21,7 @@ class GetStreamers(generics.ListAPIView):
     def get_queryset(self):
         print()
         if self.request.query_params.get('at_home') == 'show':
-            streamers = Streamer.objects.filter(isAtHome=True, isActive=True)
+            streamers = Streamer.objects.filter(isAtHome=True, isActive=True).order_by('?')[:10]
         else:
             streamers = Streamer.objects.filter(isActive=True)
         return streamers

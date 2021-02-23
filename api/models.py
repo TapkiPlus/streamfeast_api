@@ -278,7 +278,6 @@ class Order(models.Model):
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
-
 def createOrderItem(sender, instance, created, **kwargs):
     if created:
         print('Create QR')

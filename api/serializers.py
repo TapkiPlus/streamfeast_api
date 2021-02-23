@@ -59,6 +59,7 @@ class CartSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
 class OrderItemSerializer(serializers.ModelSerializer):
     ticket = TicketSerializer(many=False, read_only=True, required=False)
     streamer = StreamerSerializer(many=False, read_only=True, required=False)
