@@ -17,7 +17,7 @@ class HowToSerializer(serializers.ModelSerializer):
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
-        fields = '__all__'
+        fields = '__all__' 
 
 
 class SocialIconSerializer(serializers.ModelSerializer):
