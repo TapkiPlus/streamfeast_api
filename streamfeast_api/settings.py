@@ -62,12 +62,12 @@ WSGI_APPLICATION = 'streamfeast_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'streamfest',
         'USER' : 'streamfest',
         'PASSWORD': 'J-I802kJ73nlDF832',
         'HOST': 'localhost',
-        'PORT': '3306'
+        'PORT': '5432'
     }
 }
 
