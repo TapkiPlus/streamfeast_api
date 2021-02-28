@@ -1,11 +1,12 @@
 import json
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
 from .serializers import *
 from .models import *
 from .services import *
-
 
 class GetStreamer(generics.RetrieveAPIView):
     serializer_class = StreamerSerializer
@@ -20,7 +21,7 @@ class GetStreamers(generics.ListAPIView):
     def get_queryset(self):
         print()
         if self.request.query_params.get('at_home') == 'show':
-            streamers = Streamer.objects.filter(isAtHome=True, isActive=True)
+            streamers = Streamer.objects.filter(isAtHome=True, isActive=True).order_by('?')[:10]
         else:
             streamers = Streamer.objects.filter(isActive=True)
         return streamers
@@ -48,14 +49,16 @@ class GetCart(generics.RetrieveAPIView):
         session_id = self.request.query_params.get('session_id')
         return check_if_cart_exists(session_id)
 
+
 class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
         ticket = CartItem.objects.get(id=item_id)
         ticket.delete()
-        calculate_cart_price(cart = check_if_cart_exists(session_id))
+        calculate_cart_price(cart=check_if_cart_exists(session_id))
         return Response(status=200)
+
 
 class AddItemQuantity(APIView):
     def post(self, request):
@@ -138,3 +141,19 @@ class GetTicket(generics.RetrieveAPIView):
 
     def get_object(self):
         return OrderItem.objects.get(u_id=self.request.query_params.get('uuid'))
+
+
+class SubscribeEmail(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            validate_email(email)
+            try:
+                subscribe_model_instance = Subscribe.objects.get(email=email)
+            except Subscribe.DoesNotExist as e:
+                subscribe_model_instance = Subscribe()
+                subscribe_model_instance.email = email
+            subscribe_model_instance.save()
+            return Response(status=200)
+        except ValidationError:
+            return Response(status=400)

@@ -1,17 +1,10 @@
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = 'http://localhost:3000'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '$sgr9(w7g-5$1c=ip@0ex52rfyd$i5_8qtk28zi9nwy0br^23('
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -19,8 +12,6 @@ ALLOWED_HOSTS = ['*']
 
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_UPLOAD_PATH = "uploads/"
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -32,11 +23,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+
     'ckeditor',
     'api'
-
-
-
 ]
 
 MIDDLEWARE = [
@@ -71,20 +60,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'streamfeast_api.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'streamfest',
+        'USER' : 'streamfest',
+        'PASSWORD': 'J-I802kJ73nlDF832',
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -101,22 +86,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-LANGUAGE_CODE = 'ru'
-
+LANGUAGE_CODE = 'ru-RU'
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_L10N = False
-
 USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = f'/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
