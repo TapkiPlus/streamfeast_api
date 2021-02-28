@@ -72,18 +72,6 @@ class SocialIcon(models.Model):
         verbose_name = "Иконка соц. сети"
         verbose_name_plural = "Иконки соц. сетей"
 
-class SocialIcon(models.Model):
-    name = models.CharField('Название сети', max_length=255, blank=False, null=True)
-    icon = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
-
-    def __str__(self):
-        return f'{self.name}'
-
-    class Meta:
-        verbose_name = "Иконка соц. сети"
-        verbose_name_plural = "Иконки соц. сетей"
-
-
 
 class Streamer(models.Model):
     orderPP = models.IntegerField('Номер ПП', default=10)
