@@ -147,7 +147,7 @@ class SocialLink(models.Model):
                              blank=True,
                              verbose_name='Стример',
                              related_name='links')
-    link = models.CharField('Ссылка', max_length=255, blank=True, null=True)
+    link = models.CharField('Ссылка', max_length=255, blank=True, null=True) 
 
 
 class Ticket(models.Model):

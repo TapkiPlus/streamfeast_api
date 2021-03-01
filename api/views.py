@@ -23,7 +23,7 @@ class GetStreamers(generics.ListAPIView):
         if self.request.query_params.get('at_home') == 'show':
             streamers = Streamer.objects.filter(isAtHome=True, isActive=True).order_by('?')[:10]
         else:
-            streamers = Streamer.objects.filter(isActive=True)
+            streamers = Streamer.objects.filter(isActive=True).order_by('orderPP')
         return streamers
 
 

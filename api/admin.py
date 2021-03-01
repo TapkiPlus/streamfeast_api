@@ -9,10 +9,11 @@ class SocialLinkInline (admin.TabularInline):
 
 class StreamerAdmin(admin.ModelAdmin):
     list_display = ['id',
+                    'orderPP',
                     'nickName',
                     'name',
                     'isAtHome',
-                    'isActive']
+                    'isActive'] 
     list_filter = ('isAtHome',
                    'isActive')
     search_fields = ('nickName',
