@@ -8,7 +8,7 @@ class SocialLinkInline (admin.TabularInline):
 
 
 class StreamerAdmin(admin.ModelAdmin):
-    list_display = ['id',
+    list_display = ['orderPP',
                     'nickName',
                     'name',
                     'isAtHome',
@@ -17,8 +17,7 @@ class StreamerAdmin(admin.ModelAdmin):
                    'isActive')
     search_fields = ('nickName',
                      'name')
-    list_display_links = ('id',
-                          'nickName',
+    list_display_links = ('nickName',
                           'name',
                           'isAtHome',
                           'isActive')
