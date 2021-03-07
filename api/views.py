@@ -26,7 +26,7 @@ class GetStreamers(generics.ListAPIView):
             streamers = Streamer.objects.filter(isActive=True).order_by('orderPP')
         return streamers
 
-
+ 
 class GetFaq(generics.ListAPIView):
     serializer_class = FaqSerializer
     queryset = Faq.objects.all()
