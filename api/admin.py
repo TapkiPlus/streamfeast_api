@@ -5,6 +5,7 @@ from .models import *
 class SocialLinkInline (admin.TabularInline):
     model = SocialLink
     extra = 0
+    ordering = ("id",)
 
 
 class StreamerAdmin(admin.ModelAdmin):
