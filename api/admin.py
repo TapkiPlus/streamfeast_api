@@ -5,10 +5,11 @@ from .models import *
 class SocialLinkInline (admin.TabularInline):
     model = SocialLink
     extra = 0
+    ordering = ("id",)
 
 
 class StreamerAdmin(admin.ModelAdmin):
-    list_display = ['id',
+    list_display = ['orderPP',
                     'nickName',
                     'name',
                     'isAtHome',
@@ -17,8 +18,7 @@ class StreamerAdmin(admin.ModelAdmin):
                    'isActive')
     search_fields = ('nickName',
                      'name')
-    list_display_links = ('id',
-                          'nickName',
+    list_display_links = ('nickName',
                           'name',
                           'isAtHome',
                           'isActive')
