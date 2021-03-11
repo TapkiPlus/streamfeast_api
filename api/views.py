@@ -26,6 +26,15 @@ class GetStreamers(generics.ListAPIView):
             streamers = Streamer.objects.filter(isActive=True).order_by('orderPP')
         return streamers
 
+
+class GetStreamerStats(generics.RetrieveAPIView):
+    serializer_class = StreamerSerializer
+
+    def get_object(self):
+        print(self.request.query_params.get('uniqUrl'))
+        return Streamer.objects.get(uniqUrl=self.request.query_params.get('uniqUrl'))
+
+
  
 class GetFaq(generics.ListAPIView):
     serializer_class = FaqSerializer
@@ -37,9 +46,9 @@ class GetHowTo(generics.ListAPIView):
     queryset = HowTo.objects.all()
 
 
-class GetTickets(generics.ListAPIView):
-    serializer_class = TicketSerializer
-    queryset = Ticket.objects.all()
+class GetTicketTypes(generics.ListAPIView):
+    serializer_class = TicketTypeSerializer
+    queryset = TicketType.objects.all()
 
 
 class GetCart(generics.RetrieveAPIView):
@@ -125,10 +134,10 @@ class CreateOrder(APIView):
         cart_items = cart.tickets.all()
         for i in cart_items:
             new_item = OrderItem.objects.create(
-                o_id=new_order.u_id,
+                order=new_order,
                 ticket=i.ticket,
-                streamer=i.streamer,
-                quantity=i.quantity
+                quantity=i.quantity,
+                streamer=i.streamer
             )
             new_order.tickets.add(new_item)
         clear_cart(cart)
@@ -136,11 +145,8 @@ class CreateOrder(APIView):
         return Response(serializer.data, status=200)
 
 
-class GetTicket(generics.RetrieveAPIView):
+class GetTicketType(generics.RetrieveAPIView):
     serializer_class = OrderItemSerializer
-
-    def get_object(self):
-        return OrderItem.objects.get(u_id=self.request.query_params.get('uuid'))
 
 
 class SubscribeEmail(APIView):
@@ -157,3 +163,15 @@ class SubscribeEmail(APIView):
             return Response(status=200)
         except ValidationError:
             return Response(status=400)
+
+
+class PaymentCheck(APIView):
+    def post(self, request):
+        xml = platron_client.payment_check(request.data)
+        return Response(data = xml, status = 200, content_type = "text/xml")
+
+
+class PaymentResult(APIView):
+    def post(self, request):
+        platron_client.payment_result(request.data)
+        return Response(status = 200)
