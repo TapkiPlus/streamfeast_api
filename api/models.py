@@ -215,6 +215,14 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.IntegerField('Стоимось', default = 0)
 
+    def set_paid(self): 
+        if self.is_paid == False:
+            self.is_paid = True
+            items = OrderItem.objects.filter(order = self)
+            for item in items: 
+                item.create_tickets()
+        
+
     def __str__(self):
         return f'Заказ от {self.created_at}'
 
@@ -232,7 +240,8 @@ class OrderItem(models.Model):
     amount = models.IntegerField('Стоимось', default = 0)
 
     def create_tickets(self):
-        Ticket(uuid.uuid4, self, self.order)
+        for i in range(self.quantity):
+            Ticket.objects.create(order_item = self, order = self.order)
 
     def __str__(self):
         return f'Билет на { "1 день" if self.ticket.is_one_day else "2 дня"} - {self.streamer.name if self.streamer else ""}'
@@ -242,6 +251,7 @@ class Ticket(models.Model):
     ticket_id = models.UUIDField(default=uuid.uuid4, primary_key = True)
     order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name='Позиция')
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name='Заказ')
+    when_cleared = models.DateTimeField(null = True, verbose_name='Дата и время погашения')
 
     class Meta:
         verbose_name = "Билет"

@@ -15,12 +15,17 @@ class PlatronTestCase(TestCase):
 
     def test_platron_init_and_cancel(self): 
         txn = init_payment(Order.objects.first())
+        print(txn.redirect_url)
         txn.save()
         pers = PlatronPayment.objects.first()
         self.assertEqual(txn, pers)
         get_payment_status(txn.id)
-        canc = cancel_payment(txn.id)
-        get_payment_status(txn.id)
+        #canc = cancel_payment(txn.id)
+        #get_payment_status(txn.id)
         
-    def test_platron_cancel_and_mark(self): 
-        pass
+    def test_order_paid(self): 
+        order = Order.objects.first()
+        order.set_paid()
+        tickets = Ticket.objects.all()
+        for t in tickets: 
+            print(t)
