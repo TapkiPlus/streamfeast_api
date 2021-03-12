@@ -28,4 +28,6 @@ class PlatronTestCase(TestCase):
         order.set_paid()
         tickets = Ticket.objects.all()
         for t in tickets: 
-            print(t)
+            file = t.pdf(filename = f'{t.ticket_id}.pdf')
+            print("FFF")
+            print(file)

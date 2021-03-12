@@ -21,8 +21,9 @@ def init_payment(order):
     request = InitPaymentBuilder(order.amount, 'Test description')
     request.add_order_id(str(order.id))
     ###################################
-    # TODO: remove when stopped testing
-    request.add_testing_mode()
+    # TODO: remove when in production #
+    request.add_testing_mode()        #
+    ###################################
     raw = client.request(request)
     doc = parse_response(raw)
     tx = parse_create_tx(doc)

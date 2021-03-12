@@ -175,3 +175,11 @@ class PaymentResult(APIView):
     def post(self, request):
         platron_client.payment_result(request.data)
         return Response(status = 200)
+
+
+class TicketAsPdf(APIView):
+    def get(self, request):
+        ticket = Ticket.objects.first()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="ticket.pdf"'
+        return response

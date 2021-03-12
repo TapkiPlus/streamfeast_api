@@ -1,12 +1,15 @@
+import io
+import uuid
+import string
+import pyqrcode, pdfkit
+import base64
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 from django.db.models.signals import post_save
 from pytils.translit import slugify
-import pyqrcode
 from random import choices
-import string
 from streamfeast_api.settings import BASE_DIR, BASE_URL
-import uuid
+from django.template.loader import get_template, render_to_string
 
 
 class PlatronPayment(models.Model):
@@ -252,6 +255,29 @@ class Ticket(models.Model):
     order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name='Позиция')
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name='Заказ')
     when_cleared = models.DateTimeField(null = True, verbose_name='Дата и время погашения')
+
+    def __str__(self):
+        tt = self.order_item.ticket_type
+        item = self.order_item
+        ord = self.order
+        return f'Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days'
+
+    def pdf(self, filename = False):
+        template = get_template('../templates/ticket.html')
+        code = pyqrcode.create(str(self.ticket_id))
+        buf = io.BytesIO()
+        code.png(buf, scale = 5)
+        buf.seek(0)
+        image = buf.read()
+        encoded = str(base64.b64encode(image))[2:-1]
+        html = template.render({'t': self, 'qr': encoded})
+        #print(html)
+        options = {
+            'page-size': 'Letter',
+            'encoding': "UTF-8",
+        }
+        return pdfkit.from_string(html, filename, options)
+
 
     class Meta:
         verbose_name = "Билет"
