@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_URL = 'http://localhost:3000'
+BASE_URL = 'https://streamfest.ru'
 SECRET_KEY = '$sgr9(w7g-5$1c=ip@0ex52rfyd$i5_8qtk28zi9nwy0br^23('
 
 DEBUG = True
@@ -97,5 +97,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-MEDIA_URL = f'/media/'
+MEDIA_URL = f'{BASE_URL}/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
