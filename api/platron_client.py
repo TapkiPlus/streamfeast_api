@@ -18,7 +18,7 @@ CALLBACK_PATH = "check_payment"
 client = PostClient(MERCHANT_ID, MERCHANT_KEY)
 
 def init_payment(order): 
-    request = InitPaymentBuilder(order.amount, 'Test description')
+    request = InitPaymentBuilder(order.amount, 'Оплата билетов')
     request.add_order_id(str(order.id))
     ###################################
     # TODO: remove when in production #

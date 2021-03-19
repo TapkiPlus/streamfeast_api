@@ -173,32 +173,8 @@ class TicketType(models.Model):
         verbose_name_plural = "Билеты"
 
 
-class CartItem(models.Model):
-    t_id = models.CharField(max_length=255, blank=True, null=True)
-    ticket_type = models.ForeignKey(TicketType, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Билет')
-    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
-    quantity = models.IntegerField('Количество', default=1)
-
-    def __str__(self):
-        if self.streamer:
-            if self.ticket.is_one_day:
-                return f'Билет на один день от : {self.streamer.name}'
-            if self.ticket.is_two_day:
-                return f'Билет на два дня : {self.streamer.name}'
-        else:
-            if self.ticket.is_one_day:
-                return f'Билет на один день '
-            if self.ticket.is_two_day:
-                return f'Билет на два дня '
-
-    class Meta:
-        verbose_name = "Билет в корзине"
-        verbose_name_plural = "Билеты в корзинах"
-
-
 class Cart(models.Model):
     session = models.CharField('Сессия', max_length=255, blank=True, null=True)
-    items = models.ManyToManyField(CartItem, blank=True, verbose_name='Билеты')
     total_price = models.IntegerField('Стоимось корзины', default=0)
 
     def __str__(self):
@@ -206,6 +182,30 @@ class Cart(models.Model):
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
+
+class CartItem(models.Model):
+    parent = models.ForeignKey(Cart, on_delete=models.CASCADE, null=False, blank=False, verbose_name='Корзина')
+    ticket_type = models.ForeignKey(TicketType, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Билет')
+    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
+    quantity = models.IntegerField('Количество', default = 0)
+
+    def __str__(self):
+        if self.streamer:
+            if self.ticket_type.days_qty == 1:
+                return f'Билет на один день от: {self.streamer.name}'
+            if self.ticket_type.days_qty == 2:
+                return f'Билет на два дня: {self.streamer.name}'
+        else:
+            if self.ticket_type.days_qty == 1:
+                return f'Билет на один день'
+            if self.ticket_type.days_qty == 2:
+                return f'Билет на два дня'
+
+    class Meta:
+        verbose_name = "Билет в корзине"
+        verbose_name_plural = "Билеты в корзинах"
+
 
 
 class Order(models.Model):

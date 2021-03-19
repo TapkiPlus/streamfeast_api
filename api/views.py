@@ -56,7 +56,10 @@ class GetCart(generics.RetrieveAPIView):
 
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
-        return check_if_cart_exists(session_id)
+        result = check_if_cart_exists(session_id)
+        print("Result:")
+        print(result)
+        return result
 
 
 class DeleteItem(APIView):
@@ -98,25 +101,22 @@ class AddItem(APIView):
     def post(self,request):
         print(request.data)
         session_id = request.data.get('session_id')
-        item_id = request.data.get('item_id')
+        ticket_type_id = request.data.get('item_id')
+        ticket_type = TicketType.objects.get(id = ticket_type_id)
         streamer_id = request.data.get('streamer_id')
+        streamer = None
+        if streamer_id != 0:
+            streamer = Streamer.objects.get(id = streamer_id)
         cart = check_if_cart_exists(session_id)
+
+        print("Cart:")
         print(cart)
 
-        try:
-            ticket = CartItem.objects.get(t_id=f'{session_id}-{item_id}-{streamer_id}')
-            ticket.quantity += 1
-            ticket.save()
-            calculate_cart_price(cart)
-        except CartItem.DoesNotExist:
-            item = CartItem.objects.create(
-                t_id=f'{session_id}-{item_id}-{streamer_id}',
-                ticket_id=item_id,
-                streamer_id=streamer_id if streamer_id != 0 else None
-            )
-            cart.tickets.add(item)
-            calculate_cart_price(cart)
-
+        item, created = CartItem.objects.get_or_create(parent = cart, ticket_type = ticket_type, streamer = streamer)
+        item.quantity += 1
+        item.save()
+        calculate_cart_price(cart)
+        cart.save()
         return Response(status=200)
 
 
@@ -131,7 +131,7 @@ class CreateOrder(APIView):
             email=request.data.get('email'),
             phone=request.data.get('phone')
         )
-        cart_items = cart.tickets.all()
+        cart_items = CartItem.objects.filter(parent = cart)
         for i in cart_items:
             new_item = OrderItem.objects.create(
                 order=new_order,
@@ -139,10 +139,9 @@ class CreateOrder(APIView):
                 quantity=i.quantity,
                 streamer=i.streamer
             )
-            new_order.tickets.add(new_item)
         clear_cart(cart)
-        serializer = OrderSerializer(new_order)
-        return Response(serializer.data, status=200)
+        tx = platron_client.init_payment(new_order)
+        return Response(tx.redirect_url, status = 200)
 
 
 class GetTicketType(generics.RetrieveAPIView):
@@ -183,3 +182,13 @@ class TicketAsPdf(APIView):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="ticket.pdf"'
         return response
+
+
+class TicketClear(APIView):
+    def get(self, request):
+        id = request.query_params.ticket_id
+        ticket = Ticket.objects.get(ticket_id = request.param.ticket_id)
+        ticket.when_cleared = datetime.datetime.now()
+        ticket.save()
+        return Response(status = 200)
+

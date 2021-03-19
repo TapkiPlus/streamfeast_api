@@ -59,7 +59,7 @@ class StreamerSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    ticket = TicketTypeSerializer(many=False, read_only=True, required=False)
+    ticket_type = TicketTypeSerializer(many=False, read_only=True, required=False)
     streamer = StreamerSerializer(many=False, read_only=True, required=False)
 
     class Meta:
@@ -68,7 +68,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    tickets = CartItemSerializer(many=True, read_only=True, required=False)
+    cartitem_set = CartItemSerializer(many = True)
 
     class Meta:
         model = Cart
@@ -88,7 +88,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
 
     def get_items(self, obj):
-        return OrderItem.objects.get(order=order.id)
+        return OrderItem.objects.get(order = obj)
 
     class Meta:
         model = Order
@@ -112,5 +112,5 @@ class TicketSerializer(serializers.ModelSerializer):
         return OrderItem.objects.get(order=order.id)
 
     class Meta:
-        model = Order
+        model = Ticket
         fields = '__all__'
