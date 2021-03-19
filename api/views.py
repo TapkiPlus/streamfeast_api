@@ -49,7 +49,7 @@ class GetCart(generics.RetrieveAPIView):
         session_id = self.request.query_params.get('session_id')
         return check_if_cart_exists(session_id)
 
-
+ 
 class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
@@ -60,29 +60,39 @@ class DeleteItem(APIView):
         return Response(status=200)
 
 
-class AddItemQuantity(APIView):
+class ChangeItemQuantity(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
         ticket = CartItem.objects.get(id=item_id)
-        ticket.quantity +=1
+        ticket.quantity = request.data.get('quantity')
         ticket.save()
         calculate_cart_price(cart = check_if_cart_exists(session_id))
         return Response(status=200)
 
+# class AddItemQuantity(APIView):
+#     def post(self, request):
+#         session_id = request.data.get('session_id')
+#         item_id = request.data.get('item_id')
+#         ticket = CartItem.objects.get(id=item_id)
+#         ticket.quantity +=1
+#         ticket.save()
+#         calculate_cart_price(cart = check_if_cart_exists(session_id))
+#         return Response(status=200)
 
-class DeleteItemQuantity(APIView):
-    def post(self, request):
-        session_id = request.data.get('session_id')
-        item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        if ticket.quantity > 1:
-            ticket.quantity -= 1
-            ticket.save()
-        else:
-            ticket.delete()
-        calculate_cart_price(cart = check_if_cart_exists(session_id))
-        return Response(status=200)
+
+# class DeleteItemQuantity(APIView):
+#     def post(self, request):
+#         session_id = request.data.get('session_id')
+#         item_id = request.data.get('item_id')
+#         ticket = CartItem.objects.get(id=item_id)
+#         if ticket.quantity > 1:
+#             ticket.quantity -= 1
+#             ticket.save()
+#         else:
+#             ticket.delete()
+#         calculate_cart_price(cart = check_if_cart_exists(session_id))
+#         return Response(status=200)
 
 
 class AddItem(APIView):
@@ -109,6 +119,40 @@ class AddItem(APIView):
             calculate_cart_price(cart)
 
         return Response(status=200)
+
+
+class SaveUserData(APIView):
+    def post(self,request):
+     session_id = request.data.get('session_id')
+     firstname= request.data.get('firstname')
+     lastname= request.data.get('lastname')
+     email= request.data.get('email')
+     phone= request.data.get('phone')
+     try:
+        userData = UserData.objects.get(session=session_id)
+        if firstname:
+            userData.firstname = firstname
+        elif lastname:
+            userData.lastname = lastname
+        elif email:
+            userData.email = email
+        elif phone:
+            userData.phone = phone
+        userData.save()
+     except UserData.DoesNotExist:
+       UserData.objects.create(
+            session=session_id,
+            firstname=firstname if firstname else '',
+            lastname=lastname if lastname else '',
+            email=email if email else '',
+            phone=phone if phone else ''
+        ).save()
+     return Response(status=200)
+
+class GetUserData(generics.RetrieveAPIView):
+    serializer_class = UserDataSerializer
+    def get_object(self):
+        return UserData.objects.get(session=self.request.query_params.get('session_id'))
 
 
 class CreateOrder(APIView):

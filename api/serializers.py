@@ -58,7 +58,10 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = '__all__'
 
-
+class UserDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserData
+        fields = '__all__' 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     ticket = TicketSerializer(many=False, read_only=True, required=False)

@@ -105,10 +105,12 @@ class Streamer(models.Model):
     streaming = RichTextUploadingField('Что стримит',
                                        blank=True,
                                        null=True)
-    isAtHome = models.BooleanField('Отображать на главной?',
-                                   default=False)
     isActive = models.BooleanField('Отображать?',
                                    default=False)
+    isAtHome = models.BooleanField('Отображать на главной?',
+                                   default=False)
+    sells = models.BooleanField('Отображать блок билетов и подпись?',
+                                   default=True)
     uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)',
                                max_length=100,
                                blank=True,
@@ -135,7 +137,7 @@ class Streamer(models.Model):
         verbose_name_plural = "Стримеры"
 
 
-class SocialLink(models.Model):
+class SocialLink(models.Model): 
     icon = models.ForeignKey(SocialIcon,
                              on_delete=models.CASCADE,
                              null=True,
@@ -224,6 +226,33 @@ class Cart(models.Model):
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
+class UserData(models.Model):
+    session = models.CharField('Сессия',
+                               max_length=255,
+                               blank=True,
+                               null=True)
+    firstname = models.CharField('Имя',
+                            max_length=255,
+                            blank=True,
+                            null=True)
+    lastname = models.CharField('Фамилия',
+                              max_length=255,
+                              blank=True,
+                              null=True)
+    email = models.CharField('Email',
+                             max_length=255,
+                             blank=True,
+                             null=True)
+    phone = models.CharField('Телефон',
+                             max_length=255,
+                             blank=True,
+                             null=True)
+    def __str__(self):
+        return f'{self.firstname}'
+    class Meta:
+        verbose_name = "Данные пользователя"
+        verbose_name_plural = "Данные пользователей"
 
 
 class OrderItem(models.Model):
