@@ -135,7 +135,7 @@ class CreateOrder(APIView):
         for i in cart_items:
             new_item = OrderItem.objects.create(
                 order = new_order,
-                ticket_type = i.ticket,
+                ticket_type = i.ticket_type,
                 quantity = i.quantity,
                 streamer = i.streamer
             )
