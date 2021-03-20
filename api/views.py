@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
+from .platron_client import *
 from .serializers import *
 from .models import *
 from .services import *
@@ -140,7 +141,7 @@ class CreateOrder(APIView):
                 streamer = i.streamer
             )
         clear_cart(cart)
-        tx = platron_client.init_payment(new_order)
+        tx = init_payment(new_order)
         return Response(tx.redirect_url, status = 200)
 
 
