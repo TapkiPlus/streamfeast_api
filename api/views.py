@@ -126,18 +126,18 @@ class CreateOrder(APIView):
         session_id = request.data.get('session_id')
         cart = check_if_cart_exists(session_id)
         new_order = Order.objects.create(
-            name=request.data.get('name'),
-            family=request.data.get('family'),
-            email=request.data.get('email'),
-            phone=request.data.get('phone')
+            name = request.data.get('name'),
+            family =request.data.get('family'),
+            email = request.data.get('email'),
+            phone = request.data.get('phone')
         )
         cart_items = CartItem.objects.filter(parent = cart)
         for i in cart_items:
             new_item = OrderItem.objects.create(
-                order=new_order,
-                ticket=i.ticket,
-                quantity=i.quantity,
-                streamer=i.streamer
+                order = new_order,
+                ticket_type = i.ticket,
+                quantity = i.quantity,
+                streamer = i.streamer
             )
         clear_cart(cart)
         tx = platron_client.init_payment(new_order)
