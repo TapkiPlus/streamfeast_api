@@ -33,7 +33,17 @@ class UserDataAdmin(admin.ModelAdmin):
     list_display = ['firstname',
                     'lastname',
                     'email',
-                    'phone',]
+                    'phone',
+                    'wentToCheckout',
+                    'returnedToShop',
+                    'leftCheckout',
+                    'returnedToCart',
+                    'clickedPay',
+                    'payed',
+                    'notPayed',
+                    'tryedToPayAgain',
+                    'closedFailPage',
+                    'clickedTechAssistance']
     search_fields = ('firstname',
                      'lastname',
                      'email')

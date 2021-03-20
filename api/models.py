@@ -248,6 +248,26 @@ class UserData(models.Model):
                              max_length=255,
                              blank=True,
                              null=True)
+    wentToCheckout = models.IntegerField('Количество переходов к оформлению билета',
+                                   default=0)
+    returnedToShop  = models.IntegerField('Количество переходов на покупку билета снова',
+                                   default=0)
+    leftCheckout = models.IntegerField('Количество уходов на главную не введя данные',
+                                   default=0)
+    returnedToCart = models.IntegerField('Количество возвращений в корзину',
+                                   default=0)
+    clickedPay = models.IntegerField('Количество нажатий на оплатить',
+                                   default=0)
+    payed = models.IntegerField('Количество успешной оплаты',
+                                   default=0)
+    notPayed = models.IntegerField('Количество неуспешной оплаты',
+                                   default=0)
+    tryedToPayAgain = models.IntegerField('Количество нажатий попробовать еще раз',
+                                   default=0)
+    closedFailPage = models.IntegerField('Количество закрытий провал страницы',
+                                   default=0)
+    clickedTechAssistance = models.IntegerField('Количество кликов на техпомощь',
+                                   default=0)
     def __str__(self):
         return f'{self.firstname}'
     class Meta:
