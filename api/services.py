@@ -15,4 +15,4 @@ def calculate_cart_price(cart):
     cart.save()
 
 def clear_cart(cart):
-    items = CartItem.objects.delete(parent = cart)
+    items = CartItem.objects.filter(parent = cart).delete()
