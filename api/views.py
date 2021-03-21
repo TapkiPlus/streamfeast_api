@@ -138,8 +138,10 @@ class CreateOrder(APIView):
                 order = new_order,
                 ticket_type = i.ticket_type,
                 quantity = i.quantity,
-                streamer = i.streamer
+                streamer = i.streamer,
+                amount = i.quantity * i.ticket_type.price
             )
+            new_order.amount += new_item.amount
         clear_cart(cart)
         tx = init_payment(new_order)
         return Response(tx.redirect_url, status = 200)
