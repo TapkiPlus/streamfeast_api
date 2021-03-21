@@ -20,8 +20,6 @@ class PlatronTestCase(TestCase):
         pers = PlatronPayment.objects.first()
         self.assertEqual(txn, pers)
         get_payment_status(txn.id)
-        #canc = cancel_payment(txn.id)
-        #get_payment_status(txn.id)
         
     def test_order_paid(self): 
         order = Order.objects.first()

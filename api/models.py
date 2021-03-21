@@ -5,6 +5,7 @@ import pyqrcode, pdfkit
 import base64
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
+from django.db import transaction
 from django.db.models.signals import post_save
 from pytils.translit import slugify
 from random import choices
@@ -18,16 +19,9 @@ class PlatronPayment(models.Model):
     redirect_url = models.CharField("RedirectURL", max_length = 255, blank = False, unique = True, editable = False, null = False)
 
 class Faq(models.Model):
-    order_number = models.IntegerField('№ П/П',
-                                       default=100)
-    question = models.CharField('Вопрос',
-                                max_length=255,
-                                blank=False,
-                                null=True)
-    answer = RichTextUploadingField('Ответ',
-                                    max_length=255,
-                                    blank=False,
-                                    null=True)
+    order_number = models.IntegerField('№ П/П', default=100)
+    question = models.CharField('Вопрос', max_length=255, blank=False, null=True)
+    answer = RichTextUploadingField('Ответ', max_length=255, blank=False, null=True)
 
     def __str__(self):
         return f'{self.id} Вопрос : {self.question}'
@@ -39,20 +33,11 @@ class Faq(models.Model):
 
 
 class HowTo(models.Model):
-    order_number = models.IntegerField('№ П/П',
-                                       default=100)
-    question = models.TextField('Вопрос',
-                                blank=False,
-                                null=True)
-    answer = RichTextUploadingField('Ответ',
-                                    blank=False,
-                                    null=True)
-    icon = models.ImageField('Иконка',
-                             upload_to='icons/',
-                             blank=False,
-                             null=True)
-    is_open_by_default = models.BooleanField('ЭТА ШТУКА ОТКРЫТА ПО УМОЛЧАНИЮ?;))',
-                                             default=False)
+    order_number = models.IntegerField('№ П/П', default=100)
+    question = models.TextField('Вопрос', blank=False, null=True)
+    answer = RichTextUploadingField('Ответ', blank=False, null=True)
+    icon = models.ImageField('Иконка', upload_to='icons/', blank=False, null=True)
+    is_open_by_default = models.BooleanField('Открыто по умолчанию', default=False)
 
     def __str__(self):
         return f'{self.id} Вопрос : {self.question}'
@@ -64,14 +49,8 @@ class HowTo(models.Model):
 
 
 class SocialIcon(models.Model):
-    name = models.CharField('Название сети',
-                            max_length=255,
-                            blank=False,
-                            null=True)
-    icon = models.ImageField('Обложка',
-                             upload_to='speaker_img/',
-                             blank=False,
-                             null=True)
+    name = models.CharField('Название сети', max_length=255, blank=False, null=True)
+    icon = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -83,45 +62,16 @@ class SocialIcon(models.Model):
 
 class Streamer(models.Model):
     orderPP = models.IntegerField('Номер ПП', default=10)
-    nickName = models.CharField('Ник',
-                                max_length=255,
-                                blank=False,
-                                null=True,
-                                db_index=True)
-    name = models.CharField('Имя Фамилия',
-                            max_length=255,
-                            blank=False,
-                            null=True)
-    photo = models.ImageField('Аватар',
-                              upload_to='speaker_img/',
-                              blank=False,
-                              null=True)
-    pageHeader = models.ImageField('Обложка',
-                                   upload_to='speaker_img/',
-                                   blank=False,
-                                   null=True)
-    nickNameSlug = models.CharField(max_length=255,
-                                    blank=True,
-                                    null=True,
-                                    unique=True,
-                                    db_index=True,
-                                    editable=False)
-
-    about = RichTextUploadingField('Описание',
-                                   blank=True,
-                                   null=True)
-    streaming = RichTextUploadingField('Что стримит',
-                                       blank=True,
-                                       null=True)
-    isAtHome = models.BooleanField('Отображать на главной?',
-                                   default=False)
-    isActive = models.BooleanField('Отображать?',
-                                   default=False)
-    uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)',
-                               max_length=100,
-                               blank=True,
-                               null=True,
-                               editable=False)
+    nickName = models.CharField('Ник', max_length=255, blank=False, null=True, db_index=True)
+    name = models.CharField('Имя Фамилия', max_length=255, blank=False, null=True)
+    photo = models.ImageField('Аватар', upload_to='speaker_img/', blank=False, null=True)
+    pageHeader = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
+    nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True)
+    about = RichTextUploadingField('Описание', blank=True, null=True)
+    streaming = RichTextUploadingField('Что стримит', blank=True, null=True)
+    isAtHome = models.BooleanField('Отображать на главной?', default=False)
+    isActive = models.BooleanField('Отображать?', default=False)
+    uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)', max_length=100, blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         slug = slugify(self.nickName)
@@ -218,12 +168,14 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.IntegerField('Стоимось', default = 0)
 
+    @transaction.atomic
     def set_paid(self): 
         if self.is_paid == False:
             self.is_paid = True
             items = OrderItem.objects.filter(order = self)
             for item in items: 
                 item.create_tickets()
+            self.save()
         
 
     def __str__(self):
@@ -271,7 +223,6 @@ class Ticket(models.Model):
         image = buf.read()
         encoded = str(base64.b64encode(image))[2:-1]
         html = template.render({'t': self, 'qr': encoded})
-        #print(html)
         options = {
             'page-size': 'Letter',
             'encoding': "UTF-8",

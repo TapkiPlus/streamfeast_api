@@ -1,6 +1,8 @@
 import json
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
+from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -122,6 +124,8 @@ class AddItem(APIView):
 
 
 class CreateOrder(APIView):
+
+    @transaction.atomic
     def post(self,request):
         print(request.data)
         session_id = request.data.get('session_id')
@@ -144,6 +148,7 @@ class CreateOrder(APIView):
             new_order.amount += new_item.amount
         clear_cart(cart)
         tx = init_payment(new_order)
+        tx.save()
         return Response(tx.redirect_url, status = 200)
 
 
@@ -169,14 +174,14 @@ class SubscribeEmail(APIView):
 
 class PaymentCheck(APIView):
     def post(self, request):
-        xml = platron_client.payment_check(request.data)
-        return Response(data = xml, status = 200, content_type = "text/xml")
+        xml = payment_check(request.data)
+        return HttpResponse(content = xml, status = 200, content_type="application/xml")
 
 
 class PaymentResult(APIView):
     def post(self, request):
-        platron_client.payment_result(request.data)
-        return Response(status = 200)
+        xml = payment_result(request.data)
+        return HttpResponse(content = xml, status = 200, content_type="application/xml")
 
 
 class TicketAsPdf(APIView):

@@ -6,14 +6,15 @@ from platron.request.request_builders.cancel_builder import CancelBuilder
 from platron.request.clients.post_client import PostClient
 from platron.sdk_exception import SdkException
 from platron.callback import Callback
-from .models import PlatronPayment
+from .models import PlatronPayment, Order
 
 from xml.dom import minidom
 
 MERCHANT_ID = "11251"
 MERCHANT_KEY = "putyhipurynyrexe"
 
-CALLBACK_PATH = "check_payment"
+CHECK_PATH = "payment_check"
+RESULT_PATH = "payment_result"
 
 client = PostClient(MERCHANT_ID, MERCHANT_KEY)
 
@@ -29,6 +30,10 @@ def init_payment(order):
     tx = parse_create_tx(doc)
     return tx
 
+"""
+###################################
+# Those methods aren't used yet.
+#
 def cancel_payment(payment_id):
     request = CancelBuilder(payment_id)
     raw = client.request(request)
@@ -37,11 +42,11 @@ def cancel_payment(payment_id):
 
 def get_payment_status(payment_id): 
     request = GetStatusBuilder(payment_id)
-    #try:
-    response = client.request(request)
-    print(response)
-    #except SdkException as msg:
-    #    print(msg)
+    try:
+        response = client.request(request)
+        print(response)
+    except SdkException as msg:
+        print(msg)
 
 def do_capture(payment_id):
     request = DoCaptureBuilder('3334455')
@@ -50,23 +55,32 @@ def do_capture(payment_id):
         print(response)
     except SdkException as msg:
         print(msg)
+###################################
+"""
 
 def payment_check(params): 
-    callback = Callback(CALLBACK_PATH, MERCHANT_KEY)
-    order_available = True
-    if callback.validate_sig(params_from_platron):
-        return callback.response_ok(params_from_platron)
+    callback = Callback(CHECK_PATH, MERCHANT_KEY)
+    # check if order is still not paid
+    # order_available = True
+    if callback.validate_sig(params):
+        return callback.response_ok(params)
     else:
-        return callback.response_error(params_from_platron, 'Неправильная подпись')
+        return callback.response_error(params, 'Неправильная подпись')
 
 def payment_result(params): 
-    print("COMPLETE PAYMENT OK")
-    #callback = Callback(CALLBACK_PATH, MERCHANT_KEY)
-    #order_available = True
-    #if callback.validate_sig(params_from_platron):
-	#return callback.response_ok(params_from_platron)
-    #else:
-	#return callback.response_error(params_from_platron, 'Неправильная подпись')
+    callback = Callback(RESULT_PATH, MERCHANT_KEY)
+    if callback.validate_sig(params):
+        try: 
+            order_id = params["pg_order_id"]
+            print(order_id)
+            order = Order.objects.get(id = order_id)
+            print(order)
+            order.set_paid()
+            return callback.response_ok(params)
+        except: 
+            return callback.response_error(params, 'Не удалось обработать платеж')
+    else:
+        return callback.response_error(params, 'Неправильная подпись')
 
 ##########
 # parser ######################################################################################################
@@ -97,6 +111,3 @@ def parse_create_tx(elem):
     pg_redirect_url = get_text(elem, "pg_redirect_url")
     return PlatronPayment(id = pg_payment_id, status = pg_status, redirect_url = pg_redirect_url) 
 
-
-#########
-# dto	##################################
