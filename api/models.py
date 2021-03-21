@@ -149,6 +149,9 @@ class SocialLink(models.Model):
                              related_name='links')
     link = models.CharField('Ссылка', max_length=255, blank=True, null=True)
 
+    class Meta:
+	    ordering = ("id",)
+
 
 class Ticket(models.Model):
     price = models.IntegerField('Цена',

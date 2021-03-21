@@ -25,6 +25,11 @@ class SocialIconSerializer(serializers.ModelSerializer):
         model = SocialIcon
         fields = '__all__'
 
+    def to_representation(self, instance):
+        response = super(SocialIconSerializer, self).to_representation(instance)
+        if instance.icon:
+            response['icon'] = instance.icon.url
+        return response
 
 class SocialLinkSerializer(serializers.ModelSerializer):
     icon = SocialIconSerializer(many=False, read_only=True, required=False)
@@ -40,6 +45,14 @@ class StreamerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Streamer
         fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super(StreamerSerializer, self).to_representation(instance)
+        if instance.photo:
+            response['photo'] = instance.photo.url
+        if instance.pageHeader:
+            response['pageHeader'] = instance.pageHeader.url
+        return response
 
 
 class CartItemSerializer(serializers.ModelSerializer):
