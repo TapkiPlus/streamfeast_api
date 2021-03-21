@@ -150,7 +150,7 @@ class SocialLink(models.Model):
     link = models.CharField('Ссылка', max_length=255, blank=True, null=True)
 
     class Meta:
-	    ordering = ("id",)
+        ordering = ("id",)
 
 
 class Ticket(models.Model):
