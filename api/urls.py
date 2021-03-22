@@ -13,6 +13,8 @@ urlpatterns = [
     path('add_item_quantity', views.AddItemQuantity.as_view()),
     path('delete_item_quantity', views.DeleteItemQuantity.as_view()),
     path('delete_item', views.DeleteItem.as_view()),
+    path('save_user_data', views.SaveUserData.as_view()),
+    path('get_user_data', views.GetUserData.as_view()),
     path('create_order', views.CreateOrder.as_view()),
     path('get_ticket_type', views.GetTicketType.as_view()),
     path('ticket_clear', views.TicketClear.as_view()),

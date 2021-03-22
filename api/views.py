@@ -64,7 +64,7 @@ class GetCart(generics.RetrieveAPIView):
         print(result)
         return result
 
-
+ 
 class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
@@ -73,7 +73,6 @@ class DeleteItem(APIView):
         ticket.delete()
         calculate_cart_price(cart=check_if_cart_exists(session_id))
         return Response(status=200)
-
 
 class AddItemQuantity(APIView):
     def post(self, request):
@@ -121,6 +120,80 @@ class AddItem(APIView):
         calculate_cart_price(cart)
         cart.save()
         return Response(status=200)
+
+
+class SaveUserData(APIView):
+    def post(self,request):
+     session_id = request.data.get('session_id')
+     firstname= request.data.get('firstname')
+     lastname= request.data.get('lastname')
+     email= request.data.get('email')
+     phone= request.data.get('phone')
+     wentToCheckout= request.data.get('wentToCheckout')
+     returnedToShop= request.data.get('returnedToShop')
+     leftCheckout = request.data.get('leftCheckout')
+     returnedToCart = request.data.get('returnedToCart')
+     clickedPay = request.data.get('clickedPay')
+     payed= request.data.get('payed')
+     notPayed= request.data.get('notPayed')
+     tryedToPayAgain= request.data.get('tryedToPayAgain')
+     closedFailPage=  request.data.get('closedFailPage')
+     clickedTechAssistance = request.data.get('clickedTechAssistance')
+     try:
+        userData = UserData.objects.get(session=session_id)
+        if firstname:
+            userData.firstname = firstname
+        elif lastname:
+            userData.lastname = lastname
+        elif email:
+            userData.email = email
+        elif phone:
+            userData.phone = phone
+        elif wentToCheckout:
+            userData.wentToCheckout += 1
+        elif returnedToShop:
+            userData.returnedToShop += 1
+        elif leftCheckout:
+            userData.leftCheckout += 1 
+        elif returnedToCart:
+            userData.returnedToCart += 1
+        elif clickedPay:
+            userData.clickedPay += 1
+        elif payed:
+            userData.payed += 1
+        elif notPayed:
+            userData.notPayed += 1
+        elif tryedToPayAgain:
+            userData.tryedToPayAgain += 1
+        elif closedFailPage:
+            userData.closedFailPage += 1
+        elif clickedTechAssistance:
+            userData.clickedTechAssistance += 1 
+        userData.save()
+     except UserData.DoesNotExist:
+       UserData.objects.create(
+            session=session_id,
+            firstname=firstname if firstname else '',
+            lastname=lastname if lastname else '',
+            email=email if email else '',
+            phone=phone if phone else '',
+            wentToCheckout=wentToCheckout if 1 else 0,
+            returnedToShop=returnedToShop if 1 else 0,
+            leftCheckout=leftCheckout if 1 else 0,
+            returnedToCart=returnedToCart if 1 else 0,
+            clickedPay=clickedPay if 1 else 0,
+            payed=payed if 1 else 0,
+            notPayed=notPayed if 1 else 0,
+            tryedToPayAgain=tryedToPayAgain if 1 else 0,
+            closedFailPage=closedFailPage if 1 else 0,
+            clickedTechAssistance=clickedTechAssistance if 1 else 0,
+        ).save()
+     return Response(status=200)
+
+class GetUserData(generics.RetrieveAPIView):
+    serializer_class = UserDataSerializer
+    def get_object(self):
+        return UserData.objects.get(session=self.request.query_params.get('session_id'))
 
 
 class CreateOrder(APIView):

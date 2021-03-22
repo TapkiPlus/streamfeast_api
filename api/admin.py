@@ -14,8 +14,10 @@ class StreamerAdmin(admin.ModelAdmin):
                     'name',
                     'isAtHome',
                     'isActive']
-    list_filter = ('isAtHome',
-                   'isActive')
+    list_filter = ('isActive',
+                    'isAtHome',
+                   'sells',
+                   )
     search_fields = ('nickName',
                      'name')
     list_display_links = ('nickName',
@@ -27,6 +29,28 @@ class StreamerAdmin(admin.ModelAdmin):
     class Meta:
         model = Streamer
 
+class UserDataAdmin(admin.ModelAdmin):
+    list_display = ['firstname',
+                    'lastname',
+                    'email',
+                    'phone',
+                    'wentToCheckout',
+                    'returnedToShop',
+                    'leftCheckout',
+                    'returnedToCart',
+                    'clickedPay',
+                    'payed',
+                    'notPayed',
+                    'tryedToPayAgain',
+                    'closedFailPage',
+                    'clickedTechAssistance']
+    search_fields = ('firstname',
+                     'lastname',
+                     'email')
+
+    class Meta:
+        model = UserData
+
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
 admin.site.register(Faq)
@@ -35,6 +59,7 @@ admin.site.register(TicketType)
 admin.site.register(Ticket)
 admin.site.register(Cart)
 admin.site.register(CartItem)
+admin.site.register(UserData,UserDataAdmin)
 admin.site.register(Order)
 admin.site.register(PlatronPayment)
 # admin.site.register(OrderItem)

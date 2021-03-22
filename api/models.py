@@ -70,6 +70,8 @@ class Streamer(models.Model):
     about = RichTextUploadingField('Описание', blank=True, null=True)
     streaming = RichTextUploadingField('Что стримит', blank=True, null=True)
     isAtHome = models.BooleanField('Отображать на главной?', default=False)
+    sells = models.BooleanField('Отображать блок билетов и подпись?',
+                                   default=True)
     isActive = models.BooleanField('Отображать?', default=False)
     uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)', max_length=100, blank=True, null=True, editable=False)
 
@@ -156,7 +158,52 @@ class CartItem(models.Model):
         verbose_name = "Билет в корзине"
         verbose_name_plural = "Билеты в корзинах"
 
-
+class UserData(models.Model):
+    session = models.CharField('Сессия',
+                               max_length=255,
+                               blank=True,
+                               null=True)
+    firstname = models.CharField('Имя',
+                            max_length=255,
+                            blank=True,
+                            null=True)
+    lastname = models.CharField('Фамилия',
+                              max_length=255,
+                              blank=True,
+                              null=True)
+    email = models.CharField('Email',
+                             max_length=255,
+                             blank=True,
+                             null=True)
+    phone = models.CharField('Телефон',
+                             max_length=255,
+                             blank=True,
+                             null=True)
+    wentToCheckout = models.IntegerField('Количество переходов к оформлению билета',
+                                   default=0)
+    returnedToShop  = models.IntegerField('Количество переходов на покупку билета снова',
+                                   default=0)
+    leftCheckout = models.IntegerField('Количество уходов на главную не введя данные',
+                                   default=0)
+    returnedToCart = models.IntegerField('Количество возвращений в корзину',
+                                   default=0)
+    clickedPay = models.IntegerField('Количество нажатий на оплатить',
+                                   default=0)
+    payed = models.IntegerField('Количество успешной оплаты',
+                                   default=0)
+    notPayed = models.IntegerField('Количество неуспешной оплаты',
+                                   default=0)
+    tryedToPayAgain = models.IntegerField('Количество нажатий попробовать еще раз',
+                                   default=0)
+    closedFailPage = models.IntegerField('Количество закрытий провал страницы',
+                                   default=0)
+    clickedTechAssistance = models.IntegerField('Количество кликов на техпомощь',
+                                   default=0)
+    def __str__(self):
+        return f'{self.firstname}'
+    class Meta:
+        verbose_name = "Данные пользователя"
+        verbose_name_plural = "Данные пользователей"
 
 class Order(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
