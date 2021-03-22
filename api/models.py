@@ -96,8 +96,7 @@ class Streamer(models.Model):
                                     blank=True,
                                     null=True,
                                     unique=True,
-                                    db_index=True,
-                                    editable=False)
+                                    db_index=True)
 
     about = RichTextUploadingField('Описание',
                                    blank=True,
