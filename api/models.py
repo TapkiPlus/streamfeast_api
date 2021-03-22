@@ -122,8 +122,7 @@ class Streamer(models.Model):
             if testSlug:
                 slugRandom = '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=2))
             self.nickNameSlug = slug + slugRandom
-        if not self.uniqUrl:
-            self.uniqUrl = self.nickNameSlug + '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=10))
+        self.uniqUrl = self.nickNameSlug + '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=10))
         super(Streamer, self).save(*args, **kwargs)
 
     def __str__(self):
