@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = ''
 SECRET_KEY = '$sgr9(w7g-5$1c=ip@0ex52rfyd$i5_8qtk28zi9nwy0br^23('
@@ -63,19 +62,12 @@ WSGI_APPLICATION = 'streamfeast_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test',
-        'USER' : 'root',
-        'PASSWORD': 'i12345',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'streamfest',
+        'USER' : 'streamfest',
+        'PASSWORD': 'J-I802kJ73nlDF832',
         'HOST': 'localhost',
-        'PORT': '3306'
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'streamfest',
-        # 'USER' : 'streamfest',
-        # 'PASSWORD': 'J-I802kJ73nlDF832',
-        # 'HOST': 'localhost',
-        # 'PORT': '5432'
-
+        'PORT': '5432'
     }
 }
 
