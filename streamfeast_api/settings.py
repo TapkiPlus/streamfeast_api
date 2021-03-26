@@ -13,6 +13,17 @@ ALLOWED_HOSTS = ['*']
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'tickets@streamfest.ru'
+
+# FIXME: set current password in production#
+EMAIL_HOST_PASSWORD = '************'
+
+DEFAULT_FROM_EMAIL = 'tickets@streamfest.ru'
+EMAIL_USE_TLS = True
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

@@ -3,15 +3,18 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-from .models import Ticket
+from .models import Ticket, OrderItem
 
-SOURCE_EMAIL = 'from@streamfest.ru'
-
+SOURCE_EMAIL = 'tickets@streamfest.ru'
 
 def send_tickets(order):
     tickets = Ticket.objects.filter(order=order)
+    items = OrderItem.objects.filter(order=order)
 
-    ctx = Context({'order': order})
+    ctx = {
+        'order': order,
+        'items': items
+    }
 
     plaintext = get_template('../templates/email_tickets.txt')
     text_content = plaintext.render(ctx)
@@ -19,7 +22,7 @@ def send_tickets(order):
     htmly = get_template('../templates/email_tickets.html')
     html_content = htmly.render(ctx)
 
-    msg = EmailMessage('Билеты на стримфест', text_content, SOURCE_EMAIL, [order.email])
+    msg = EmailMultiAlternatives('Билеты на стримфест', text_content, SOURCE_EMAIL, [order.email])
     msg.attach_alternative(html_content, 'text/html')
 
     for t in tickets:
