@@ -51,18 +51,10 @@ class SoldTicketTypeSerializer(serializers.ModelSerializer):
 
 class StreamerSerializer(serializers.ModelSerializer):
     links = SocialLinkSerializer(many=True, read_only=True, required=False)
-    sold_tickets = SoldTicketTypeSerializer(many=True, read_only=True, required=False)
-    sold_tickets_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Streamer
         exclude = ['uniqUrl']
-
-    def get_sold_tickets_price(self, obj):
-        total_price = 0
-        for i in obj.sold_tickets.all():
-            total_price += i.ticket.price * i.quantity
-        return total_price
 
     def to_representation(self, instance):
         response = super(StreamerSerializer, self).to_representation(instance)
