@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import *
 
 
@@ -17,7 +18,7 @@ class HowToSerializer(serializers.ModelSerializer):
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
-        fields = '__all__' 
+        fields = '__all__'
 
 
 class SocialIconSerializer(serializers.ModelSerializer):
@@ -30,6 +31,7 @@ class SocialIconSerializer(serializers.ModelSerializer):
         if instance.icon:
             response['icon'] = instance.icon.url
         return response
+
 
 class SocialLinkSerializer(serializers.ModelSerializer):
     icon = SocialIconSerializer(many=False, read_only=True, required=False)
@@ -81,16 +83,18 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    cartitem_set = CartItemSerializer(many = True)
+    cartitem_set = CartItemSerializer(many=True)
 
     class Meta:
         model = Cart
         fields = '__all__'
 
+
 class UserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserData
-        fields = '__all__' 
+        fields = '__all__'
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     ticket = TicketTypeSerializer(many=False, read_only=True, required=False)
@@ -105,7 +109,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
 
     def get_items(self, obj):
-        return OrderItem.objects.get(order = obj)
+        return OrderItem.objects.get(order=obj)
 
     class Meta:
         model = Order

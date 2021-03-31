@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+    <h2>Поздравляем!</h2>
+
+    <span>
+        Вы идете на стримфест&nbsp;
+        Номер заказа {{order.id}} от {{order.created_at}}
+    </span>
+
+    <ul>
+    {% for item in items %}
+        <li>{{item.quantity}} x {{item.ticket_type.price}}  {{ item.amount }}</li>
+    {% endfor %}
+    </ul>
+
+</body>
+</html>

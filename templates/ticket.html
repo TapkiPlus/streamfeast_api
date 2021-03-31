@@ -1,57 +1,62 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Билет на стримфест!</title>
     <style>
-      * {
-        box-sizing: border-box;
-      }
-      h1 {
-        text-align: center;
-        margin-bottom: 100px;
-      }
-      table {
-        width: 90%;
-      }
-      thead td {
-        padding-bottom: 15px;
-      }
-      .total {
-        font-size: 20px;
-        font-weight: bold;
-        margin: 50px 0 100px;
-      }
-      .invoice {
-        width: 700px;
-        max-width: 700px;
-        margin: 50px;
-        padding: 50px;
-      }
+        * {
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        table {
+            width: 90%;
+        }
+
+        thead td {
+            padding-bottom: 15px;
+        }
+
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 50px 0 100px;
+        }
+
+        .invoice {
+            width: 700px;
+            max-width: 700px;
+            margin: 50px;
+            padding: 50px;
+        }
     </style>
-  </head>
-  <body>
-    <h1>Билет на стримфест!</h1>
-    <h3>От: Miker</h3>
-    <h3>Дата: 24.04.2021</h3>
-    <img src="data:image/png;base64,{{ qr }}" width="200" />
-    <table>
-      <thead>
-        <tr>
-          <td>Здесь какой то текст</td>
-          <td>Тут тоже</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Здесь напишем</td>
-          <td>Тут прочитаем</td>
-        </tr>
-      </tbody>
-    </table>
-    <p class="total">Стоимость: 1300 рублей</p>
-    <p><strong>Notes:</strong> <%= @invoice.notes %></p>
-  </body>
+</head>
+    <body>
+        <h1>Билет на стримфест!</h1>
+        <h3>От: Miker</h3>
+        <h3>Дата: 24.04.2021</h3>
+        <img src="data:image/png;base64,{{ qr }}" width="200"/>
+        <table>
+            <thead>
+            <tr>
+                <td>Здесь какой то текст</td>
+                <td>Тут тоже</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Здесь напишем</td>
+                <td>Тут прочитаем</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="total">Стоимость: 1300 рублей</p>
+        <p><strong>Notes:</strong> <%= @invoice.notes %></p>
+    </body>
 </html>
