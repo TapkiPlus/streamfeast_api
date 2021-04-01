@@ -17,7 +17,7 @@ class StreamerAdmin(admin.ModelAdmin):
                     'isActive']
     list_filter = ('isActive',
                    'isAtHome',
-                   'sells',
+                   'sells', 
                    )
     search_fields = ('nickName',
                      'name')

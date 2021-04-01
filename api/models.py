@@ -72,7 +72,7 @@ class Streamer(models.Model):
     streaming = RichTextUploadingField('Что стримит', blank=True, null=True)
     isAtHome = models.BooleanField('Отображать на главной?', default=False)
     sells = models.BooleanField('Отображать блок билетов и подпись?', default=True)
-    isActive = models.BooleanField('Отображать?', default=False)
+    isActive = models.BooleanField('Отображать?', default=False) 
     uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)', max_length=100, blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
