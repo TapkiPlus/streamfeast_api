@@ -38,13 +38,8 @@ class UserDataAdmin(admin.ModelAdmin):
                     'phone',
                     'wentToCheckout',
                     'returnedToShop',
-                    'leftCheckout',
-                    'returnedToCart',
                     'clickedPay',
-                    'payed',
-                    'notPayed',
                     'tryedToPayAgain',
-                    'closedFailPage',
                     'clickedTechAssistance']
     search_fields = ('firstname',
                      'lastname',

@@ -131,13 +131,8 @@ class SaveUserData(APIView):
         phone = request.data.get('phone')
         wentToCheckout = request.data.get('wentToCheckout')
         returnedToShop = request.data.get('returnedToShop')
-        leftCheckout = request.data.get('leftCheckout')
-        returnedToCart = request.data.get('returnedToCart')
         clickedPay = request.data.get('clickedPay')
-        payed = request.data.get('payed')
-        notPayed = request.data.get('notPayed')
         tryedToPayAgain = request.data.get('tryedToPayAgain')
-        closedFailPage = request.data.get('closedFailPage')
         clickedTechAssistance = request.data.get('clickedTechAssistance')
         try:
             userData = UserData.objects.get(session=session_id)
@@ -153,20 +148,10 @@ class SaveUserData(APIView):
                 userData.wentToCheckout += 1
             elif returnedToShop:
                 userData.returnedToShop += 1
-            elif leftCheckout:
-                userData.leftCheckout += 1
-            elif returnedToCart:
-                userData.returnedToCart += 1
             elif clickedPay:
                 userData.clickedPay += 1
-            elif payed:
-                userData.payed += 1
-            elif notPayed:
-                userData.notPayed += 1
             elif tryedToPayAgain:
                 userData.tryedToPayAgain += 1
-            elif closedFailPage:
-                userData.closedFailPage += 1
             elif clickedTechAssistance:
                 userData.clickedTechAssistance += 1
             userData.save()
@@ -179,13 +164,8 @@ class SaveUserData(APIView):
                 phone=phone if phone else '',
                 wentToCheckout=1 if wentToCheckout else 0,
                 returnedToShop=1 if returnedToShop else 0,
-                leftCheckout=1 if leftCheckout else 0,
-                returnedToCart=1 if returnedToCart else 0,
                 clickedPay=1 if clickedPay else 0,
-                payed=1 if payed else 0,
-                notPayed=1 if notPayed else 0,
                 tryedToPayAgain=1 if tryedToPayAgain else 0,
-                closedFailPage=1 if closedFailPage else 0,
                 clickedTechAssistance=1 if clickedTechAssistance else 0,
             ).save()
         return Response(status=200)
