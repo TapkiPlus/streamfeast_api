@@ -1,25 +1,28 @@
+import base64
+import io
+import string
+import uuid
+from random import choices
+
+import pdfkit
+import pyqrcode
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
-from django.db.models.signals import post_save
+from django.db import transaction
+from django.template.loader import get_template
 from pytils.translit import slugify
-import pyqrcode
-from random import choices
-import string
-from streamfeast_api.settings import BASE_DIR, BASE_URL
-import uuid
+
+
+class PlatronPayment(models.Model):
+    id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
+    status = models.BooleanField("Status")
+    redirect_url = models.CharField("RedirectURL", max_length=255, blank=False, unique=True, editable=False, null=False)
 
 
 class Faq(models.Model):
-    order_number = models.IntegerField('№ П/П',
-                                       default=100)
-    question = models.CharField('Вопрос',
-                                max_length=255,
-                                blank=False,
-                                null=True)
-    answer = RichTextUploadingField('Ответ',
-                                    max_length=255,
-                                    blank=False,
-                                    null=True)
+    order_number = models.IntegerField('№ П/П', default=100)
+    question = models.CharField('Вопрос', max_length=255, blank=False, null=True)
+    answer = RichTextUploadingField('Ответ', max_length=255, blank=False, null=True)
 
     def __str__(self):
         return f'{self.id} Вопрос : {self.question}'
@@ -31,20 +34,11 @@ class Faq(models.Model):
 
 
 class HowTo(models.Model):
-    order_number = models.IntegerField('№ П/П',
-                                       default=100)
-    question = models.TextField('Вопрос',
-                                blank=False,
-                                null=True)
-    answer = RichTextUploadingField('Ответ',
-                                    blank=False,
-                                    null=True)
-    icon = models.ImageField('Иконка',
-                             upload_to='icons/',
-                             blank=False,
-                             null=True)
-    is_open_by_default = models.BooleanField('ЭТА ШТУКА ОТКРЫТА ПО УМОЛЧАНИЮ?;))',
-                                             default=False)
+    order_number = models.IntegerField('№ П/П', default=100)
+    question = models.TextField('Вопрос', blank=False, null=True)
+    answer = RichTextUploadingField('Ответ', blank=False, null=True)
+    icon = models.ImageField('Иконка', upload_to='icons/', blank=False, null=True)
+    is_open_by_default = models.BooleanField('Открыто по умолчанию', default=False)
 
     def __str__(self):
         return f'{self.id} Вопрос : {self.question}'
@@ -56,14 +50,8 @@ class HowTo(models.Model):
 
 
 class SocialIcon(models.Model):
-    name = models.CharField('Название сети',
-                            max_length=255,
-                            blank=False,
-                            null=True)
-    icon = models.ImageField('Обложка',
-                             upload_to='speaker_img/',
-                             blank=False,
-                             null=True)
+    name = models.CharField('Название сети', max_length=255, blank=False, null=True)
+    icon = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -75,44 +63,17 @@ class SocialIcon(models.Model):
 
 class Streamer(models.Model):
     orderPP = models.IntegerField('Номер ПП', default=10)
-    nickName = models.CharField('Ник',
-                                max_length=255,
-                                blank=False,
-                                null=True,
-                                db_index=True)
-    name = models.CharField('Имя Фамилия',
-                            max_length=255,
-                            blank=False,
-                            null=True)
-    photo = models.ImageField('Аватар',
-                              upload_to='speaker_img/',
-                              blank=False,
-                              null=True)
-    pageHeader = models.ImageField('Обложка',
-                                   upload_to='speaker_img/',
-                                   blank=False,
-                                   null=True)
-    nickNameSlug = models.CharField(max_length=255,
-                                    blank=True,
-                                    null=True,
-                                    unique=True,
-                                    db_index=True)
-
-    about = RichTextUploadingField('Описание',
-                                   blank=True,
-                                   null=True)
-    streaming = RichTextUploadingField('Что стримит',
-                                       blank=True,
-                                       null=True)
-    isAtHome = models.BooleanField('Отображать на главной?',
-                                   default=False)
-    isActive = models.BooleanField('Отображать?',
-                                   default=False)
-    uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)',
-                               max_length=100,
-                               blank=True,
-                               null=True,
-                               editable=False)
+    nickName = models.CharField('Ник', max_length=255, blank=False, null=True, db_index=True)
+    name = models.CharField('Имя Фамилия', max_length=255, blank=False, null=True)
+    photo = models.ImageField('Аватар', upload_to='speaker_img/', blank=False, null=True)
+    pageHeader = models.ImageField('Обложка', upload_to='speaker_img/', blank=False, null=True)
+    nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True)
+    about = RichTextUploadingField('Описание', blank=True, null=True)
+    streaming = RichTextUploadingField('Что стримит', blank=True, null=True)
+    isAtHome = models.BooleanField('Отображать на главной?', default=False)
+    sells = models.BooleanField('Отображать блок билетов и подпись?', default=True)
+    isActive = models.BooleanField('Отображать?', default=False) 
+    uniqUrl = models.CharField('Хеш для ссылки (/star/stats/)', max_length=100, blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         slug = slugify(self.nickName)
@@ -134,16 +95,8 @@ class Streamer(models.Model):
 
 
 class SocialLink(models.Model):
-    icon = models.ForeignKey(SocialIcon,
-                             on_delete=models.CASCADE,
-                             null=True,
-                             blank=True,
-                             verbose_name='Иконка')
-    user = models.ForeignKey(Streamer,
-                             on_delete=models.CASCADE,
-                             null=True,
-                             blank=True,
-                             verbose_name='Стример',
+    icon = models.ForeignKey(SocialIcon, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Иконка')
+    user = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Стример',
                              related_name='links')
     link = models.CharField('Ссылка', max_length=255, blank=True, null=True)
 
@@ -151,126 +104,99 @@ class SocialLink(models.Model):
         ordering = ("id",)
 
 
-class Ticket(models.Model):
-    price = models.IntegerField('Цена',
-                                blank=False,
-                                null=True)
-    is_one_day = models.BooleanField('На один день?',
-                                     default=False)
-    is_two_day = models.BooleanField('На два дня?',
-                                     default=False)
+class TicketType(models.Model):
+    class Days(models.IntegerChoices):
+        ONE = 1
+        TWO = 2
+
+    price = models.IntegerField('Цена', blank=False, null=True)
+    days_qty = models.PositiveSmallIntegerField('На сколько дней?', choices=Days.choices, default=Days.ONE)
 
     def __str__(self):
-        if self.is_one_day:
+        if self.days_qty == 1:
             return f'Билет на один день : {self.price}'
-        if self.is_two_day:
+        else:
             return f'Билет на два дня : {self.price}'
 
     class Meta:
         ordering = ('price',)
-        verbose_name = "Билет"
-        verbose_name_plural = "Билеты"
-
-
-class CartItem(models.Model):
-    t_id = models.CharField(max_length=255,
-                            blank=True,
-                            null=True)
-    ticket = models.ForeignKey(Ticket,
-                               on_delete=models.CASCADE,
-                               null=True,
-                               blank=True,
-                               verbose_name='Билет')
-    streamer = models.ForeignKey(Streamer,
-                                 on_delete=models.CASCADE,
-                                 null=True,
-                                 blank=True,
-                                 verbose_name='От кого')
-    quantity = models.IntegerField('Количество',
-                                   default=1)
-
-    def __str__(self):
-        if self.streamer:
-            if self.ticket.is_one_day:
-                return f'Билет на один день от : {self.streamer.name}'
-            if self.ticket.is_two_day:
-                return f'Билет на два дня : {self.streamer.name}'
-        else:
-            if self.ticket.is_one_day:
-                return f'Билет на один день '
-            if self.ticket.is_two_day:
-                return f'Билет на два дня '
-
-    class Meta:
-        verbose_name = "Билет в корзине"
-        verbose_name_plural = "Билеты в корзинах"
+        verbose_name = "Тип билета"
+        verbose_name_plural = "Типы билетов"
 
 
 class Cart(models.Model):
-    session = models.CharField('Сессия',
-                               max_length=255,
-                               blank=True,
-                               null=True)
-    tickets = models.ManyToManyField(CartItem,
-                                     blank=True,
-                                     verbose_name='Билеты')
-    total_price = models.IntegerField('Стоимось корзины',
-                                      default=0)
+    session = models.CharField('Сессия', max_length=255, blank=True, null=True)
+    total_price = models.IntegerField('Стоимось корзины', default=0)
 
     def __str__(self):
         return f'Стоимость корзины : {self.total_price}'
+
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
 
 
-class OrderItem(models.Model):
-    u_id = models.UUIDField(null=True,
-                            blank=True)
-    o_id = models.UUIDField(null=True,
-                            blank=True)
-    ticket = models.ForeignKey(Ticket,
-                               on_delete=models.CASCADE,
-                               null=True,
-                               blank=True,
-                               verbose_name='Билет')
-    streamer = models.ForeignKey(Streamer,
-                                 on_delete=models.CASCADE,
-                                 null=True,
-                                 blank=True,
-                                 verbose_name='От кого')
-    quantity = models.IntegerField('Количество',
-                                   default=1)
-    qr = models.ImageField('QR',
-                           blank=True,
-                           null=True,
-                           upload_to='ticket_qr/')
+class CartItem(models.Model):
+    parent = models.ForeignKey(Cart, on_delete=models.CASCADE, null=False, blank=False, verbose_name='Корзина')
+    ticket_type = models.ForeignKey(TicketType, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Билет')
+    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
+    quantity = models.IntegerField('Количество', default=0)
+
+    def __str__(self):
+        if self.streamer:
+            if self.ticket_type.days_qty == 1:
+                return f'Билет на один день от: {self.streamer.name}'
+            if self.ticket_type.days_qty == 2:
+                return f'Билет на два дня: {self.streamer.name}'
+        else:
+            if self.ticket_type.days_qty == 1:
+                return f'Билет на один день'
+            if self.ticket_type.days_qty == 2:
+                return f'Билет на два дня'
+
+    class Meta:
+        verbose_name = "Билет в корзине"
+        verbose_name_plural = "Билеты в корзинах"
+
+ 
+class UserData(models.Model):
+    session = models.CharField('Сессия', max_length=255, blank=True, null=True)
+    firstname = models.CharField('Имя', max_length=255, blank=True, null=True)
+    lastname = models.CharField('Фамилия', max_length=255, blank=True, null=True)
+    email = models.CharField('Email', max_length=255, blank=True, null=True)
+    phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
+    wentToCheckout = models.IntegerField('Количество переходов к оформлению билета', default=0) #done
+    returnedToShop = models.IntegerField('Количество переходов на покупку билета снова', default=0) #done
+    clickedPay = models.IntegerField('Количество нажатий на оплатить', default=0) #done
+    tryedToPayAgain = models.IntegerField('Количество нажатий попробовать еще раз', default=0) #done
+    clickedTechAssistance = models.IntegerField('Количество кликов на техпомощь', default=0) #done
+
+    def __str__(self):
+        return f'{self.firstname}'
+
+    class Meta:
+        verbose_name = "Данные пользователя"
+        verbose_name_plural = "Данные пользователей"
 
 
 class Order(models.Model):
-    u_id = models.UUIDField(default=uuid.uuid4)
-    name = models.CharField('Имя',
-                            max_length=255,
-                            blank=True,
-                            null=True)
-    family = models.CharField('Фамилия',
-                              max_length=255,
-                              blank=True,
-                              null=True)
-    email = models.CharField('Email',
-                             max_length=255,
-                             blank=True,
-                             null=True)
-    phone = models.CharField('Телефон',
-                             max_length=255,
-                             blank=True,
-                             null=True)
-    tickets = models.ManyToManyField(OrderItem,
-                                     blank=True,
-                                     verbose_name='Билеты')
-    is_payed = models.BooleanField('Оплачен?',
-                                   default=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    name = models.CharField('Имя', max_length=255, blank=True, null=True)
+    family = models.CharField('Фамилия', max_length=255, blank=True, null=True)
+    email = models.CharField('Email', max_length=255, blank=True, null=True)
+    phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
+    is_paid = models.BooleanField('Оплачен?', default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    amount = models.IntegerField('Стоимось', default=0)
+
+    @transaction.atomic
+    def set_paid(self):
+        if self.is_paid == False:
+            self.is_paid = True
+            items = OrderItem.objects.filter(order=self)
+            for item in items:
+                item.create_tickets()
+            self.save()
 
     def __str__(self):
         return f'Заказ от {self.created_at}'
@@ -279,24 +205,61 @@ class Order(models.Model):
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
-def createOrderItem(sender, instance, created, **kwargs):
-    if created:
-        print('Create QR')
-        codeQR = str(uuid.uuid4())
-        instance.u_id = codeQR
-        url = pyqrcode.create(f'{BASE_URL}/ticket/{codeQR}')
-        url.png(f'{BASE_DIR}/media/ticket_qr/{codeQR}.png', scale=10)
-        instance.qr = f'/ticket_qr/{codeQR}.png'
-        instance.save()
+
+class OrderItem(models.Model):
+    item_id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    ticket_type = models.ForeignKey(TicketType, on_delete=models.RESTRICT, null=True, blank=True, verbose_name='Билет')
+    quantity = models.IntegerField('Количество', default=1)
+    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
+    amount = models.IntegerField('Стоимось', default=0)
+
+    def create_tickets(self):
+        for i in range(self.quantity):
+            Ticket.objects.create(order_item=self, order=self.order)
+
+    def __str__(self):
+        return f'Билет на {"1 день" if self.ticket.is_one_day else "2 дня"} - {self.streamer.name if self.streamer else ""}'
 
 
-post_save.connect(createOrderItem, sender=OrderItem)
+class Ticket(models.Model):
+    ticket_id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name='Позиция')
+    order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name='Заказ')
+    when_cleared = models.DateTimeField(null=True, verbose_name='Дата и время погашения')
+
+    def __str__(self):
+        tt = self.order_item.ticket_type
+        item = self.order_item
+        ord = self.order
+        return f'Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days'
+
+    def pdf(self, filename=False):
+        template = get_template('../templates/ticket.html')
+        code = pyqrcode.create(str(self.ticket_id))
+        buf = io.BytesIO()
+        code.png(buf, scale=5)
+        buf.seek(0)
+        image = buf.read()
+        encoded = str(base64.b64encode(image))[2:-1]
+        html = template.render({'t': self, 'qr': encoded})
+        options = {
+            'page-size': 'Letter',
+            'encoding': "UTF-8",
+        }
+        return pdfkit.from_string(html, filename, options)
+
+    class Meta:
+        verbose_name = "Билет"
+        verbose_name_plural = "Билеты"
 
 
 class Subscribe(models.Model):
     email = models.EmailField(unique=True)
+
     def __str__(self):
         return self.email
+
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"

@@ -1,4 +1,4 @@
-from .models import Cart
+from .models import Cart, CartItem
 
 
 def check_if_cart_exists(session_id):
@@ -7,14 +7,15 @@ def check_if_cart_exists(session_id):
 
 
 def calculate_cart_price(cart):
-    items = cart.tickets.all()
+    items = CartItem.objects.filter(parent=cart)
     price = 0
     for i in items:
-        price += i.quantity * i.ticket.price
+        price += i.quantity * i.ticket_type.price
     cart.total_price = price
     cart.save()
 
+
 def clear_cart(cart):
-    items = cart.tickets.all()
-    for i in items:
-        i.delete()
+    cart.total_price = 0
+    cart.save()
+    items = CartItem.objects.filter(parent=cart).delete()
