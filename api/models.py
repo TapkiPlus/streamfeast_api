@@ -83,8 +83,7 @@ class Streamer(models.Model):
             if testSlug:
                 slugRandom = '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=2))
             self.nickNameSlug = slug + slugRandom
-        if not self.uniqUrl:
-            self.uniqUrl = self.nickNameSlug + '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=10))
+        self.uniqUrl = self.nickNameSlug + '-' + ''.join(choices(string.ascii_lowercase + string.digits, k=10))
         super(Streamer, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -264,3 +263,31 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
+
+
+class Place(models.Model): 
+    id = models.AutoField("ID", primary_key=True)
+    name = models.TextField("Место")
+    level = models.TextField("Уровень")
+
+    class Meta:
+        verbose_name = "Место"
+        verbose_name_plural = "Места"
+
+
+class Activity(models.Model): 
+    day = models.IntegerField("День")
+    start = models.TextField("Начало")
+    end = models.TextField("Окончание")
+    title = models.TextField("Название")
+    description = models.TextField("Описание")
+    image = models.ImageField("Картинка", blank=False, null=False, upload_to='activity_images/')
+    icon = models.ImageField("Иконка", blank=False, null=False, upload_to='activity_icons/')
+    place = models.ForeignKey(Place, on_delete=models.RESTRICT, null=False, verbose_name="Место")
+    streamer = models.ForeignKey(Place, on_delete=models.RESTRICT, null=True, verbose_name="Участник")
+
+    class Meta:
+        verbose_name = "Активность"
+        verbose_name_plural = "Активности"
+
+

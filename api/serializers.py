@@ -127,3 +127,19 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = '__all__'
+
+
+class PlaceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Place
+        fields = '__all__'
+
+
+class ActivitySerializer(serializers.ModelSerializer):
+    place = PlaceSerializer(many=False, required=True)
+    streamer = StreamerSerializer(many=False, required=True)
+
+    class Meta:
+        model = Activity
+        fields = '__all__'

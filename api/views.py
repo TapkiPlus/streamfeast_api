@@ -254,3 +254,17 @@ class TicketClear(APIView):
         ticket.when_cleared = datetime.datetime.now()
         ticket.save()
         return Response(status=200)
+
+      
+class GetActivities(generics.ListAPIView):
+    serializer_class = ActivitySerializer
+    queryset = Activity.objects.all()
+
+
+class GetActivity(generics.RetrieveAPIView):
+    serializer_class = ActivitySerializer
+
+    def get_object(self):
+        activity_id = self.request.query_params.get('activity_id')
+        return Activity.objects.get(id=activity_id)
+

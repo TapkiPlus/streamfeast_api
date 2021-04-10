@@ -10,6 +10,8 @@ urlpatterns = [
     path('get_how_to', views.GetHowTo.as_view()),
     path('get_ticket_types', views.GetTicketTypes.as_view()),
     path('get_cart', views.GetCart.as_view()),
+    path('get_activity', views.GetActivity.as_view()),
+    path('get_activities', views.GetActivities.as_view()),
     path('add_item', views.AddItem.as_view()),
     path('add_item_quantity', views.AddItemQuantity.as_view()),
     path('delete_item_quantity', views.DeleteItemQuantity.as_view()),
