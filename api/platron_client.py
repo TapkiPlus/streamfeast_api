@@ -4,7 +4,7 @@ from platron.callback import Callback
 from platron.request.clients.post_client import PostClient
 from platron.request.request_builders.init_payment_builder import InitPaymentBuilder
 
-from .email_client import send_tickets
+from .email_client import send_application
 from .models import PlatronPayment, Order
 
 MERCHANT_ID = "11251"
@@ -75,7 +75,7 @@ def payment_result(params):
             order_id = params["pg_order_id"]
             order = Order.objects.get(id=order_id)
             order.set_paid()
-            send_tickets(order)
+            send_application(order)
             return callback.response_ok(params)
         except:
             return callback.response_error(params, 'Не удалось обработать платеж')

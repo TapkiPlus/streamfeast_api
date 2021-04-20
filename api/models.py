@@ -160,7 +160,7 @@ class CartItem(models.Model):
 
  
 class UserData(models.Model):
-    session = models.CharField('Сессия', max_length=255, blank=True, null=True)
+    session = models.CharField('Сессия', max_length=255, blank=False, unique=True)
     firstname = models.CharField('Имя', max_length=255, blank=True, null=True)
     lastname = models.CharField('Фамилия', max_length=255, blank=True, null=True)
     email = models.CharField('Email', max_length=255, blank=True, null=True)
@@ -180,10 +180,10 @@ class UserData(models.Model):
 
 
 class Order(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    name = models.CharField('Имя', max_length=255, blank=True, null=True)
-    family = models.CharField('Фамилия', max_length=255, blank=True, null=True)
-    email = models.CharField('Email', max_length=255, blank=True, null=True)
+    id = models.TextField("ID", primary_key=True)
+    firstname = models.CharField('Имя', max_length=255, blank=True, null=True)
+    lastname = models.CharField('Фамилия', max_length=255, blank=True, null=True)
+    email = models.CharField('Email', max_length=255, blank=False, null=False)
     phone = models.CharField('Телефон', max_length=255, blank=True, null=True)
     is_paid = models.BooleanField('Оплачен?', default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -194,8 +194,12 @@ class Order(models.Model):
         if self.is_paid == False:
             self.is_paid = True
             items = OrderItem.objects.filter(order=self)
+            index = 0
             for item in items:
-                item.create_tickets()
+                for i in range(item.quantity):
+                    index += 1
+                    id = '{}-{:02d}'.format(self.id, index)
+                    Ticket.objects.create(ticket_id=id, order_item=item, order=self)
             self.save()
 
     def __str__(self):
@@ -207,23 +211,19 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    item_id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
     ticket_type = models.ForeignKey(TicketType, on_delete=models.RESTRICT, null=True, blank=True, verbose_name='Билет')
     quantity = models.IntegerField('Количество', default=1)
     streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
     amount = models.IntegerField('Стоимось', default=0)
 
-    def create_tickets(self):
-        for i in range(self.quantity):
-            Ticket.objects.create(order_item=self, order=self.order)
-
     def __str__(self):
         return f'Билет на {"1 день" if self.ticket.is_one_day else "2 дня"} - {self.streamer.name if self.streamer else ""}'
 
 
 class Ticket(models.Model):
-    ticket_id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    ticket_id = models.TextField("ID", primary_key=True)
+    ticket_uuid = models.UUIDField("QR-code", default=uuid.uuid4)
     order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name='Позиция')
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name='Заказ')
     when_cleared = models.DateTimeField(null=True, verbose_name='Дата и время погашения')
@@ -236,7 +236,7 @@ class Ticket(models.Model):
 
     def pdf(self, filename=False):
         template = get_template('../templates/ticket.html')
-        code = pyqrcode.create(str(self.ticket_id))
+        code = pyqrcode.create(str(self.ticket_uuid))
         buf = io.BytesIO()
         code.png(buf, scale=5)
         buf.seek(0)
@@ -284,7 +284,7 @@ class Activity(models.Model):
     image = models.ImageField("Картинка", blank=False, null=False, upload_to='activity_images/')
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to='activity_icons/')
     place = models.ForeignKey(Place, on_delete=models.RESTRICT, null=False, verbose_name="Место")
-    streamer = models.ForeignKey(Place, on_delete=models.RESTRICT, null=True, verbose_name="Участник")
+    streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, verbose_name="Участник")
 
     class Meta:
         verbose_name = "Активность"

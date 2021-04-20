@@ -9,9 +9,10 @@ from django.test.utils import override_settings
 class PlatronTestCase(TestCase):
 
     def setUp(self):
-        tt1 = TicketType.objects.create(price=42)
-        tt2 = TicketType.objects.create(price=43)
-        order = Order.objects.create(amount=128, email="dzenmassta@gmail.com")
+        data = UserData(session="123")
+        tt1 = TicketType.objects.create(price=42, days_qty=1)
+        tt2 = TicketType.objects.create(price=43, days_qty=2)
+        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
         OrderItem.objects.create(order=order, ticket_type=tt1, quantity=1, amount=42)
         OrderItem.objects.create(order=order, ticket_type=tt2, quantity=2, amount=86)
         pass

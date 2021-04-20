@@ -111,9 +111,6 @@ class AddItem(APIView):
             streamer = Streamer.objects.get(id=streamer_id)
         cart = check_if_cart_exists(session_id)
 
-        print("Cart:")
-        print(cart)
-
         item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
         item.save()
@@ -125,49 +122,25 @@ class AddItem(APIView):
 class SaveUserData(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
-        firstname = request.data.get('firstname')
-        lastname = request.data.get('lastname')
-        email = request.data.get('email')
-        phone = request.data.get('phone')
-        wentToCheckout = request.data.get('wentToCheckout')
-        returnedToShop = request.data.get('returnedToShop')
-        clickedPay = request.data.get('clickedPay')
-        tryedToPayAgain = request.data.get('tryedToPayAgain')
-        clickedTechAssistance = request.data.get('clickedTechAssistance')
-        try:
-            userData = UserData.objects.get(session=session_id)
-            if firstname:
-                userData.firstname = firstname
-            elif lastname:
-                userData.lastname = lastname
-            elif email:
-                userData.email = email
-            elif phone:
-                userData.phone = phone
-            elif wentToCheckout:
-                userData.wentToCheckout += 1
-            elif returnedToShop:
-                userData.returnedToShop += 1
-            elif clickedPay:
-                userData.clickedPay += 1
-            elif tryedToPayAgain:
-                userData.tryedToPayAgain += 1
-            elif clickedTechAssistance:
-                userData.clickedTechAssistance += 1
-            userData.save()
-        except UserData.DoesNotExist:
-            UserData.objects.create(
-                session=session_id,
-                firstname=firstname if firstname else '',
-                lastname=lastname if lastname else '',
-                email=email if email else '',
-                phone=phone if phone else '',
-                wentToCheckout=1 if wentToCheckout else 0,
-                returnedToShop=1 if returnedToShop else 0,
-                clickedPay=1 if clickedPay else 0,
-                tryedToPayAgain=1 if tryedToPayAgain else 0,
-                clickedTechAssistance=1 if clickedTechAssistance else 0,
-            ).save()
+        user_data = UserData.objects.get_or_create(session=session_id)
+        user_data.firstname = request.data.get('firstname')
+        user_data.lastname = request.data.get('lastname')
+        user_data.email = request.data.get('email')
+        user_data.phone = request.data.get('phone')
+
+        if request.data.get('wentToCheckout'):
+            user_data.wentToCheckout += 1
+        if request.data.get('returnedToShop'):
+            user_data.returnedToShop += 1
+        if request.data.get('clickedPay'):
+            user_data.clickedPay += 1
+        if request.data.get('tryedToPayAgain'):
+            user_data.tryedToPayAgain += 1
+        if request.data.get('clickedTechAssistance'):
+            user_data.clickedTechAssistance += 1
+
+        user_data.save()
+
         return Response(status=200)
 
 
@@ -175,7 +148,7 @@ class GetUserData(generics.RetrieveAPIView):
     serializer_class = UserDataSerializer
 
     def get_object(self):
-        return UserData.objects.get(session=self.request.query_params.get('session_id'))
+        return UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
 
 
 class CreateOrder(APIView):
@@ -185,15 +158,21 @@ class CreateOrder(APIView):
         print(request.data)
         session_id = request.data.get('session_id')
         cart = check_if_cart_exists(session_id)
+        user_data = UserData.objects.get_or_create(session=session_id)
+        order_id = '{:05d}-{:02d}'.format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
+            id=order_id,
             name=request.data.get('name'),
             family=request.data.get('family'),
             email=request.data.get('email'),
             phone=request.data.get('phone')
         )
         cart_items = CartItem.objects.filter(parent=cart)
+        index = 0
         for i in cart_items:
+            index += 1
             new_item = OrderItem.objects.create(
+                item_id='{}-{:02d}'.format(new_order.id, index),
                 order=new_order,
                 ticket_type=i.ticket_type,
                 quantity=i.quantity,
@@ -249,8 +228,8 @@ class TicketAsPdf(APIView):
 
 class TicketClear(APIView):
     def get(self, request):
-        id = request.query_params.ticket_id
-        ticket = Ticket.objects.get(ticket_id=request.param.ticket_id)
+        id = request.query_params.ticket_uuid
+        ticket = Ticket.objects.get(ticket_uuid=request.param.ticket_uuid)
         ticket.when_cleared = datetime.datetime.now()
         ticket.save()
         return Response(status=200)
