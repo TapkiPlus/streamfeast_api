@@ -151,6 +151,21 @@ class GetUserData(generics.RetrieveAPIView):
         return UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
 
 
+class GetQr(APIView):
+    def get(self, request):
+        uuid = self.request.query_params.get('ticket_uuid')
+        if Ticket.objects.exists(ticket_uuid=uuid):
+            response = HttpResponse(mimetype="image/png")
+            img = qr_code(uuid)
+            img.save(response, "PNG")
+        return response
+
+
+
+    def get_object(self):
+        return UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
+
+
 class CreateOrder(APIView):
 
     @transaction.atomic

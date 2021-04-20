@@ -5,7 +5,7 @@ import uuid
 from random import choices
 
 import pdfkit
-import pyqrcode
+from .services import qr_code
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 from django.db import transaction
@@ -236,11 +236,7 @@ class Ticket(models.Model):
 
     def pdf(self, filename=False):
         template = get_template('../templates/ticket.html')
-        code = pyqrcode.create(str(self.ticket_uuid))
-        buf = io.BytesIO()
-        code.png(buf, scale=5)
-        buf.seek(0)
-        image = buf.read()
+        image = qr_code(str(self.ticket_uuid))
         encoded = str(base64.b64encode(image))[2:-1]
         html = template.render({'t': self, 'qr': encoded})
         options = {
