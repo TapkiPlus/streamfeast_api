@@ -2,10 +2,11 @@ from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
-
+from django.conf import settings
 from .models import Ticket, OrderItem
 
 SOURCE_EMAIL = 'tickets@streamfest.ru'
+
 
 def order_html(order, tickets):
     htmly = get_template('../template/apply.html')
@@ -24,7 +25,8 @@ def ticket_html(ticket):
     html_template = '../template/1day.html' if tt.days_qty == 1 else '../template/2days.html'
     htmly = get_template(html_template)
     ctx = {
-        'ticket': ticket
+        'ticket': ticket,
+        'site_url': settings.SITE_URL
     }
     html_content = htmly.render(ctx)
     return html_context
