@@ -160,7 +160,7 @@ class GetQr(APIView):
     def get(self, request):
         uuid = self.request.query_params.get('ticket_uuid')
         if Ticket.objects.filter(ticket_uuid=uuid).exists():
-            response = HttpResponse(mimetype="image/png")
+            response = HttpResponse(content_type="image/png")
             img = qr_code(uuid)
             img.save(response, "PNG")
             return response
