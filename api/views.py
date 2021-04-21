@@ -68,9 +68,10 @@ class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        ticket.delete()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+        item = CartItem.objects.get(id=item_id)
+        item.delete()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
 
 
@@ -78,10 +79,11 @@ class AddItemQuantity(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        ticket.quantity += 1
-        ticket.save()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+        item = CartItem.objects.get(id=item_id)
+        item.quantity += 1
+        item.save()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
 
 
@@ -89,13 +91,14 @@ class DeleteItemQuantity(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        if ticket.quantity > 1:
-            ticket.quantity -= 1
-            ticket.save()
+        item = CartItem.objects.get(id=item_id)
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
         else:
-            ticket.delete()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+            item.delete()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
 
 
@@ -114,7 +117,7 @@ class AddItem(APIView):
         item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
         item.save()
-        calculate_cart_price(cart)
+        cart.calculate_cart_price()
         cart.save()
         return Response(status=200)
 
@@ -195,7 +198,7 @@ class CreateOrder(APIView):
                 amount=i.quantity * i.ticket_type.price
             )
             new_order.amount += new_item.amount
-        clear_cart(cart)
+        cart.clear_cart()
         tx = init_payment(new_order)
         tx.save()
         return Response(tx.redirect_url, status=200)
