@@ -178,7 +178,7 @@ class CreateOrder(APIView):
         print(request.data)
         session_id = request.data.get('session_id')
         cart = Cart.objects.get_or_create(session=session_id)
-        user_data = UserData.objects.get_or_create(session=session_id)
+        user_data, _ = UserData.objects.get_or_create(session=session_id)
         order_id = '{:05d}-{:02d}'.format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
             id=order_id,
