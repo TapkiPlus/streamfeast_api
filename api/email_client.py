@@ -14,11 +14,7 @@ def order_html(order, tickets):
         'order': order,
         'tickets': tickets
     }
-    html_content = htmly.render(ctx)
-    return html_context
-    # with open('templates/{}.html'.format(order.id), 'w+') as static_file:
-    #     static_file.write(html_content)
-
+    return htmly.render(ctx)
 
 def ticket_html(ticket): 
     tt = ticket.order_item.ticket_type
@@ -28,13 +24,11 @@ def ticket_html(ticket):
         'ticket': ticket,
         'site_url': settings.SITE_URL
     }
-    html_content = htmly.render(ctx)
-    return html_context
+    return htmly.render(ctx)
 
 
 def send_application(order):
     tickets = Ticket.objects.filter(order=order)
-    items = OrderItem.objects.filter(order=order)
 
     order_header = 'Стримфест: ваш заказ {} выполнен'.format(order.id)
     order_content = order_html(order, tickets)
