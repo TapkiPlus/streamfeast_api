@@ -58,7 +58,7 @@ class GetCart(generics.RetrieveAPIView):
 
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
-        result = check_if_cart_exists(session_id)
+        result, _ = Cart.objects.get_or_create(session=session_id)
         print("Result:")
         print(result)
         return result
