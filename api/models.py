@@ -128,18 +128,19 @@ class Cart(models.Model):
     session = models.CharField('Сессия', max_length=255, blank=True, null=True)
     total_price = models.IntegerField('Стоимось корзины', default=0)
 
-    def calculate_cart_price(cart):
-        items = CartItem.objects.filter(parent=cart)
+    def calculate_cart_price(self):
+        items = CartItem.objects.filter(parent=self)
         price = 0
         for i in items:
             price += i.quantity * i.ticket_type.price
-        cart.total_price = price
-        cart.save()
+        self.total_price = price
+        self.save()
 
-    def clear_cart(cart):
-        cart.total_price = 0
-        cart.save()
-        items = CartItem.objects.filter(parent=cart).delete()
+    def clear_cart(self):
+        CartItem.objects.filter(parent=self).delete()
+        self.total_price = 0
+        self.save()
+        
 
     def __str__(self):
         return f'Стоимость корзины : {self.total_price}'
