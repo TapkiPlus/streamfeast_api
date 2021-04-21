@@ -1,4 +1,3 @@
-from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponse
@@ -76,7 +75,6 @@ class DeleteItem(APIView):
         return Response(status=200)
 
 class AddItemQuantity(APIView):
-    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
@@ -88,7 +86,6 @@ class AddItemQuantity(APIView):
         return Response(status=200)
 
 class DeleteItemQuantity(APIView):
-    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
@@ -104,7 +101,6 @@ class DeleteItemQuantity(APIView):
 
 
 class AddItem(APIView):
-    @csrf_exempt
     def post(self, request):
         print(request.data)
         session_id = request.data.get('session_id')
@@ -125,7 +121,6 @@ class AddItem(APIView):
 
 
 class SaveUserData(APIView):
-    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         user_data, _ = UserData.objects.get_or_create(session=session_id)
