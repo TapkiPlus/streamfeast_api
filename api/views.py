@@ -192,7 +192,6 @@ class CreateOrder(APIView):
         for i in cart_items:
             index += 1
             new_item = OrderItem.objects.create(
-                item_id='{}-{:02d}'.format(new_order.id, index),
                 order=new_order,
                 ticket_type=i.ticket_type,
                 quantity=i.quantity,
