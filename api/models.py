@@ -111,7 +111,7 @@ class TicketType(models.Model):
 
     price = models.IntegerField('Цена', blank=False, null=True)
     days_qty = models.PositiveSmallIntegerField('На сколько дней?', choices=Days.choices, default=Days.ONE)
-
+ 
     def __str__(self):
         if self.days_qty == 1:
             return f'Билет на один день : {self.price}'

@@ -112,7 +112,7 @@ class AddItem(APIView):
         streamer = None
         if streamer_id != 0:
             streamer = Streamer.objects.get(id=streamer_id)
-        cart = Cart.objects.get_or_create(session=session_id)
+        cart, _ = Cart.objects.get_or_create(session=session_id)
 
         item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
@@ -125,12 +125,16 @@ class AddItem(APIView):
 class SaveUserData(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
-        user_data = UserData.objects.get_or_create(session=session_id)
-        user_data.firstname = request.data.get('firstname')
-        user_data.lastname = request.data.get('lastname')
-        user_data.email = request.data.get('email')
-        user_data.phone = request.data.get('phone')
-
+        user_data, _ = UserData.objects.get_or_create(session=session_id)
+        
+        if request.data.get('firstname'):
+            user_data.firstname = request.data.get('firstname')
+        if request.data.get('lastname'):
+            user_data.lastname = request.data.get('lastname')
+        if request.data.get('email'):
+            user_data.email = request.data.get('email')
+        if request.data.get('phone'):
+            user_data.phone = request.data.get('phone')
         if request.data.get('wentToCheckout'):
             user_data.wentToCheckout += 1
         if request.data.get('returnedToShop'):
@@ -151,7 +155,7 @@ class GetUserData(generics.RetrieveAPIView):
     serializer_class = UserDataSerializer
 
     def get_object(self):
-        return UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
+        return UserData.objects.get(session=self.request.query_params.get('session_id'))
 
 
 class GetQr(APIView):
