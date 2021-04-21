@@ -58,7 +58,7 @@ class GetCart(generics.RetrieveAPIView):
 
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
-        result = check_if_cart_exists(session_id)
+        cart, _ = Cart.objects.get_or_create(session=session_id)
         print("Result:")
         print(result)
         return result
@@ -112,7 +112,7 @@ class AddItem(APIView):
         streamer = None
         if streamer_id != 0:
             streamer = Streamer.objects.get(id=streamer_id)
-        cart = check_if_cart_exists(session_id)
+        cart = Cart.objects.get_or_create(session=session_id)
 
         item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
@@ -175,7 +175,7 @@ class CreateOrder(APIView):
     def post(self, request):
         print(request.data)
         session_id = request.data.get('session_id')
-        cart = check_if_cart_exists(session_id)
+        cart = Cart.objects.get_or_create(session=session_id)
         user_data = UserData.objects.get_or_create(session=session_id)
         order_id = '{:05d}-{:02d}'.format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
