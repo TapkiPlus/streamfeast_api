@@ -75,8 +75,8 @@ class DeleteItem(APIView):
         cart.calculate_cart_price()
         return Response(status=200)
 
-@csrf_exempt
 class AddItemQuantity(APIView):
+    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
@@ -87,8 +87,8 @@ class AddItemQuantity(APIView):
         cart.calculate_cart_price()
         return Response(status=200)
 
-@csrf_exempt
 class DeleteItemQuantity(APIView):
+    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
@@ -103,8 +103,8 @@ class DeleteItemQuantity(APIView):
         return Response(status=200)
 
 
-@csrf_exempt
 class AddItem(APIView):
+    @csrf_exempt
     def post(self, request):
         print(request.data)
         session_id = request.data.get('session_id')
@@ -125,6 +125,7 @@ class AddItem(APIView):
 
 
 class SaveUserData(APIView):
+    @csrf_exempt
     def post(self, request):
         session_id = request.data.get('session_id')
         user_data, _ = UserData.objects.get_or_create(session=session_id)
