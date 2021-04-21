@@ -184,8 +184,8 @@ class CreateOrder(APIView):
         order_id = '{:05d}-{:02d}'.format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
             id=order_id,
-            name=request.data.get('name'),
-            family=request.data.get('family'),
+            firstname=request.data.get('firstname'),
+            lastname=request.data.get('lastname'),
             email=request.data.get('email'),
             phone=request.data.get('phone')
         )
