@@ -163,7 +163,9 @@ class GetQr(APIView):
             response = HttpResponse(mimetype="image/png")
             img = qr_code(uuid)
             img.save(response, "PNG")
-        return response
+            return response
+        else: 
+            return Response(status=404)
 
 
 class CreateOrder(APIView):
