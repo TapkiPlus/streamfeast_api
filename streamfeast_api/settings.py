@@ -80,7 +80,7 @@ DATABASES = {
         # 'USER' : 'root',
         # 'PASSWORD': 'i12345',
         # 'HOST': 'localhost', 
-        # 'PORT': '3306' 
+        # 'PORT': '3306'  
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'streamfest',
         'USER' : 'streamfest',
