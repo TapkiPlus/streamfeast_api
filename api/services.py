@@ -1,3 +1,4 @@
+import io
 import pyqrcode
 
 def qr_code(source_string):
