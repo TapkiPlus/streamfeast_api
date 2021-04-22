@@ -15,7 +15,7 @@ from pytils.translit import slugify
 
 class PlatronPayment(models.Model):
     id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
-    status = models.BooleanField("Status")
+    status = models.BooleanField("Status", editable=False)
     redirect_url = models.CharField("RedirectURL", max_length=255, blank=False, unique=True, editable=False, null=False)
 
 
@@ -169,8 +169,8 @@ class CartItem(models.Model):
                 return f'Билет на два дня'
 
     class Meta:
-        verbose_name = "Билет в корзине"
-        verbose_name_plural = "Билеты в корзинах"
+        verbose_name = "Позиция корзины"
+        verbose_name_plural = "Позиции в корзинах"
 
  
 class UserData(models.Model):
@@ -230,6 +230,10 @@ class OrderItem(models.Model):
     quantity = models.IntegerField('Количество', default=1)
     streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name='От кого')
     amount = models.IntegerField('Стоимось', default=0)
+
+    class Meta:
+        verbose_name = "Позиция заказа"
+        verbose_name_plural = "Позиции заказов"
 
     def __str__(self):
         return f'Билет на {"1 день" if self.ticket.is_one_day else "2 дня"} - {self.streamer.name if self.streamer else ""}'

@@ -10,21 +10,10 @@ class SocialLinkInline(admin.TabularInline):
 
 
 class StreamerAdmin(admin.ModelAdmin):
-    list_display = ['orderPP',
-                    'nickName',
-                    'name',
-                    'isAtHome',
-                    'isActive']
-    list_filter = ('isActive',
-                   'isAtHome',
-                   'sells', 
-                   )
-    search_fields = ('nickName',
-                     'name')
-    list_display_links = ('nickName',
-                          'name',
-                          'isAtHome',
-                          'isActive')
+    list_display = ['orderPP', 'nickName', 'name', 'isAtHome', 'isActive']
+    list_filter = ('isActive', 'isAtHome', 'sells', )
+    search_fields = ('nickName', 'name')
+    list_display_links = ('nickName', 'name', 'isAtHome', 'isActive')
     inlines = [SocialLinkInline]
 
     class Meta:
@@ -56,9 +45,12 @@ admin.site.register(HowTo)
 admin.site.register(TicketType)
 admin.site.register(Ticket)
 admin.site.register(Cart)
-admin.site.register(CartItem)
+#admin.site.register(CartItem)
 admin.site.register(UserData, UserDataAdmin)
 admin.site.register(Order)
 admin.site.register(PlatronPayment)
+admin.site.register(Place)
+admin.site.register(Activity)
 # admin.site.register(OrderItem)
 admin.site.register(SocialIcon)
+admin.site.register(PlatronPayment)
