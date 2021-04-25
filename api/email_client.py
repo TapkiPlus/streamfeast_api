@@ -54,7 +54,7 @@ def send_oldest_ticket():
         try:
             ticket_header = 'Билет №{} на Стримфест 2021 — 17–18 июля'.format(ticket.ticket_id)
             ticket_content = ticket_html(ticket)
-            msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
+            msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [ticket.order.email])
             msg.content_subtype = "html"  # Main content is now text/html
             msg.send() # potentially unsafe method
             ticket.when_sent = now()
