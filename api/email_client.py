@@ -42,7 +42,6 @@ def send_application(order):
 
 
 def send_oldest(): 
-    logging.info("Trying to send a new message")
     send_oldest_ticket()
 
 
@@ -52,17 +51,17 @@ def send_oldest_ticket():
     ticket = qry.order_by("order__when_paid").first()
 
     if ticket is not None: 
+        order = ticket.order
         try:
             ticket_header = 'Билет №{} на Стримфест 2021 — 17–18 июля'.format(ticket.ticket_id)
             ticket_content = ticket_html(ticket)
-            msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [ticket.order.email])
+            msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
             msg.content_subtype = "html"  # Main content is now text/html
             msg.send() # potentially unsafe method
             ticket.when_sent = datetime.now()
         except Exception as err: 
             logging.exception("Failed to send ticket", exc_info = True)
             ticket.send_attempts +=1 
-        
         ticket.save()
 
 

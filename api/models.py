@@ -251,7 +251,6 @@ class Ticket(models.Model):
     def __str__(self):
         tt = self.order_item.ticket_type
         item = self.order_item
-        ord = self.order
         return f"Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days"
 
     def pdf(self, filename=False):
