@@ -205,7 +205,7 @@ class Order(models.Model):
 
     @transaction.atomic
     def set_paid(self):
-        if self.when_paid == Null:
+        if self.when_paid is None:
             self.when_paid = datetime.now()
             items = OrderItem.objects.filter(order=self)
             index = 0
