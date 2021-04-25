@@ -48,7 +48,7 @@ def send_oldest():
 @transaction.atomic
 def send_oldest_ticket():
     qry = Ticket.objects.filter(when_sent__isnull=True, send_attempts__lt = 3)
-    ticket = qry.order_by("order__when_paid").first()
+    ticket = qry.order_by("order__when_paid", "ticket_id").first()
 
     if ticket is not None: 
         order = ticket.order
