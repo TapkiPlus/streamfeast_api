@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponse
@@ -22,7 +24,6 @@ class GetStreamers(generics.ListAPIView):
     serializer_class = StreamerSerializer
 
     def get_queryset(self):
-        print()
         if self.request.query_params.get('at_home') == 'show':
             streamers = Streamer.objects.filter(isAtHome=True, isActive=True).order_by('?')[:10]
         else:

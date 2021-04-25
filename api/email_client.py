@@ -4,6 +4,9 @@ from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
 from .models import Ticket, OrderItem
+from django.db import transaction
+
+import logging
 
 SOURCE_EMAIL = 'tickets@streamfest.ru'
 
@@ -28,8 +31,6 @@ def ticket_html(ticket):
 
 
 def send_application(order):
-    tickets = Ticket.objects.filter(order=order)
-
     order_header = 'Стримфест: ваш заказ {} выполнен'.format(order.id)
     order_content = order_html(order, tickets)
     
@@ -37,11 +38,30 @@ def send_application(order):
     msg.content_subtype = "html"  # Main content is now text/html
     msg.send()
 
-    for ticket in tickets:
-        ticket_header = 'Билет №{} на стримфест'.format(ticket.ticket_id)
-        ticket_content = ticket_html(ticket)
 
-        msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
-        msg.content_subtype = "html"  # Main content is now text/html
-        msg.send()
+def send_oldest(): 
+    logging.info("Trying to send a new message")
+    send_oldest_ticket()
+
+
+@transaction.atomic
+def send_oldest_ticket():
+    qry = Ticket.objects.filter(when_sent__isnull=True, send_attempts__lt = 3)
+    ticket = qry.order_by("order__when_paid").first()
+
+    if ticket is not None: 
+        try:
+            ticket_header = 'Билет №{} на Стримфест 2021 — 17–18 июля'.format(ticket.ticket_id)
+            ticket_content = ticket_html(ticket)
+            msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
+            msg.content_subtype = "html"  # Main content is now text/html
+            msg.send() # potentially unsafe method
+            ticket.when_sent = now()
+        except Exception as err: 
+            logging.exception("Failed to send ticket", exc_info = True)
+            ticket.send_attempts +=1 
+        
+        ticket.save()
+
+
 
