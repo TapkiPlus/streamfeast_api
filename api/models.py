@@ -169,6 +169,7 @@ class CartItem(models.Model):
                 return f"Билет на два дня"
 
     class Meta:
+        ordering = ["id"]
         verbose_name = "Позиция корзины"
         verbose_name_plural = "Позиции в корзинах"
 
@@ -232,6 +233,7 @@ class OrderItem(models.Model):
     amount = models.IntegerField("Стоимось", default=0)
 
     class Meta:
+        ordering = ["id"]
         verbose_name = "Позиция заказа"
         verbose_name_plural = "Позиции заказов"
 
