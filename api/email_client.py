@@ -33,7 +33,7 @@ def ticket_html(ticket):
 
 def send_application(order):
     tickets = Ticket.objects.filter(order=order)
-    order_header = 'Стримфест: ваш заказ {} выполнен'.format(order.id)
+    order_header = 'Стримфест 2021 — подтверждение заказа №{}'.format(order.id)
     order_content = order_html(order, tickets)
     
     msg = EmailMessage(order_header, order_content, SOURCE_EMAIL, [order.email])
