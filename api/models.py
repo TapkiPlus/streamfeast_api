@@ -125,9 +125,10 @@ class TicketType(models.Model):
 
 
 class Cart(models.Model):
-    session = models.CharField("Сессия", max_length=255, blank=True, null=True)
+    session = models.CharField("Сессия", max_length=255, blank=False, null=False, unique=True)
     total_price = models.IntegerField("Стоимось корзины", default=0)
 
+    @transaction.atomic
     def calculate_cart_price(self):
         items = CartItem.objects.filter(parent=self)
         price = 0
@@ -136,11 +137,10 @@ class Cart(models.Model):
         self.total_price = price
         self.save()
 
+    @transaction.atomic
     def clear_cart(self):
         CartItem.objects.filter(parent=self).delete()
-        self.total_price = 0
-        self.save()
-        
+        self.delete()      
 
     def __str__(self):
         return f"Стоимость корзины : {self.total_price}"
