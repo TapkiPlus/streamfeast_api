@@ -77,7 +77,7 @@ def payment_result(params):
             if params["pg_result"]:
                 order.set_paid()
                 send_application(order)
-            else 
+            else:
                 order.set_unpaid()
             return callback.response_ok(params)
         except:
