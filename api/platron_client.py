@@ -74,7 +74,7 @@ def payment_result(params):
         try:
             order_id = params["pg_order_id"]
             order = Order.objects.get(id=order_id)
-            if params["pg_result"]:
+            if params["pg_result"] == "1":
                 order.set_paid()
                 send_application(order)
             else:
