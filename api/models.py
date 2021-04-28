@@ -241,8 +241,6 @@ class Order(models.Model):
     @transaction.atomic
     def set_unpaid(self):
         if self.when_paid is None: 
-            cart = Cart.objects.get(session=self.session)
-            cart.clear_cart()
             ud = UserData.objects.get(session=self.session)
             ud.payment_failed()
             
