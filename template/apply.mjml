@@ -232,7 +232,7 @@
 							{% endif %}
 
 							{% if ticket.order_item.streamer %}
-								от <b>{{ticket.order_item.streamer.name}}</b></br>
+								от <b>{{ticket.order_item.streamer.nickName}}</b></br>
 								(вы поддержали участника фестиваля, купив этот билет)
 							{% endif %}
 							</p>

@@ -134,8 +134,8 @@ class SaveUserData(APIView):
             user_data.email = request.data.get('email')
         if request.data.get('phone'):
             user_data.phone = request.data.get('phone')
-        if request.data.get('wentToCheckout'):
-            user_data.wentToCheckout += 1
+        # if request.data.get('wentToCheckout'):
+        #     user_data.wentToCheckout += 1   <- this is increased by create_order
         if request.data.get('returnedToShop'):
             user_data.returnedToShop += 1
         if request.data.get('clickedPay'):
@@ -171,13 +171,14 @@ class CreateOrder(APIView):
 
     @transaction.atomic
     def post(self, request):
-        print(request.data)
         session_id = request.data.get('session_id')
         cart, _ = Cart.objects.get_or_create(session=session_id)
         user_data, _ = UserData.objects.get_or_create(session=session_id)
+        user_data.checkout()
         order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
             id=order_id,
+            session=session_id,
             firstname=request.data.get('firstname'),
             lastname=request.data.get('lastname'),
             email=request.data.get('email'),
@@ -195,7 +196,6 @@ class CreateOrder(APIView):
                 amount=i.quantity * i.ticket_type.price
             )
             new_order.amount += new_item.amount
-        cart.clear_cart()
         tx = init_payment(new_order)
         tx.save()
         return Response(tx.redirect_url, status=200)

@@ -159,9 +159,9 @@ class CartItem(models.Model):
     def __str__(self):
         if self.streamer:
             if self.ticket_type.days_qty == 1:
-                return f"Билет на один день от: {self.streamer.name}"
+                return f"Билет на один день от: {self.streamer.nickName}"
             if self.ticket_type.days_qty == 2:
-                return f"Билет на два дня: {self.streamer.name}"
+                return f"Билет на два дня: {self.streamer.nickName}"
         else:
             if self.ticket_type.days_qty == 1:
                 return f"Билет на один день"
@@ -185,9 +185,25 @@ class UserData(models.Model):
     clickedPay = models.IntegerField("Количество нажатий на оплатить", default=0) #done
     tryedToPayAgain = models.IntegerField("Количество нажатий попробовать еще раз", default=0) #done
     clickedTechAssistance = models.IntegerField("Количество кликов на техпомощь", default=0) #done
+    successfulPayments = models.IntegerField("Количество успешных платежей", default=0) #done
+    failedPayments = models.IntegerField("Количество безуспешных платежей", default=0) #done
 
     def __str__(self):
         return f"{self.firstname}"
+
+    def checkout(self): 
+        self.wentToCheckout += 1
+        self.save()
+
+    def payment_success(self):
+        self.successfulPayments += 1
+        self.save()
+        
+    def payment_failed(self):
+        self.failedPayments += 1
+        self.save()
+        
+
 
     class Meta:
         verbose_name = "Данные пользователя"
@@ -196,6 +212,7 @@ class UserData(models.Model):
 
 class Order(models.Model):
     id = models.TextField("ID", primary_key=True)
+    session = models.CharField("Сессия", max_length=255, blank=False)
     firstname = models.CharField("Имя", max_length=255, blank=True, null=True)
     lastname = models.CharField("Фамилия", max_length=255, blank=True, null=True)
     email = models.CharField("Email", max_length=255, blank=False, null=False)
@@ -207,6 +224,10 @@ class Order(models.Model):
     @transaction.atomic
     def set_paid(self):
         if self.when_paid is None:
+            cart = Cart.objects.get(session=self.session)
+            cart.clear_cart()
+            ud = UserData.objects.get(session=self.session)
+            ud.payment_success()
             self.when_paid = datetime.now()
             items = OrderItem.objects.filter(order=self)
             index = 0
@@ -216,6 +237,16 @@ class Order(models.Model):
                     id = "{}-{:02d}".format(self.id, index)
                     Ticket.objects.create(ticket_id=id, order_item=item, order=self)
             self.save()
+
+    @transaction.atomic
+    def set_unpaid(self):
+        if self.when_paid is None: 
+            cart = Cart.objects.get(session=self.session)
+            cart.clear_cart()
+            ud = UserData.objects.get(session=self.session)
+            ud.payment_failed()
+            
+
 
     def __str__(self):
         return f"Заказ от {self.created_at}"
@@ -238,7 +269,9 @@ class OrderItem(models.Model):
         verbose_name_plural = "Позиции заказов"
 
     def __str__(self):
-        return f'Билет на {"1 день" if self.ticket.is_one_day else "2 дня"} - {self.streamer.name if self.streamer else ""}'
+        start = "1 день" if self.ticket_type.days_qty == 1 else "2 дня"
+        end = f" от {self.streamer.nickName}" if self.streamer else ""
+        return f'Билет на {start}{end}'
 
 
 class Ticket(models.Model):
