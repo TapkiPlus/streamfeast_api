@@ -126,16 +126,20 @@ class SaveUserData(APIView):
         session_id = request.data.get('session_id')
         user_data, _ = UserData.objects.get_or_create(session=session_id)
         
-        if request.data.get('firstname'):
-            user_data.firstname = request.data.get('firstname')
-        if request.data.get('lastname'):
-            user_data.lastname = request.data.get('lastname')
-        if request.data.get('email'):
-            user_data.email = request.data.get('email')
-        if request.data.get('phone'):
-            user_data.phone = request.data.get('phone')
-        # if request.data.get('wentToCheckout'):
-        #     user_data.wentToCheckout += 1   <- this is increased by create_order
+        firstname = request.data.get('firstname')
+        lastname = request.data.get('lastname')
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        
+        if firstname is not None:
+            user_data.firstname = firstname
+        if lastname is not None:
+            user_data.lastname = lastname
+        if email is not None:
+            user_data.email = email
+        if phone is not None:
+            user_data.phone = phone
+
         if request.data.get('returnedToShop'):
             user_data.returnedToShop += 1
         if request.data.get('clickedPay'):

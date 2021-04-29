@@ -29,7 +29,9 @@ class UserDataAdmin(admin.ModelAdmin):
                     'returnedToShop',
                     'clickedPay',
                     'tryedToPayAgain',
-                    'clickedTechAssistance']
+                    'clickedTechAssistance',
+                    'successfulPayments',
+                    'failedPayments']
     search_fields = ('firstname',
                      'lastname',
                      'email')
