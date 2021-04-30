@@ -2,11 +2,14 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+#fixme: update to streamfest.ru
+SITE_URL = 'http://sf.tagobar.ru'
 BASE_URL = ''
 SECRET_KEY = '$sgr9(w7g-5$1c=ip@0ex52rfyd$i5_8qtk28zi9nwy0br^23('
 
 DEBUG = True
 
+CSRF_COOKIE_NAME = "csrftoken"
 CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = ['*']
 
@@ -24,6 +27,20 @@ EMAIL_HOST_PASSWORD = '************'
 DEFAULT_FROM_EMAIL = 'tickets@streamfest.ru'
 EMAIL_USE_TLS = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -36,7 +53,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'ckeditor',
-    'api'
+    'api.apps.ApiConfig'
 ]
 
 MIDDLEWARE = [
@@ -55,7 +72,7 @@ ROOT_URLCONF = 'streamfeast_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'template']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -78,7 +95,7 @@ DATABASES = {
         # 'USER' : 'root',
         # 'PASSWORD': 'i12345',
         # 'HOST': 'localhost', 
-        # 'PORT': '3306' 
+        # 'PORT': '3306'  
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'streamfest',
         'USER' : 'streamfest',

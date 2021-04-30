@@ -1,0 +1,331 @@
+<mjml>
+  <mj-head>
+    <mj-title>Это ваше приглашение на Стримфест 2021. Сохраните или распечатайте QR-код из этого письма!</mj-title>
+    <mj-preview>
+      Это ваше приглашение на Стримфест 2021. Сохраните или распечатайте QR-код из этого письма!
+    </mj-preview>
+    <mj-style>
+      body {
+          color: #333333 !important;
+        }
+      .header {
+        height: 160px !important;
+        font-family: "Open Sans" !important;
+      }
+      .header-title {
+        min-height: 75px;
+        font-family: "Open Sans" !important;
+      }
+      .header-title p {
+          margin: 0;
+          font-family: "Open Sans" !important;
+      }
+      .header-title tbody{
+        height: 100%;
+        vertical-align: middle;
+        font-family: "Open Sans" !important;
+      }
+      .info p{
+        font-size: 16px;
+        line-height: 24px;
+        margin: 0;
+        font-family: "Open Sans" !important;
+      }
+      a {
+        color: #005fcf;
+        font-family: "Open Sans" !important;
+      }
+      a:hover {
+        color: #005fcf;
+        text-decoration: none;
+      }
+      a:visited {
+        color: #005fcf;
+      }
+      .intro p{
+        margin: 0 0 32px 0;
+        color: #333333;
+        font-family: "Open Sans" !important;
+      }
+      .intro span {
+        margin-top: 11px;
+        font-family: "Open Sans" !important;
+      }
+      .logo table {
+        text-align: right;
+        margin-left: auto;
+      }
+      .divider {
+        padding: 0;
+      }
+      .content p{
+        font-size: 16px;
+        line-height: 24px;
+        margin: 0;
+        font-family: "Open Sans" !important;
+      }
+      .content b{
+        white-space: nowrap;
+        font-family: "Open Sans" !important;
+      }
+      .content-1 p {
+        font-family: "Open Sans" !important;
+        margin: 0 0 16px 0;
+      }
+      .h2 h2{
+        font-size:18px;
+        font-family: "Open Sans" !important;
+      }
+      .qr-wrap {
+        min-width: 188px;
+        height: 100%;
+        max-width: 25%;
+      }
+      .footer-wrap {
+        width: 70% !important;
+      }
+      .footer {
+        padding: 0 0 0 20px;
+        font-family: "Open Sans" !important;
+      }
+      .footer h2 {
+        line-height: 1.2;
+        font-family: "Open Sans" !important;
+      }
+      .footer p{
+        font-size:14px;
+        font-family: "Open Sans" !important;
+        line-height: 19px;
+      }
+      .link-footer a{
+        font-size:18px;
+        line-height: 27px;
+        font-family: "Open Sans" !important;
+      }
+      .header td {
+        margin: 0;
+      }
+      @media screen and (max-width: 580px) {
+        .logo table{
+          margin-right: auto;
+          margin-bottom: 24px
+        }
+        .qr-wrap {
+          max-width: 100% !important;
+          width: 100% !important; 
+        }
+        .footer-wrap {
+          width: 100% !important; 
+          max-width: 100% !important;
+        }
+        .header-title p {
+          text-align: center;
+        }
+        .line {
+          display: none !important;
+        }
+        .header {
+          padding: 22px 0 0 0 !important;
+        }
+        .header td:first-of-type{
+          padding: 0!important;
+        }
+      }
+      @media screen and (max-width: 420px) {
+        .header {
+          height: 65px !important;
+        }
+      }
+    </mj-style>
+    
+  </mj-head>
+  <mj-body 
+    width=700px 
+    background-color=#ffffff
+    >
+    <mj-section background-url="http://www.antonivanovs.ru/img/for_email/header-pb.jpg"
+                background-size="100%"
+                background-repeat="no-repeat"
+                background-color="#FFFFFF"
+                padding="42px 0 50px"
+                css-class="header"
+                >
+        <!-- <mj-column width="49%">
+          <mj-image width="186px" css-class="logo" padding="0 30px" src="http://www.antonivanovs.ru/img/for_email/logo.png" alt="Стримфест 2021" />
+        </mj-column>
+        <mj-column
+          padding="3px 0 0 0"
+          width="2px"
+          border-left="2px solid #ffffff"
+        >
+          <mj-text
+            css-class="line"
+            padding="0"
+            height="63px"
+            >
+            
+          </mj-text>
+        </mj-column>
+        <mj-column 
+          css-class="header-title"
+          width="50%"
+          vertical-align="middle"
+        >
+          <mj-text 
+            font-size="24px"
+            color="#ffffff"
+            font-family="Open Sans"
+            text-transform="uppercase"
+            font-weight="bold"
+            padding-bottom="6px"
+          >
+            <p>Пресс-билет</p>
+          </mj-text>
+          <mj-text
+            font-size="18px"
+            color="#ffffff"
+            font-family="Open Sans"
+            text-transform="uppercase"
+            font-weight="bold"
+            padding-top="0"
+          >
+            <p>17-18 июля 2021</p>
+          </mj-text>
+        </mj-column> -->
+    </mj-section>
+    <mj-section padding="35px 40px 40px">
+  
+      <mj-column padding="0">
+        <mj-text color="#333333" font-size="18px" font-family="Open Sans" line-height="27px" css-class="intro" padding="0">
+          <p><b>Пятый международный фестиваль стрим-культуры Стримфест</b></br> Технопарк «Сколково», Москва</p>
+          <p>Приходите <b>17–18 июля</b> — будет здорово! <br/>
+            <a href="https://streamfest.ru/activities" css-class="link">Активности</a>, <a href="https://streamfest.ru/timetable" css-class="link">расписание</a>, <a href="https://streamfest.ru/stars" css-class="link">участники</a> и <a href="https://streamfest.ru/faq" css-class="link">ответы на вопросы</a>. 
+          </p>
+          <span css-class="intro-end">Будем рады Вашим анонсам!</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0 40px">
+      <mj-group css-class="divider" vertical-align="middle" >
+        <mj-column width="45%" padding="0">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="14px 10px 14px 0"/> 
+        </mj-column>
+        <mj-column width="10%" padding="0">
+          
+          <mj-image width="32px" src="http://www.antonivanovs.ru/img/for_email/rocket_ico.png" alt="" padding="0" align="center"/>
+          
+        </mj-column>
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="14px 10px 14px 0"/> 
+        </mj-column>
+      </mj-group>
+      
+      
+    </mj-section>
+    <mj-section padding="18px 40px 22px">
+      <mj-column>
+        <mj-text color="#333333" css-class="content content-1" padding="0">
+          <p><b>Как и на чем приехать?</b></p>
+          <p>Удобнее всего — на легком метро направления МЦД-1, станция «Сколково». 
+              Проложите свой маршрут по <a href="https://yandex.ru/metro/moscow">интерактивной карте</a>. </p>
+          <p>Еще можно приехать на такси, своей машине или рейсовом автобусе. 
+              Обязательно посмотрите, <a href="https://streamfest.ru/contact">как лучше проехать</a> на вашем виде транспорта!</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0 40px">
+      <mj-group css-class="divider" vertical-align="middle">
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="11px 10px 11px 0"/> 
+        </mj-column>
+        <mj-column width="10%" padding="0">
+          
+          <mj-image width="26px" src="http://www.antonivanovs.ru/img/for_email/stop_ico.png" alt="" padding="0" align="center"/>
+          
+        </mj-column>
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="11px 0 11px 10px"/> 
+        </mj-column>
+      </mj-group>
+      
+      
+    </mj-section>
+    <mj-section padding="24px 40px 42px">
+      <mj-column>
+        <mj-text color="#333333" css-class="content" padding="0">
+          <p><b>Нельзя проносить на Стримфест:</b> алкоголь, психотропные и наркотические 
+            вещества, бутафорское, холодное и огнестрельное оружие, а&nbsp;также любые 
+            предметы, которыми можно нанести урон жизни и здоровью. <br/>
+            <a href="https://docs.google.com/document/d/1UiAIfANWzYRYZuGIW1sj3tAQ20-_AUEnvvgt8-xdPKQ/edit?usp=sharing">Полные правила Технопарка «Сколково»</a>. 
+            <br/><br/>
+            <b>Возрастные ограничения:</b> подростки <b>14-16&nbsp;лет</b> должны находиться 
+            на&nbsp;фестивале в постоянном сопровождении любого лица старше 18 лет. 
+            Дети&nbsp;<b>8-13&nbsp;лет</b> на фестиваль не допускаются в соответствии с требованиями
+            площадки. Дети <b>до 8&nbsp;лет</b> должны находиться на&nbsp;фестивале в постоянном 
+            сопровождении своих родственников или опекунов.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="0 40px">
+      <mj-group css-class="divider" vertical-align="middle">
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="15px 10px 15px 0"/> 
+        </mj-column>
+        <mj-column width="10%" padding="0">
+          
+          <mj-image width="22px" src="http://www.antonivanovs.ru/img/for_email/bagde_ico.png" alt="" padding="0" align="center"/>
+          
+        </mj-column>
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="15px 0 15px 10px"/> 
+        </mj-column>
+      </mj-group>
+    </mj-section>
+    <mj-section padding="24px 40px 10px">
+      <mj-column>
+        <mj-text color="#333333" css-class="content content-1" padding="0">
+          <p><b>Как получить бейдж прессы?</b></p>
+          <p>У вас отдельный вход на фестиваль — ищите табличку «Пресса и блогеры». 
+              Покажите этот билет на входе и получите входной браслет. 
+              <br/><br/>
+              Пройдите охрану и рамки, зайдите внутрь Технопарка. Если вам достаточно 
+              браслета, это всё — наслаждайтесь Стримфестом!
+              <br/><br/>
+              Если вам нужен бейдж «Пресса», то ищите стойку информации, она будет 
+              неподалеку. Покажите там этот билет и получите бейдж.
+              </p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column width="100%" >
+        <mj-text color="#333333" padding="0" align="center" css-class="h2" >
+          <h2>Пожалуйста, не забудьте паспорт! </h2>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#f5f5f5" padding="0 40px">
+    
+      <mj-column css-class="qr-wrap" padding="0" vertical-align="middle" background-color="#ffffff">
+        <mj-image src="http://www.antonivanovs.ru/img/for_email/QR.png" alt="qr" padding="20px 20px" />
+      </mj-column>
+      <mj-column width="69%" css-class="footer-wrap">
+        <mj-text color="#333333" css-class="footer" padding="0 0 0 20px">
+          <h2>Билет — это QR-код. </br>Распечатайте или сохраните его!</h2>
+          <p>Не забудьте его! Без кода вы не попадете на фестиваль. Билет с кодом действителен на проход для одного человека. Его надо будет отсканировать на входе.
+          <br/><br/>
+          <a href="http://www.antonivanovs.ru/img/for_email/QR.png" target="_blank"> Если QR-код не видно</a> — он откроется в отдельном окне.
+          </p>
+        </mj-text>
+      </mj-column>
+    
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mj-text align="center" css-class="link-footer">
+          <a href="https://www.streamfest.ru" >www.streamfest.ru</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

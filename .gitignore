@@ -1,5 +1,8 @@
 # Project exclude paths
+.idea
 /venv/
 /media/
-db.sqlite3
+*.sqlite3
+node_modules
+package-lock.json
 __pycache__

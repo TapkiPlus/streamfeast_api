@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponse
@@ -22,7 +24,6 @@ class GetStreamers(generics.ListAPIView):
     serializer_class = StreamerSerializer
 
     def get_queryset(self):
-        print()
         if self.request.query_params.get('at_home') == 'show':
             streamers = Streamer.objects.filter(isAtHome=True, isActive=True).order_by('?')[:10]
         else:
@@ -58,7 +59,7 @@ class GetCart(generics.RetrieveAPIView):
 
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
-        result = check_if_cart_exists(session_id)
+        result, _ = Cart.objects.get_or_create(session=session_id)
         print("Result:")
         print(result)
         return result
@@ -68,34 +69,35 @@ class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        ticket.delete()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+        item = CartItem.objects.get(id=item_id)
+        item.delete()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
-
 
 class AddItemQuantity(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        ticket.quantity += 1
-        ticket.save()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+        item = CartItem.objects.get(id=item_id)
+        item.quantity += 1
+        item.save()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
-
 
 class DeleteItemQuantity(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
         item_id = request.data.get('item_id')
-        ticket = CartItem.objects.get(id=item_id)
-        if ticket.quantity > 1:
-            ticket.quantity -= 1
-            ticket.save()
+        item = CartItem.objects.get(id=item_id)
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
         else:
-            ticket.delete()
-        calculate_cart_price(cart=check_if_cart_exists(session_id))
+            item.delete()
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        cart.calculate_cart_price()
         return Response(status=200)
 
 
@@ -109,15 +111,12 @@ class AddItem(APIView):
         streamer = None
         if streamer_id != 0:
             streamer = Streamer.objects.get(id=streamer_id)
-        cart = check_if_cart_exists(session_id)
-
-        print("Cart:")
-        print(cart)
+        cart, _ = Cart.objects.get_or_create(session=session_id)
 
         item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
         item.save()
-        calculate_cart_price(cart)
+        cart.calculate_cart_price()
         cart.save()
         return Response(status=200)
 
@@ -125,49 +124,33 @@ class AddItem(APIView):
 class SaveUserData(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
+        user_data, _ = UserData.objects.get_or_create(session=session_id)
+        
         firstname = request.data.get('firstname')
         lastname = request.data.get('lastname')
         email = request.data.get('email')
         phone = request.data.get('phone')
-        wentToCheckout = request.data.get('wentToCheckout')
-        returnedToShop = request.data.get('returnedToShop')
-        clickedPay = request.data.get('clickedPay')
-        tryedToPayAgain = request.data.get('tryedToPayAgain')
-        clickedTechAssistance = request.data.get('clickedTechAssistance')
-        try:
-            userData = UserData.objects.get(session=session_id)
-            if firstname:
-                userData.firstname = firstname
-            elif lastname:
-                userData.lastname = lastname
-            elif email:
-                userData.email = email
-            elif phone:
-                userData.phone = phone
-            elif wentToCheckout:
-                userData.wentToCheckout += 1
-            elif returnedToShop:
-                userData.returnedToShop += 1
-            elif clickedPay:
-                userData.clickedPay += 1
-            elif tryedToPayAgain:
-                userData.tryedToPayAgain += 1
-            elif clickedTechAssistance:
-                userData.clickedTechAssistance += 1
-            userData.save()
-        except UserData.DoesNotExist:
-            UserData.objects.create(
-                session=session_id,
-                firstname=firstname if firstname else '',
-                lastname=lastname if lastname else '',
-                email=email if email else '',
-                phone=phone if phone else '',
-                wentToCheckout=1 if wentToCheckout else 0,
-                returnedToShop=1 if returnedToShop else 0,
-                clickedPay=1 if clickedPay else 0,
-                tryedToPayAgain=1 if tryedToPayAgain else 0,
-                clickedTechAssistance=1 if clickedTechAssistance else 0,
-            ).save()
+        
+        if firstname is not None:
+            user_data.firstname = firstname
+        if lastname is not None:
+            user_data.lastname = lastname
+        if email is not None:
+            user_data.email = email
+        if phone is not None:
+            user_data.phone = phone
+
+        if request.data.get('returnedToShop'):
+            user_data.returnedToShop += 1
+        if request.data.get('clickedPay'):
+            user_data.clickedPay += 1
+        if request.data.get('tryedToPayAgain'):
+            user_data.tryedToPayAgain += 1
+        if request.data.get('clickedTechAssistance'):
+            user_data.clickedTechAssistance += 1
+
+        user_data.save()
+
         return Response(status=200)
 
 
@@ -178,21 +161,37 @@ class GetUserData(generics.RetrieveAPIView):
         return UserData.objects.get(session=self.request.query_params.get('session_id'))
 
 
+class GetQr(APIView):
+    def get(self, request):
+        uuid = self.request.query_params.get('ticket_uuid')
+        if Ticket.objects.filter(ticket_uuid=uuid).exists():
+            response = HttpResponse(content=qr_code(uuid), content_type="image/png")
+            return response
+        else: 
+            return Response(status=404)
+
+
 class CreateOrder(APIView):
 
     @transaction.atomic
     def post(self, request):
-        print(request.data)
         session_id = request.data.get('session_id')
-        cart = check_if_cart_exists(session_id)
+        cart, _ = Cart.objects.get_or_create(session=session_id)
+        user_data, _ = UserData.objects.get_or_create(session=session_id)
+        user_data.checkout()
+        order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
         new_order = Order.objects.create(
-            name=request.data.get('name'),
-            family=request.data.get('family'),
+            id=order_id,
+            session=session_id,
+            firstname=request.data.get('firstname'),
+            lastname=request.data.get('lastname'),
             email=request.data.get('email'),
             phone=request.data.get('phone')
         )
         cart_items = CartItem.objects.filter(parent=cart)
+        index = 0
         for i in cart_items:
+            index += 1
             new_item = OrderItem.objects.create(
                 order=new_order,
                 ticket_type=i.ticket_type,
@@ -201,7 +200,6 @@ class CreateOrder(APIView):
                 amount=i.quantity * i.ticket_type.price
             )
             new_order.amount += new_item.amount
-        clear_cart(cart)
         tx = init_payment(new_order)
         tx.save()
         return Response(tx.redirect_url, status=200)
@@ -249,8 +247,8 @@ class TicketAsPdf(APIView):
 
 class TicketClear(APIView):
     def get(self, request):
-        id = request.query_params.ticket_id
-        ticket = Ticket.objects.get(ticket_id=request.param.ticket_id)
+        id = request.query_params.ticket_uuid
+        ticket = Ticket.objects.get(ticket_uuid=request.param.ticket_uuid)
         ticket.when_cleared = datetime.datetime.now()
         ticket.save()
         return Response(status=200)
