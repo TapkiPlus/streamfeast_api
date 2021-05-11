@@ -42,7 +42,7 @@ def send_application(order):
         if streamer is not None:
             email = streamer.email
             if email is not None and email not in bccs:
-                bccs.push(email)
+                bccs.append(email)
     
     tos = [order.email]
     
