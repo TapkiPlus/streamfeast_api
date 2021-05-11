@@ -36,7 +36,7 @@ def send_application(order):
     order_header = 'Стримфест 2021 — подтверждение заказа №{}'.format(order.id)
     order_content = order_html(order, tickets)
 
-    bccs = ["svs@cgevent.ru", "info@streamfest.ru", "alyona@lisetskiy.com"]
+    bccs = ["info@streamfest.ru", "alyona@lisetskiy.com"]
     for t in tickets:
         streamer = t.order_item.streamer
         if streamer is not None:
