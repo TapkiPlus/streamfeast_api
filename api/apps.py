@@ -2,10 +2,12 @@ import logging
 from django.apps import AppConfig
 from apscheduler.schedulers.background import BackgroundScheduler
 
-STARTED = False
+
 
 class ApiConfig(AppConfig):
     name = 'api'
+
+    STARTED = False
 
     def ready(self):
         if not STARTED:
