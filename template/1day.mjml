@@ -199,8 +199,8 @@
           <b>№ билета:</b> {{ticket.ticket_id}} 
           <br/></br>
           <b>Тип билета:</b> Билет на 1 день
-          {% if ticket.order_item.ticket_type.streamer %}
-             от <b>{{ticket.order_item.ticket_type.streamer.nickName}}</b></br>
+          {% if ticket.order_item.streamer %}
+             от <b>{{ticket.order_item.streamer.nickName}}</b></br>
             (вы поддержали участника фестиваля, купив этот билет)
           {% endif %}
           </p>
