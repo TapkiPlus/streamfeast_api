@@ -65,6 +65,7 @@ class Streamer(models.Model):
     orderPP = models.IntegerField("Номер ПП", default=10)
     nickName = models.CharField("Ник", max_length=255, blank=False, null=True, db_index=True)
     name = models.CharField("Имя Фамилия", max_length=255, blank=False, null=True)
+    email = models.CharField("Email", max_length=255, blank=True, null=True)
     photo = models.ImageField("Аватар", upload_to="speaker_img/", blank=False, null=True)
     pageHeader = models.ImageField("Обложка", upload_to="speaker_img/", blank=False, null=True)
     nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True)
