@@ -20,6 +20,33 @@ class StreamerAdmin(admin.ModelAdmin):
         model = Streamer
 
 
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+    ordering = ("id",)
+
+class PlatronPaymentInline(admin.TabularInline):
+    model = PlatronPayment
+    extra = 0
+    ordering = ("id",)
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "firstname",
+        "lastname",
+        "email",
+        "phone",
+        "when_paid",
+        "created_at",
+        "amount"
+    ]
+    inlines = [OrderItemInline, PlatronPaymentInline]
+
+    class Meta:
+        model = Order
+
+
 class UserDataAdmin(admin.ModelAdmin):
     list_display = ['firstname',
                     'lastname',
@@ -49,7 +76,7 @@ admin.site.register(Ticket)
 admin.site.register(Cart)
 #admin.site.register(CartItem)
 admin.site.register(UserData, UserDataAdmin)
-admin.site.register(Order)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(PlatronPayment)
 admin.site.register(Place)
 admin.site.register(Activity)
