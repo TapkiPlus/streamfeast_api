@@ -60,10 +60,7 @@ class GetCart(generics.RetrieveAPIView):
     def get_object(self):
         session_id = self.request.query_params.get('session_id')
         result, _ = Cart.objects.get_or_create(session=session_id)
-        print("Result:")
-        print(result)
         return result
-
 
 class DeleteItem(APIView):
     def post(self, request):
@@ -73,7 +70,7 @@ class DeleteItem(APIView):
         item.delete()
         cart, _ = Cart.objects.get_or_create(session=session_id)
         cart.calculate_cart_price()
-        return Response(status=200)
+        return Response(CartSerializer(cart).data)
 
 class AddItemQuantity(APIView):
     def post(self, request):
@@ -84,7 +81,7 @@ class AddItemQuantity(APIView):
         item.save()
         cart, _ = Cart.objects.get_or_create(session=session_id)
         cart.calculate_cart_price()
-        return Response(status=200)
+        return Response(CartSerializer(cart).data)
 
 class DeleteItemQuantity(APIView):
     def post(self, request):
@@ -98,12 +95,11 @@ class DeleteItemQuantity(APIView):
             item.delete()
         cart, _ = Cart.objects.get_or_create(session=session_id)
         cart.calculate_cart_price()
-        return Response(status=200)
+        return Response(CartSerializer(cart).data)
 
 
 class AddItem(APIView):
     def post(self, request):
-        print(request.data)
         session_id = request.data.get('session_id')
         ticket_type_id = request.data.get('item_id')
         ticket_type = TicketType.objects.get(id=ticket_type_id)
@@ -112,14 +108,12 @@ class AddItem(APIView):
         if streamer_id != 0:
             streamer = Streamer.objects.get(id=streamer_id)
         cart, _ = Cart.objects.get_or_create(session=session_id)
-
-        item, created = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
+        item, _ = CartItem.objects.get_or_create(parent=cart, ticket_type=ticket_type, streamer=streamer)
         item.quantity += 1
         item.save()
         cart.calculate_cart_price()
         cart.save()
-        return Response(status=200)
-
+        return Response(CartSerializer(cart).data)
 
 class SaveUserData(APIView):
     def post(self, request):
