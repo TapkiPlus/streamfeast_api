@@ -2,6 +2,7 @@ import logging
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+import json
 from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.response import Response
@@ -32,11 +33,22 @@ class GetStreamers(generics.ListAPIView):
 
 
 class GetStreamerStats(generics.RetrieveAPIView):
-    serializer_class = StreamerSerializer
+    serializer_class = StreamerStatsSerializer
 
     def get_object(self):
-        print(self.request.query_params.get('uniqUrl'))
-        return Streamer.objects.get(uniqUrl=self.request.query_params.get('uniqUrl'))
+        streamer = Streamer.objects.get(uniqUrl=self.request.query_params.get('uniqUrl'))
+        # Order.objects.get(firstname='qwdwqd')
+        # Streamer.objects.get(uniqUrl=self.request.query_params.get('uniqUrl'))
+        # print(streamer.nickName)
+        # print(HttpResponse(content=json.dumps({
+        #         'streamer': streamer
+        #     }), status=200, content_type="application/json"))
+        print(streamer)
+        return streamer
+        # HttpResponse(content=json.dumps({
+        #         'nickName': streamer.nickName
+        #     }), status=200, content_type="application/json")
+        # HttpResponse(serializers.serialize('json', streamer.get_queryset()), content_type="application/json")
 
 
 class GetFaq(generics.ListAPIView):

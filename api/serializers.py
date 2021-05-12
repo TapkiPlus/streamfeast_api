@@ -65,6 +65,18 @@ class StreamerSerializer(serializers.ModelSerializer):
         return response
 
 
+class StreamerStatsSerializer(serializers.ModelSerializer):
+    # order = serializers.OrderSerializer()
+    class Meta:
+        model = Streamer
+        fields = '__all__'
+    # def get_order(self, obj): 
+    #     return obj.order.firstname
+    # def to_representation(self, obj):
+    #     serialized_data = super(StreamerStatsSerializer, self).to_representation(obj)
+    #     # serialized_data['ticket_one'] = Order.objects.get(firstname='qwdwqd')
+    #     return serialized_data
+
 class CartItemSerializer(serializers.ModelSerializer):
     ticket_type = TicketTypeSerializer(many=False, read_only=True, required=False)
     streamer = StreamerSerializer(many=False, read_only=True, required=False)

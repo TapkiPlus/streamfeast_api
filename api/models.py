@@ -74,7 +74,7 @@ class Streamer(models.Model):
     isAtHome = models.BooleanField("Отображать на главной?", default=False)
     sells = models.BooleanField("Отображать блок билетов и подпись?", default=True)
     isActive = models.BooleanField("Отображать?", default=False) 
-    uniqUrl = models.CharField("Хеш для ссылки (/star/stats/)", max_length=100, blank=True, null=True, editable=False)
+    uniqUrl = models.UUIDField("Хеш для ссылки (/profile/)", default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
         slug = slugify(self.nickName)
@@ -84,7 +84,6 @@ class Streamer(models.Model):
             if testSlug:
                 slugRandom = "-" + "".join(choices(string.ascii_lowercase + string.digits, k=2))
             self.nickNameSlug = slug + slugRandom
-        self.uniqUrl = self.nickNameSlug + "-" + "".join(choices(string.ascii_lowercase + string.digits, k=10))
         super(Streamer, self).save(*args, **kwargs)
 
     def __str__(self):
