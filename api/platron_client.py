@@ -21,7 +21,7 @@ def init_payment(order):
     request.add_order_id(str(order.id))
     ###################################
     # TODO: remove when in production #
-    # request.add_testing_mode()      #
+    request.add_testing_mode()      #
     ###################################
     raw = client.request(request)
     doc = parse_response(raw)
