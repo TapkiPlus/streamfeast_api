@@ -18,6 +18,9 @@ class PlatronPayment(models.Model):
     status = models.BooleanField("Status", editable=False)
     redirect_url = models.CharField("RedirectURL", max_length=255, blank=False, unique=True, editable=False, null=False)
 
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
 
 class Faq(models.Model):
     order_number = models.IntegerField("№ П/П", default=100)
@@ -221,15 +224,20 @@ class Order(models.Model):
     when_paid = models.DateTimeField("Дата и время оплаты", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.IntegerField("Стоимось", default=0)
+    payment_system = models.TextField("Платежная система", null=True)
+    card_pan = models.TextField("Номер карты", null=True)
+    failure_code = models.IntegerField("Код ошибки", null=True)
+    failure_desc = models.TextField("Описание ошибки", null=True)
+
 
     @transaction.atomic
-    def set_paid(self):
+    def set_paid(self, date):
         if self.when_paid is None:
             cart = Cart.objects.get(session=self.session)
             cart.clear_cart()
             ud = UserData.objects.get(session=self.session)
             ud.payment_success()
-            self.when_paid = datetime.now()
+            self.when_paid = date
             items = OrderItem.objects.filter(order=self)
             index = 0
             for item in items:

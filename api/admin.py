@@ -25,11 +25,6 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     ordering = ("id",)
 
-class PlatronPaymentInline(admin.TabularInline):
-    model = PlatronPayment
-    extra = 0
-    ordering = ("id",)
-
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -39,9 +34,13 @@ class OrderAdmin(admin.ModelAdmin):
         "phone",
         "when_paid",
         "created_at",
-        "amount"
+        "amount",
+        "payment_system",
+        "card_pan",
+        "failure_code",
+        "failure_desc"
     ]
-    inlines = [OrderItemInline, PlatronPaymentInline]
+    inlines = [OrderItemInline]
 
     class Meta:
         model = Order

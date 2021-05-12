@@ -1,5 +1,6 @@
 from xml.dom import minidom
 
+from dateutil import parser
 from platron.callback import Callback
 from platron.request.clients.post_client import PostClient
 from platron.request.request_builders.init_payment_builder import InitPaymentBuilder
@@ -68,14 +69,29 @@ def payment_check(params):
         return callback.response_error(params, 'Неправильная подпись')
 
 
+def get_decimal(text):
+    try: return float(text)
+    except: return None 
+
+
+def get_int(text):
+    try: return int(text)
+    except: return None 
+
+
 def payment_result(params):
     callback = Callback(RESULT_PATH, MERCHANT_KEY)
     if callback.validate_sig(params):
         try:
             order_id = params["pg_order_id"]
             order = Order.objects.get(id=order_id)
+            order.payment_system = params["pg_payment_system"]
+            order.card_pan = params["pg_card_pan"]
+            order.failure_code = get_int(params["pg_failure_code"])
+            order.failure_desc = params["pg_failure_description"]
+            date = parser.parse(params["pg_payment_date"])
             if params["pg_result"] == "1":
-                order.set_paid()
+                order.set_paid(date)
                 send_application(order)
             else:
                 order.set_unpaid()
