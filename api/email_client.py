@@ -35,8 +35,18 @@ def send_application(order):
     tickets = Ticket.objects.filter(order=order)
     order_header = 'Стримфест 2021 — подтверждение заказа №{}'.format(order.id)
     order_content = order_html(order, tickets)
+
+    bccs = ["info@streamfest.ru", "alyona@lisetskiy.com"]
+    for t in tickets:
+        streamer = t.order_item.streamer
+        if streamer is not None:
+            email = streamer.email
+            if email is not None and email not in bccs:
+                bccs.append(email)
     
-    msg = EmailMessage(order_header, order_content, SOURCE_EMAIL, [order.email])
+    tos = [order.email]
+    
+    msg = EmailMessage(subject=order_header, body=order_content, from_email=SOURCE_EMAIL, to=tos, bcc=bccs)
     msg.content_subtype = "html"  # Main content is now text/html
     msg.send()
 
