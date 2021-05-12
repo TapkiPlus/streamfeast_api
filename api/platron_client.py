@@ -86,9 +86,9 @@ def payment_result(params):
             order_id = params["pg_order_id"]
             order = Order.objects.get(id=order_id)
             order.payment_system = params["pg_payment_system"]
-            order.card_pan = params["pg_card_pan"]
-            order.failure_code = get_int(params["pg_failure_code"])
-            order.failure_desc = params["pg_failure_description"]
+            order.card_pan = params.get("pg_card_pan", "")
+            order.failure_code = get_int(params.get("pg_failure_code", "0"))
+            order.failure_desc = params.get("pg_failure_description")
             date = parser.parse(params["pg_payment_date"])
             if params["pg_result"] == "1":
                 order.set_paid(date)
