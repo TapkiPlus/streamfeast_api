@@ -118,33 +118,10 @@ class AddItem(APIView):
 class SaveUserData(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
-        user_data, _ = UserData.objects.get_or_create(session=session_id)
-        
-        firstname = request.data.get('firstname')
-        lastname = request.data.get('lastname')
-        email = request.data.get('email')
-        phone = request.data.get('phone')
-        
-        if firstname is not None:
-            user_data.firstname = firstname
-        if lastname is not None:
-            user_data.lastname = lastname
-        if email is not None:
-            user_data.email = email
-        if phone is not None:
-            user_data.phone = phone
-
-        if request.data.get('returnedToShop'):
-            user_data.returnedToShop += 1
-        if request.data.get('clickedPay'):
-            user_data.clickedPay += 1
-        if request.data.get('tryedToPayAgain'):
-            user_data.tryedToPayAgain += 1
-        if request.data.get('clickedTechAssistance'):
-            user_data.clickedTechAssistance += 1
-
-        user_data.save()
-
+        allowed = ["firstname", "lastname", "email", "phone", "returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"] 
+        update = {k: v for k, v in request.data.items() if k in allowed}
+        print("Updating userdata with {}".format(update))
+        UserData.objects.update_or_create(session=session_id, defaults=update)
         return Response(status=200)
 
 
@@ -168,7 +145,6 @@ class GetQr(APIView):
 
 class CreateOrder(APIView):
 
-    @transaction.atomic
     def post(self, request):
         session_id = request.data['session_id']
         user_data, _ = UserData.objects.get_or_create(session=session_id)

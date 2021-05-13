@@ -195,7 +195,7 @@ class UserData(models.Model):
     def __str__(self):
         return f"{self.firstname}"
 
-    def checkout(self): 
+    def checkout(self):
         self.wentToCheckout += 1
         self.save()
 
