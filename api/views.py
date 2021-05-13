@@ -152,7 +152,8 @@ class GetUserData(generics.RetrieveAPIView):
     serializer_class = UserDataSerializer
 
     def get_object(self):
-        return UserData.objects.get(session=self.request.query_params.get('session_id'))
+        ud, _ = UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
+        return ud
 
 
 class GetQr(APIView):
