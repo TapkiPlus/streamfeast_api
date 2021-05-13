@@ -117,11 +117,21 @@ class AddItem(APIView):
 
 class SaveUserData(APIView):
     def post(self, request):
+        from django.db.models import F
         session_id = request.data.get('session_id')
-        allowed = ["firstname", "lastname", "email", "phone", "returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"] 
+        allowed = ["firstname", "lastname", "email", "phone"] 
         update = {k: v for k, v in request.data.items() if k in allowed}
-        print("Updating userdata with {}".format(update))
-        UserData.objects.update_or_create(session=session_id, defaults=update)
+        if update:
+            UserData.objects.update_or_create(session=session_id, defaults=update)
+
+        increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
+        inc_fields = {}
+        for k, _ in request.data.items():
+            if k in increments:
+                inc_fields[k] = F[k] + 1
+        if inc_fields:             
+            UserData.objects.filter(session=session_id).update(inc_fields)
+        
         return Response(status=200)
 
 
