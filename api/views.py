@@ -180,20 +180,20 @@ class CreateOrder(APIView):
             firstname=request.data.get('firstname'),
             lastname=request.data.get('lastname'),
             email=request.data.get('email'),
-            phone=request.data.get('phone')
+            phone=request.data.get('phone'),
+            amount=cart.total_price
         )
         cart_items = CartItem.objects.filter(parent=cart)
         index = 0
         for i in cart_items:
             index += 1
-            new_item = OrderItem.objects.create(
+            OrderItem.objects.create(
                 order=new_order,
                 ticket_type=i.ticket_type,
                 quantity=i.quantity,
                 streamer=i.streamer,
                 amount=i.quantity * i.ticket_type.price
             )
-            new_order.amount += new_item.amount
         tx = init_payment(new_order)
         tx.save()
         return Response(tx.redirect_url, status=200)
