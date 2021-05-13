@@ -170,32 +170,12 @@ class CreateOrder(APIView):
 
     @transaction.atomic
     def post(self, request):
-        session_id = request.data.get('session_id')
-        cart, _ = Cart.objects.get_or_create(session=session_id)
+        session_id = request.data['session_id']
         user_data, _ = UserData.objects.get_or_create(session=session_id)
         user_data.checkout()
-        order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
-        new_order = Order.objects.create(
-            id=order_id,
-            session=session_id,
-            firstname=request.data.get('firstname'),
-            lastname=request.data.get('lastname'),
-            email=request.data.get('email'),
-            phone=request.data.get('phone'),
-            amount=cart.total_price
-        )
-        cart_items = CartItem.objects.filter(parent=cart)
-        index = 0
-        for i in cart_items:
-            index += 1
-            OrderItem.objects.create(
-                order=new_order,
-                ticket_type=i.ticket_type,
-                quantity=i.quantity,
-                streamer=i.streamer,
-                amount=i.quantity * i.ticket_type.price
-            )
-        tx = init_payment(new_order)
+        print("User {} went to checkout {} times".format(session_id, user_data.wentToCheckout))
+        order = Order.create(session_id, request.data)
+        tx = init_payment(order)
         tx.save()
         return Response(tx.redirect_url, status=200)
 
