@@ -6,7 +6,6 @@ from random import choices
 
 import pdfkit
 from .services import qr_code
-from .platron_client import init_payment
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 from django.db import transaction
