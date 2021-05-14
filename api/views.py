@@ -117,34 +117,21 @@ class AddItem(APIView):
 
 class SaveUserData(APIView):
     def post(self, request):
+        from django.db.models import F
         session_id = request.data.get('session_id')
-        user_data, _ = UserData.objects.get_or_create(session=session_id)
+        allowed = ["firstname", "lastname", "email", "phone"] 
+        update = {k: v for k, v in request.data.items() if k in allowed}
+        if update:
+            UserData.objects.update_or_create(session=session_id, defaults=update)
+
+        increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
+        inc_fields = {}
+        for k, _ in request.data.items():
+            if k in increments:
+                inc_fields[k] = F[k] + 1
+        if inc_fields:             
+            UserData.objects.filter(session=session_id).update(inc_fields)
         
-        firstname = request.data.get('firstname')
-        lastname = request.data.get('lastname')
-        email = request.data.get('email')
-        phone = request.data.get('phone')
-        
-        if firstname is not None:
-            user_data.firstname = firstname
-        if lastname is not None:
-            user_data.lastname = lastname
-        if email is not None:
-            user_data.email = email
-        if phone is not None:
-            user_data.phone = phone
-
-        if request.data.get('returnedToShop'):
-            user_data.returnedToShop += 1
-        if request.data.get('clickedPay'):
-            user_data.clickedPay += 1
-        if request.data.get('tryedToPayAgain'):
-            user_data.tryedToPayAgain += 1
-        if request.data.get('clickedTechAssistance'):
-            user_data.clickedTechAssistance += 1
-
-        user_data.save()
-
         return Response(status=200)
 
 
@@ -152,7 +139,8 @@ class GetUserData(generics.RetrieveAPIView):
     serializer_class = UserDataSerializer
 
     def get_object(self):
-        return UserData.objects.get(session=self.request.query_params.get('session_id'))
+        ud, _ = UserData.objects.get_or_create(session=self.request.query_params.get('session_id'))
+        return ud
 
 
 class GetQr(APIView):
@@ -167,34 +155,13 @@ class GetQr(APIView):
 
 class CreateOrder(APIView):
 
-    @transaction.atomic
     def post(self, request):
-        session_id = request.data.get('session_id')
-        cart, _ = Cart.objects.get_or_create(session=session_id)
+        session_id = request.data['session_id']
         user_data, _ = UserData.objects.get_or_create(session=session_id)
         user_data.checkout()
-        order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
-        new_order = Order.objects.create(
-            id=order_id,
-            session=session_id,
-            firstname=request.data.get('firstname'),
-            lastname=request.data.get('lastname'),
-            email=request.data.get('email'),
-            phone=request.data.get('phone'),
-            amount=cart.total_price
-        )
-        cart_items = CartItem.objects.filter(parent=cart)
-        index = 0
-        for i in cart_items:
-            index += 1
-            OrderItem.objects.create(
-                order=new_order,
-                ticket_type=i.ticket_type,
-                quantity=i.quantity,
-                streamer=i.streamer,
-                amount=i.quantity * i.ticket_type.price
-            )
-        tx = init_payment(new_order)
+        print("User {} went to checkout {} times".format(session_id, user_data.wentToCheckout))
+        order = Order.create(session_id, request.data)
+        tx = init_payment(order)
         tx.save()
         return Response(tx.redirect_url, status=200)
 

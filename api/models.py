@@ -195,7 +195,7 @@ class UserData(models.Model):
     def __str__(self):
         return f"{self.firstname}"
 
-    def checkout(self): 
+    def checkout(self):
         self.wentToCheckout += 1
         self.save()
 
@@ -228,6 +228,38 @@ class Order(models.Model):
     card_pan = models.TextField("Номер карты", null=True)
     failure_code = models.IntegerField("Код ошибки", null=True)
     failure_desc = models.TextField("Описание ошибки", null=True)
+
+    @staticmethod
+    @transaction.atomic
+    def create(session_id, data): 
+        cart = Cart.objects.get(session=session_id)
+        user_data = UserData.objects.get(session=session_id)
+        order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
+        print("Creating order id {}".format(order_id))
+        new_order = Order.objects.create(
+            id=order_id,
+            session=session_id,
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname'),
+            email=data.get('email'),
+            phone=data.get('phone'),
+            amount=cart.total_price
+        )
+        cart_items = CartItem.objects.filter(parent=cart)
+        index = 0
+        for i in cart_items:
+            index += 1
+            OrderItem.objects.create(
+                order=new_order,
+                ticket_type=i.ticket_type,
+                quantity=i.quantity,
+                streamer=i.streamer,
+                amount=i.quantity * i.ticket_type.price
+            )
+        return new_order
+
+
+
 
 
     @transaction.atomic
