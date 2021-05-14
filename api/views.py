@@ -1,11 +1,13 @@
-import logging
+import json
 
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datetime import datetime
 
 from .models import *
 from .platron_client import *
@@ -29,14 +31,6 @@ class GetStreamers(generics.ListAPIView):
         else:
             streamers = Streamer.objects.filter(isActive=True).order_by('orderPP')
         return streamers
-
-
-class GetStreamerStats(generics.RetrieveAPIView):
-    serializer_class = StreamerSerializer
-
-    def get_object(self):
-        print(self.request.query_params.get('uniqUrl'))
-        return Streamer.objects.get(uniqUrl=self.request.query_params.get('uniqUrl'))
 
 
 class GetFaq(generics.ListAPIView):
@@ -157,9 +151,7 @@ class CreateOrder(APIView):
 
     def post(self, request):
         session_id = request.data['session_id']
-        user_data, _ = UserData.objects.get_or_create(session=session_id)
-        user_data.checkout()
-        print("User {} went to checkout {} times".format(session_id, user_data.wentToCheckout))
+        UserData.checkout(session_id)
         order = Order.create(session_id, request.data)
         tx = init_payment(order)
         tx.save()
@@ -198,19 +190,11 @@ class PaymentResult(APIView):
         return HttpResponse(content=xml, status=200, content_type="application/xml")
 
 
-class TicketAsPdf(APIView):
-    def get(self, request):
-        ticket = Ticket.objects.first()
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="ticket.pdf"'
-        return response
-
-
 class TicketClear(APIView):
     def get(self, request):
         id = request.query_params.ticket_uuid
         ticket = Ticket.objects.get(ticket_uuid=request.param.ticket_uuid)
-        ticket.when_cleared = datetime.datetime.now()
+        ticket.when_cleared = datetime.now()
         ticket.save()
         return Response(status=200)
 
@@ -227,3 +211,34 @@ class GetActivity(generics.RetrieveAPIView):
         activity_id = self.request.query_params.get('activity_id')
         return Activity.objects.get(id=activity_id)
 
+
+class GetStreamerStats(APIView): 
+
+    def post(self, request):
+        uid = request.data.get("streamer_uuid")
+        start = request.data.get("from")
+        end = request.data.get("till")
+
+        summary = OrderItem.summary_by_uid(uid, start, end)
+        items = OrderItem.items_by_uid(uid, start, end)
+        
+        stats = {
+            "summary": list(summary),
+            "items": list(items)
+        }
+
+        return Response(json.dumps(stats, cls=DjangoJSONEncoder))
+
+
+class GetStreamerOrders(generics.ListAPIView): 
+    serializer_class = ActivitySerializer
+    def get(self, request):
+        uid = request.data["streamer_uuid"]
+        queryset = OrderItem.objects.filter( \
+            order__when_paid__isnull=False, \
+            streamer__uniqUrl=uid \
+        )
+
+class GetStreamerOrdersTotals(APIView): 
+    def get(self, request):
+        uid = request.data["streamer_uuid"]
