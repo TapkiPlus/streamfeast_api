@@ -238,7 +238,7 @@ class GetStreamerStats(APIView):
             "items": list(items)
         }
 
-        return Response(json.dumps(stats, cls=DjangoJSONEncoder))
+        return Response(json.dumps(stats, cls=DjangoJSONEncoder), content_type="application/json; charset=utf-8")
 
 
 class GetStreamerOrders(generics.ListAPIView): 
