@@ -58,6 +58,11 @@ class PlatronTestCase(TestCase):
         summary = OrderItem.summary_by_uid(streamer.uniqUrl, None, None)
         items = OrderItem.items_by_uid(streamer.uniqUrl, None, None)
         stats = {
+            "streamer": {
+                "name": streamer.name,
+                "nickName": streamer.nickName,
+                "photo": streamer.photo.url
+            },
             "summary": list(summary),
             "items": list(items)
         }

@@ -8,6 +8,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime
+from dateutil import parser
 
 from .models import *
 from .platron_client import *
@@ -216,13 +217,23 @@ class GetStreamerStats(APIView):
 
     def post(self, request):
         uid = request.data.get("streamer_uuid")
-        start = request.data.get("from")
-        end = request.data.get("till")
+        start = None
+        end = None
+        if request.data.get("from"):
+            start = parser.parse(request.data["from"])
+        if request.data.get("till"):
+            end = parser.parse(request.data["till"])
 
+        streamer = Streamer.objects.get(uniqUrl=uid)
         summary = OrderItem.summary_by_uid(uid, start, end)
         items = OrderItem.items_by_uid(uid, start, end)
         
         stats = {
+            "streamer": {
+                "name": streamer.name,
+                "nickName": streamer.nickName,
+                "photo": streamer.photo.url
+            },
             "summary": list(summary),
             "items": list(items)
         }

@@ -318,7 +318,7 @@ class OrderItem(models.Model):
     @staticmethod
     def summary_by_uid(uid, start = None, end = None):
         raw = OrderItem.objects
-        if start: 
+        if start:
             raw = raw.filter(order__when_paid__gt=start)
         if end:
             raw = raw.filter(order__when_paid__lt=end)
@@ -326,8 +326,8 @@ class OrderItem(models.Model):
             order__when_paid__isnull=False, \
             streamer__uniqUrl=uid \
         ) \
-         .annotate(type = F("ticket_type__days_qty"), qty = Sum("quantity")) \
-         .values("type", "qty") \
+         .annotate(type = F("ticket_type__days_qty"), qty = Sum("quantity"), amt = Sum("amount")) \
+         .values("type", "qty", "amt") \
          .order_by("type")
 
         return qs
