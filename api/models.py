@@ -326,6 +326,7 @@ class OrderItem(models.Model):
             order__when_paid__isnull=False, \
             streamer__uniqUrl=uid \
         ) \
+         .values("ticket_type__days_qty") \
          .annotate(type = F("ticket_type__days_qty"), qty = Sum("quantity"), amt = Sum("amount")) \
          .values("type", "qty", "amt") \
          .order_by("type")
