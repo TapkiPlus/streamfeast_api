@@ -123,7 +123,7 @@ class SaveUserData(APIView):
         inc_fields = {}
         for k, _ in request.data.items():
             if k in increments:
-                inc_fields[k] = F[k] + 1
+                inc_fields[k] = F(k) + 1
         if inc_fields:             
             UserData.objects.filter(session=session_id).update(inc_fields)
         
