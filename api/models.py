@@ -9,9 +9,9 @@ from .services import qr_code
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 from django.db import transaction
+from django.db.models import Avg, Count, Min, Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
-from datetime import datetime
 
 class PlatronPayment(models.Model):
     id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
@@ -77,21 +77,20 @@ class Streamer(models.Model):
     isAtHome = models.BooleanField("Отображать на главной?", default=False)
     sells = models.BooleanField("Отображать блок билетов и подпись?", default=True)
     isActive = models.BooleanField("Отображать?", default=False) 
-    uniqUrl = models.CharField("Хеш для ссылки (/star/stats/)", max_length=100, blank=True, null=True, editable=False)
+    uniqUrl = models.TextField("Хеш для ссылки (/profile/)", default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
-        slug = slugify(self.nickName)
         if not self.nickNameSlug:
-            testSlug = Streamer.objects.filter(nickNameSlug=slug)
-            slugRandom = ""
-            if testSlug:
-                slugRandom = "-" + "".join(choices(string.ascii_lowercase + string.digits, k=2))
-            self.nickNameSlug = slug + slugRandom
-        self.uniqUrl = self.nickNameSlug + "-" + "".join(choices(string.ascii_lowercase + string.digits, k=10))
+            self.nickNameSlug = slugify(self.nickName)
         super(Streamer, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"Стример : {self.name}"
+        if self.nickName:
+            return self.nickName
+        elif self.name:
+            return self.name
+        else:
+            return f"Стример: id = {self.id}"
 
     class Meta:
         verbose_name = "Стример"
@@ -141,10 +140,11 @@ class Cart(models.Model):
         self.total_price = price
         self.save()
 
+    @staticmethod
     @transaction.atomic
-    def clear_cart(self):
-        CartItem.objects.filter(parent=self).delete()
-        self.delete()      
+    def clear_cart(session_id):
+        CartItem.objects.filter(parent__session=session_id).delete()
+        Cart.objects.filter(session=session_id).delete()
 
     def __str__(self):
         return f"Стоимость корзины : {self.total_price}"
@@ -195,17 +195,17 @@ class UserData(models.Model):
     def __str__(self):
         return f"{self.firstname}"
 
-    def checkout(self):
-        self.wentToCheckout += 1
-        self.save()
+    @staticmethod
+    def checkout(session_id):
+        UserData.objects.filter(session=session_id).update(wentToCheckout=F("wentToCheckout") + 1)
 
-    def payment_success(self):
-        self.successfulPayments += 1
-        self.save()
-        
-    def payment_failed(self):
-        self.failedPayments += 1
-        self.save()
+    @staticmethod
+    def payment_success(session_id):
+        UserData.objects.filter(session=session_id).update(successfulPayments=F("successfulPayments") + 1)
+
+    @staticmethod
+    def payment_failed(session_id):
+        UserData.objects.filter(session=session_id).update(failedPayments=F("failedPayments") + 1)
         
 
 
@@ -258,17 +258,11 @@ class Order(models.Model):
             )
         return new_order
 
-
-
-
-
     @transaction.atomic
     def set_paid(self, date):
         if self.when_paid is None:
-            cart = Cart.objects.get(session=self.session)
-            cart.clear_cart()
-            ud = UserData.objects.get(session=self.session)
-            ud.payment_success()
+            Cart.clear_cart(self.session)
+            UserData.payment_success(self.session)
             self.when_paid = date
             items = OrderItem.objects.filter(order=self)
             index = 0
@@ -279,16 +273,13 @@ class Order(models.Model):
                     Ticket.objects.create(ticket_id=id, order_item=item, order=self)
             self.save()
 
-    @transaction.atomic
     def set_unpaid(self):
         if self.when_paid is None: 
-            ud = UserData.objects.get(session=self.session)
-            ud.payment_failed()
-            
+            UserData.payment_failed(self.session)
 
 
     def __str__(self):
-        return f"Заказ от {self.created_at}"
+        return f"Заказ {self.id} от {self.firstname} оплачен: {self.when_paid}"
 
     class Meta:
         verbose_name = "Заказ"
@@ -307,9 +298,44 @@ class OrderItem(models.Model):
         verbose_name = "Позиция заказа"
         verbose_name_plural = "Позиции заказов"
 
+    @staticmethod
+    def items_by_uid(uid, start = None, end = None):
+        raw = OrderItem.objects
+        if start: 
+            raw = raw.filter(order__when_paid__gt=start)
+        if end:
+            raw = raw.filter(order__when_paid__lt=end)
+        qs = raw.filter( \
+            order__when_paid__isnull=False, \
+            streamer__uniqUrl=uid \
+        ) \
+         .annotate(order_pk = F("order__id"), when_paid = F("order__when_paid"), qty = F("quantity"), name = F("order__firstname"), email = F("order__email")) \
+         .values("order_pk", "when_paid", "qty", "name", "email") \
+         .order_by("-when_paid")
+         
+        return qs
+
+    @staticmethod
+    def summary_by_uid(uid, start = None, end = None):
+        raw = OrderItem.objects
+        if start:
+            raw = raw.filter(order__when_paid__gt=start)
+        if end:
+            raw = raw.filter(order__when_paid__lt=end)
+        qs = raw.filter( \
+            order__when_paid__isnull=False, \
+            streamer__uniqUrl=uid \
+        ) \
+         .values("ticket_type__days_qty") \
+         .annotate(type = F("ticket_type__days_qty"), qty = Sum("quantity"), amt = Sum("amount")) \
+         .values("type", "qty", "amt") \
+         .order_by("type")
+
+        return qs
+
     def __str__(self):
         start = "1 день" if self.ticket_type.days_qty == 1 else "2 дня"
-        end = f" от {self.streamer.nickName}" if self.streamer else ""
+        end = f" от {self.streamer}" if self.streamer else ""
         return f'Билет на {start}{end}'
 
 
