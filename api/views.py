@@ -125,7 +125,7 @@ class SaveUserData(APIView):
             if k in increments:
                 inc_fields[k] = F(k) + 1
         if inc_fields:             
-            UserData.objects.filter(session=session_id).update(inc_fields)
+            UserData.objects.filter(session=session_id).update(**inc_fields)
         
         return Response(status=200)
 
