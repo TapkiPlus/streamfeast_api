@@ -20,6 +20,13 @@ class PlatronTestCase(TestCase):
         order.set_paid(datetime.now())
         pass
 
+    def test_sent(self): 
+        queryset = Order.objects.filter(id="77777-01")
+        Ticket.objects.filter(order__in=queryset).update(when_sent=None, send_attempts=5)
+        all_tickets = Ticket.objects.all()
+        for ticket in all_tickets: 
+            print("Ticket: {}, {}, {}".format(ticket.ticket_id, ticket.when_sent, ticket.send_attempts))
+
     """
     def test_platron_init_and_cancel(self):
         txn = init_payment(Order.objects.first())
@@ -71,7 +78,7 @@ class PlatronTestCase(TestCase):
             "streamer": {
                 "name": streamer.name,
                 "nickName": streamer.nickName,
-                "photo": streamer.photo.url
+                "photo": "photo url"
             },
             "summary": list(summary),
             "items": list(items)
