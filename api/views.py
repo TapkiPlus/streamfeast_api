@@ -161,9 +161,8 @@ class CreateOrder(APIView):
         session_id = request.data['session_id']
         UserData.checkout(session_id)
         order = Order.create(session_id, request.data)
-        tx = init_payment(order)
-        tx.save()
-        return Response(tx.redirect_url, status=200)
+        order.set_paid(datetime.now())
+        return Response("http://sf.tagobar.ru/success-page?pg_order_id={}".format(order.id), status=200)
 
 
 class GetTicketType(generics.RetrieveAPIView):
