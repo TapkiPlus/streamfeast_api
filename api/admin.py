@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from .models import *
 
 
@@ -27,7 +26,7 @@ class OrderItemInline(admin.TabularInline):
 
 # @admin.ModelAdmin.action(description='Перевыслать билеты по выбранному заказу')
 def send_again(modeladmin, request, queryset):
-    Ticket.filter(order__in=queryset).update(when_sent=None, send_attempts=0)
+    Ticket.objects.filter(order__in=queryset).update(when_sent=None, send_attempts=0)
 send_again.short_description="Перевыслать билеты по выбранному заказу"
 
 class OrderAdmin(admin.ModelAdmin):
@@ -72,6 +71,8 @@ class UserDataAdmin(admin.ModelAdmin):
         model = UserData
 
 
+#disable delete globally
+admin.site.disable_action('delete_selected')
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
 admin.site.register(Faq)
