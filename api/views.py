@@ -147,6 +147,13 @@ class GetQr(APIView):
         else: 
             return Response(status=404)
 
+class GetOrder(generics.RetrieveAPIView):
+    serializer_class = OrderSerializer
+
+    def get_object(self):
+        order = Order.objects.get(id=self.request.query_params.get('id'))
+        return order
+
 
 class CreateOrder(APIView):
 
