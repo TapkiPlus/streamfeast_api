@@ -147,11 +147,11 @@ class GetQr(APIView):
         else: 
             return Response(status=404)
 
-class GetOrder(generics.RetrieveAPIView):
+class GetRecentOrder(generics.RetrieveAPIView):
     serializer_class = OrderSerializer
 
     def get_object(self):
-        order = Order.objects.get(id=self.request.query_params.get('id'))
+        order = Order.get_recently_paid(self.request.query_params.get('id'))
         return order
 
 
