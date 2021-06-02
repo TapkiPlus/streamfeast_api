@@ -12,6 +12,7 @@ from django.db import transaction
 from django.db.models import Avg, Count, Min, Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
+from datetime import datetime, timedelta
 
 class PlatronPayment(models.Model):
     id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
@@ -228,6 +229,11 @@ class Order(models.Model):
     card_pan = models.TextField("Номер карты", null=True)
     failure_code = models.IntegerField("Код ошибки", null=True)
     failure_desc = models.TextField("Описание ошибки", null=True)
+
+    def get_recently_paid(order_id): 
+        since = datetime.now() - timedelta(minutes=1)
+        return Order.objects.get(id=order_id, when_paid__gt=since)
+
 
     @staticmethod
     @transaction.atomic

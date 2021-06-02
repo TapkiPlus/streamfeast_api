@@ -29,6 +29,10 @@ class PlatronTestCase(TestCase):
         self.assertEqual(txn, pers)
     """
 
+    def test_recent_order(self): 
+        order = Order.get_recently_paid("77777-01")
+        print("Order: {}".format(order))
+
     def test_user_data(self): 
         increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
         inc_fields = {}
@@ -71,7 +75,7 @@ class PlatronTestCase(TestCase):
             "streamer": {
                 "name": streamer.name,
                 "nickName": streamer.nickName,
-                "photo": streamer.photo.url
+                "photo": "some photo"
             },
             "summary": list(summary),
             "items": list(items)
