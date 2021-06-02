@@ -25,6 +25,11 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     ordering = ("id",)
 
+# @admin.ModelAdmin.action(description='Перевыслать билеты по выбранному заказу')
+def send_again(modeladmin, request, queryset):
+    Ticket.filter(order__in=queryset).update(when_sent=None, send_attempts=0)
+send_again.short_description="Перевыслать билеты по выбранному заказу"
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -41,6 +46,7 @@ class OrderAdmin(admin.ModelAdmin):
         "failure_desc"
     ]
     inlines = [OrderItemInline]
+    actions = [send_again]
 
     class Meta:
         model = Order
