@@ -197,6 +197,11 @@ class PaymentResult(APIView):
         xml = payment_result(request.data)
         return HttpResponse(content=xml, status=200, content_type="application/xml")
 
+class Checkin(APIView):
+    def get(self, request):
+        qr = request.query_params.get("code")
+        ticket = Ticket.objects.filter(ticket_uuid=qr).first
+        return HttpResponse(status=200)
 
 class TicketClear(APIView):
     def get(self, request):
