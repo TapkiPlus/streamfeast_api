@@ -200,8 +200,14 @@ class PaymentResult(APIView):
 class Checkin(APIView):
     def get(self, request):
         qr = request.query_params.get("code")
-        ticket = Ticket.objects.filter(ticket_uuid=qr).first
-        return HttpResponse(status=200)
+        ticket = Ticket.objects.filter(ticket_uuid=qr).first()
+        status = ticket.checkin() if ticket else ENTRY_FORBIDDEN_NO_SUCH_TICKET
+        order = ticket.order if ticket else None
+        resp = { 
+            status: status,
+            order: order
+        }
+        return Response(resp)
 
 class TicketClear(APIView):
     def get(self, request):

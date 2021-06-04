@@ -14,6 +14,11 @@ from django.template.loader import get_template
 from pytils.translit import slugify
 from datetime import datetime, timedelta
 
+ENTRY_ALLOWED = 0
+ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
+ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED = 2
+ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY = 3
+
 class PlatronPayment(models.Model):
     id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
     status = models.BooleanField("Status", editable=False)
@@ -353,11 +358,33 @@ class Ticket(models.Model):
     when_cleared = models.DateTimeField("Дата и время погашения", null=True)
     when_sent = models.DateTimeField("Дата и время отправки", null=True)
     send_attempts = models.SmallIntegerField("Количество попыток отправки", null=False, default=0)
+    checkin_count = models.SmallIntegerField("Успешных попыток прохода", null=False, default=0)
+    last_checkin = models.DateTimeField("Дата и время последнего входа", null=True)
 
     def __str__(self):
         tt = self.order_item.ticket_type
         item = self.order_item
         return f"Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days"
+
+    def checkin_allowed(self): 
+        ttype = self.order_item.ticket_type
+        today = datetime.now().day
+        if self.checkin_count >= ttype.days_qty: 
+            return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
+        elif self.last_checkin.day() == today:
+            return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
+        else:
+            return ENTRY_ALLOWED
+
+
+    def checkin(self): 
+        result = self.checkin_allowed()
+        if result == ENTRY_ALLOWED:
+            Ticket.objects \
+                .filter(ticket_id=self.ticket_id) \
+                .update(checkin_count=F("checkin_count") + 1, last_checkin=datetime.now())
+        return result
+        
 
     def pdf(self, filename=False):
         template = get_template("../templates/ticket.html")
