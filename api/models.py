@@ -371,7 +371,7 @@ class Ticket(models.Model):
         today = datetime.now().day
         if self.checkin_count >= ttype.days_qty: 
             return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
-        elif self.checkin_last.day() == today:
+        elif self.checkin_last is not None and self.checkin_last.day() == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
         else:
             return ENTRY_ALLOWED
