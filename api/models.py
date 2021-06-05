@@ -359,7 +359,7 @@ class Ticket(models.Model):
     when_sent = models.DateTimeField("Дата и время отправки", null=True)
     send_attempts = models.SmallIntegerField("Количество попыток отправки", null=False, default=0)
     checkin_count = models.SmallIntegerField("Успешных попыток прохода", null=False, default=0)
-    last_checkin = models.DateTimeField("Дата и время последнего входа", null=True)
+    checkin_last = models.DateTimeField("Дата и время последнего входа", null=True)
 
     def __str__(self):
         tt = self.order_item.ticket_type
@@ -371,7 +371,7 @@ class Ticket(models.Model):
         today = datetime.now().day
         if self.checkin_count >= ttype.days_qty: 
             return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
-        elif self.last_checkin.day() == today:
+        elif self.checkin_last.day() == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
         else:
             return ENTRY_ALLOWED
@@ -382,7 +382,7 @@ class Ticket(models.Model):
         if result == ENTRY_ALLOWED:
             Ticket.objects \
                 .filter(ticket_id=self.ticket_id) \
-                .update(checkin_count=F("checkin_count") + 1, last_checkin=datetime.now())
+                .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.now())
         return result
         
 
