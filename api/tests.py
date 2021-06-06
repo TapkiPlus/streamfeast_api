@@ -10,7 +10,7 @@ from datetime import datetime
 class PlatronTestCase(TestCase):
 
     def setUp(self):
-        data = UserData(session="123")
+        data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
         tt1 = TicketType.objects.create(price=42, days_qty=1)
         tt2 = TicketType.objects.create(price=43, days_qty=2)
@@ -28,6 +28,20 @@ class PlatronTestCase(TestCase):
         pers = PlatronPayment.objects.first()
         self.assertEqual(txn, pers)
     """
+
+    def test_recent_order(self): 
+        order = Order.get_recently_paid("77777-01")
+        print("Order: {}".format(order))
+
+    def test_user_data(self): 
+        increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
+        inc_fields = {}
+        for k in increments:
+            inc_fields[k] = F(k) + 5
+        if inc_fields:             
+            UserData.objects.filter(session="123").update(**inc_fields)
+        data = UserData.objects.get(session="123")
+        print("Data: {} {} {} {}".format(data.returnedToShop, data.clickedPay, data.tryedToPayAgain, data.clickedTechAssistance))
 
     #to test SMTP uncomment this pls
     #@override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
@@ -61,7 +75,7 @@ class PlatronTestCase(TestCase):
             "streamer": {
                 "name": streamer.name,
                 "nickName": streamer.nickName,
-                "photo": streamer.photo.url
+                "photo": "some photo"
             },
             "summary": list(summary),
             "items": list(items)

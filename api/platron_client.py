@@ -22,42 +22,12 @@ def init_payment(order):
     request.add_order_id(str(order.id))
     ###################################
     # TODO: remove when in production #
-    request.add_testing_mode()      #
+    # request.add_testing_mode()      #
     ###################################
     raw = client.request(request)
     doc = parse_response(raw)
     tx = parse_create_tx(doc)
     return tx
-
-
-"""
-###################################
-# Those methods aren't used yet.
-#
-def cancel_payment(payment_id):
-    request = CancelBuilder(payment_id)
-    raw = client.request(request)
-    doc = parse_response(raw)
-    print(raw) 
-
-def get_payment_status(payment_id): 
-    request = GetStatusBuilder(payment_id)
-    try:
-        response = client.request(request)
-        print(response)
-    except SdkException as msg:
-        print(msg)
-
-def do_capture(payment_id):
-    request = DoCaptureBuilder('3334455')
-    try:
-        response = client.request(request)
-        print(response)
-    except SdkException as msg:
-        print(msg)
-###################################
-"""
-
 
 def payment_check(params):
     callback = Callback(CHECK_PATH, MERCHANT_KEY)

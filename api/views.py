@@ -123,9 +123,9 @@ class SaveUserData(APIView):
         inc_fields = {}
         for k, _ in request.data.items():
             if k in increments:
-                inc_fields[k] = F[k] + 1
+                inc_fields[k] = F(k) + 1
         if inc_fields:             
-            UserData.objects.filter(session=session_id).update(inc_fields)
+            UserData.objects.filter(session=session_id).update(**inc_fields)
         
         return Response(status=200)
 
@@ -146,6 +146,13 @@ class GetQr(APIView):
             return response
         else: 
             return Response(status=404)
+
+class GetRecentOrder(generics.RetrieveAPIView):
+    serializer_class = OrderSerializer
+
+    def get_object(self):
+        order = Order.get_recently_paid(self.request.query_params.get('id'))
+        return order
 
 
 class CreateOrder(APIView):
