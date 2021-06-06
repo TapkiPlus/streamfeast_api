@@ -200,12 +200,13 @@ class PaymentResult(APIView):
 class Checkin(APIView):
     def get(self, request):
         qr = request.query_params.get("code")
-        # ticket = Ticket.objects.first()
+        print("Qr: {}".format(qr))
         ticket = Ticket.objects.filter(ticket_uuid=qr).first()
-        status = ticket.checkin() if ticket else ENTRY_FORBIDDEN_NO_SUCH_TICKET
-        if ticket: 
-            order = ticket.order if ticket else None
-            item = ticket.order_item if ticket else None
+        print("Ticket: {}".format(ticket))
+        if ticket is not None:
+            status = ticket.checkin()
+            order = ticket.order
+            item = ticket.order_item
             resp = { 
                 "status": status,
                 "details": {
@@ -220,9 +221,9 @@ class Checkin(APIView):
                 }
             }
             return Response(resp)
-        else: 
+        else:
             return Response({ "status": ENTRY_FORBIDDEN_NO_SUCH_TICKET })
-        
+
 
 class TicketClear(APIView):
     def get(self, request):
