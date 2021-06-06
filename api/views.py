@@ -200,9 +200,7 @@ class PaymentResult(APIView):
 class Checkin(APIView):
     def get(self, request):
         qr = request.query_params.get("code")
-        print("Qr: {}".format(qr))
         ticket = Ticket.objects.filter(ticket_uuid=qr).first()
-        print("Ticket: {}".format(ticket))
         if ticket is not None:
             status = ticket.checkin()
             order = ticket.order
