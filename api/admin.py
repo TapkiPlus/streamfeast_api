@@ -27,6 +27,9 @@ class OrderItemInline(admin.TabularInline):
 
 class ActivityStreamerInline(admin.TabularInline):
     model = Activity.streamers.through
+    verbose_name = "Guest"
+    verbose_name_plural = "Guests"
+    readonly_fields = ['nickName', 'name', 'isActive']
     # ordering = ("nickName",)
 
 class ActivityAdmin(admin.ModelAdmin):
