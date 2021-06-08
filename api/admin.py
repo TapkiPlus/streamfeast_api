@@ -27,7 +27,7 @@ class OrderItemInline(admin.TabularInline):
 
 class ActivityStreamerInline(admin.TabularInline):
     model = Activity.streamers.through
-    ordering = ("nickName",)
+    # ordering = ("nickName",)
 
 class ActivityAdmin(admin.ModelAdmin):
     inlines = [
