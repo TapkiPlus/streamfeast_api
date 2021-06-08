@@ -410,7 +410,7 @@ class Activity(models.Model):
     description = models.TextField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
-    place = models.ForeignKey(Place, on_delete=models.RESTRICT, null=False, verbose_name="Место")
+    place = models.ForeignKey(Place, on_delete=models.RESTRICT, blank=True, null=True, verbose_name="Место")
     streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
 
     class Meta:
