@@ -403,6 +403,7 @@ class Activity(models.Model):
         SECOND = 2
         BOTH = 3
 
+    priority = models.IntegerField("Номер ПП", default=0)
     day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
     start = models.TextField("Начало", blank=True, null=True)
     end = models.TextField("Окончание", blank=True, null=True)
@@ -414,5 +415,6 @@ class Activity(models.Model):
     streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
 
     class Meta:
+        ordering = ("priority", "start",)
         verbose_name = "Активность"
         verbose_name_plural = "Активности"
