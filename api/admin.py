@@ -45,6 +45,56 @@ class OrderAdmin(admin.ModelAdmin):
     class Meta:
         model = Order
 
+class TicketAdmin(admin.ModelAdmin):
+    list_display = [
+        "ticket_id",
+        "when_cleared",
+        "get_streamer",
+        "get_days_qty",
+        "get_price",
+        "get_name",
+        "get_last_name",
+        "get_email",
+        "get_phone",
+        "get_when_paid"
+    ]
+
+    def get_streamer(self, obj):
+        streamer = obj.order_item.streamer
+        return streamer.nickName if streamer else None
+    get_streamer.short_description = 'От кого'
+
+    def get_days_qty(self, obj):
+        return obj.order_item.ticket_type.days_qty
+    get_days_qty.short_description = 'Дней'
+
+    def get_price(self, obj):
+        oi = obj.order_item
+        return oi.amount / oi.quantity
+    get_price.short_description = 'Цена'
+
+    def get_name(self, obj):
+        return obj.order.firstname
+    get_name.short_description = 'Имя'
+
+    def get_last_name(self, obj):
+        return obj.order.lastname
+    get_last_name.short_description = 'Фамилия'
+
+    def get_email(self, obj):
+        return obj.order.email
+    get_email.short_description = 'Email'
+
+    def get_phone(self, obj):
+        return obj.order.phone
+    get_phone.short_description = 'Телефон'
+
+    def get_when_paid(self, obj):
+        return obj.order.when_paid
+    get_when_paid.short_description = 'Дата и время оплаты'
+
+    class Meta:
+        model = Ticket
 
 class UserDataAdmin(admin.ModelAdmin):
     list_display = ['firstname',
