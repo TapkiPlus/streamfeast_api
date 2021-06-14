@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib import admin
 from django.shortcuts import render
 from .models import *
+import functools
 
 class SocialLinkInline(admin.TabularInline):
     model = SocialLink
@@ -29,10 +30,22 @@ class ActivityStreamerInline(admin.TabularInline):
     verbose_name_plural = "Guests"
 
 class ActivityAdmin(admin.ModelAdmin):
-    inlines = [
-        ActivityStreamerInline,
-    ]
+    inlines = [ ActivityStreamerInline, ]
     exclude = ('streamers',)
+    list_display = ['title', 'priority', 'day', 'start', 'end', 'get_place', 'get_streamers']
+
+    def get_streamers(self, obj):
+        streamers = map(lambda s: s.nickName, obj.streamers.all())
+        result = ", ".join(streamers)
+        return result
+    get_streamers.short_description = 'Участники'
+
+    def get_place(self, obj): 
+        return f"{obj.place.name} ({obj.place.level})"
+    get_place.short_description = 'Место'
+
+    class Meta:
+        model = Activity
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
