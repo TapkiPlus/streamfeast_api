@@ -8,7 +8,6 @@ class SocialLinkInline(admin.TabularInline):
     extra = 0
     ordering = ("id",)
 
-
 class StreamerAdmin(admin.ModelAdmin):
     list_display = ['orderPP', 'nickName', 'name', 'email', 'isAtHome', 'isActive', 'uniqUrl']
     list_filter = ('isActive', 'isAtHome', 'sells', )
@@ -18,7 +17,6 @@ class StreamerAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Streamer
-
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem

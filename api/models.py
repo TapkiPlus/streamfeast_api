@@ -1,18 +1,15 @@
 import base64
-import io
-import string
 import uuid
-from random import choices
 
 import pdfkit
-from .services import qr_code
-from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 from django.db import transaction
-from django.db.models import Avg, Count, Min, Sum, F
+from django.db.models import Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
 from datetime import datetime, timedelta
+from ckeditor_uploader.fields import RichTextUploadingField
+from .services import qr_code
 
 ENTRY_ALLOWED = 0
 ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
@@ -235,10 +232,10 @@ class Order(models.Model):
     failure_code = models.IntegerField("Код ошибки", null=True)
     failure_desc = models.TextField("Описание ошибки", null=True)
 
+    @staticmethod
     def get_recently_paid(order_id): 
         since = datetime.now() - timedelta(minutes=1)
         return Order.objects.get(id=order_id, when_paid__gt=since)
-
 
     @staticmethod
     @transaction.atomic
@@ -481,7 +478,7 @@ class Place(models.Model):
         verbose_name_plural = "Места"
 
     def __str__(self):
-        return f"Место: = {self.name}"
+        return f"Место: {self.name}"
 
 
 class Activity(models.Model):
@@ -508,5 +505,5 @@ class Activity(models.Model):
         verbose_name_plural = "Активности"
 
     def __str__(self):
-        return f"Активность: = {self.title}"
+        return f"Активность: {self.title}"
 
