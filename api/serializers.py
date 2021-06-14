@@ -137,9 +137,10 @@ class PlaceSerializer(serializers.ModelSerializer):
 
 
 class ActivitySerializer(serializers.ModelSerializer):
-    place = PlaceSerializer(many=False, required=True)
-    streamer = StreamerSerializer(many=False, required=True)
+    place = PlaceSerializer(many=False)
+    streamers = StreamerSerializer(many=True, required=True)
 
     class Meta:
         model = Activity
         fields = '__all__'
+        extra_fields = ['streamers']

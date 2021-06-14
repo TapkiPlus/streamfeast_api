@@ -235,7 +235,7 @@ class TicketClear(APIView):
       
 class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.all().order_by("priority")
 
 
 class GetActivity(generics.RetrieveAPIView):
@@ -272,6 +272,42 @@ class GetStreamerStats(APIView):
         }
 
         return Response(stats)
+
+
+class TicketChart(APIView):
+
+    def get(self, request):
+        stats = Ticket.ticket_stats()
+        return Response({
+            'title': 'Tickets per day (last 30 days)',
+            'data': {
+                'labels': stats["labels"],
+                'datasets': [{
+                    'label': 'Tickets bought',
+                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
+                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
+                    'data': stats["values"],
+                }]
+            },
+        })
+
+class StreamerChart(APIView):
+
+    def get(self, request):
+        stats = Ticket.streamer_stats()
+        return Response({
+            'title': 'Top 10 streamers',
+            'data': {
+                'labels': stats["labels"],
+                'datasets': [{
+                    'label': 'Tickets bought',
+                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
+                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
+                    'data': stats["values"],
+                }]
+            },
+        })
+
 
 
 class GetStreamerOrders(generics.ListAPIView): 

@@ -42,7 +42,7 @@ LOGGING = {
 }
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'api.apps.AdminApiConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
