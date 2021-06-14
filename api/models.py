@@ -453,6 +453,9 @@ class Place(models.Model):
         verbose_name = "Место"
         verbose_name_plural = "Места"
 
+    def __str__(self):
+        return f"Место: = {self.name}"
+
 
 class Activity(models.Model): 
     day = models.IntegerField("День")
@@ -468,5 +471,8 @@ class Activity(models.Model):
     class Meta:
         verbose_name = "Активность"
         verbose_name_plural = "Активности"
+
+    def __str__(self):
+        return f"Активность: = {self.title}"
 
 
