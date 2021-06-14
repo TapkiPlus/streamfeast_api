@@ -445,7 +445,7 @@ class Place(models.Model):
         THREE = 3
         FOUR = 4
         FIVE = 5
-        
+
     id = models.AutoField("ID", primary_key=True)
     name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
     level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
@@ -456,9 +456,9 @@ class Place(models.Model):
 
 class Activity(models.Model): 
     day = models.IntegerField("День")
-    start = models.CharField("Начало")
+    start = models.CharField("Начало", max_length=16)
     end = models.CharField("Окончание", max_length=16)
-    title = models.CharField("Название", max_length=16)
+    title = models.CharField("Название", max_length=32)
     description = models.TextField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
