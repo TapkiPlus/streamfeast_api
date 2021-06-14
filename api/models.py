@@ -370,6 +370,57 @@ class Ticket(models.Model):
         }
         return pdfkit.from_string(html, filename, options)
 
+    @staticmethod
+    def ticket_stats():
+        from django.db import connection
+        labels = []
+        values = []
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                select date(d) as day, count(api_ticket.ticket_id) 
+                from generate_series(
+                current_date - interval '30 day', 
+                current_date, 
+                '1 day'
+                ) d 
+                left join api_ticket on date(api_ticket.when_sent) = d 
+                group by day order by day;
+            """)
+            for row in cursor.fetchall():
+                labels.append(row[0])
+                values.append(row[1])
+        return {
+            "labels": labels,
+            "values": values
+        }
+
+        
+    @staticmethod
+    def streamer_stats():
+        from django.db import connection
+        labels = []
+        values = []
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets
+                from api_ticket t
+                inner join api_orderitem i on t.order_item_id = i.id
+                inner join api_streamer s on i.streamer_id = s.id
+                group by nick) select nick, tickets from stats order by tickets desc limit 10;
+            """)
+            for row in cursor.fetchall():
+                labels.append(row[0])
+                values.append(row[1])
+        return {
+            "labels": labels,
+            "values": values
+        }
+
+
+
+
     class Meta:
         verbose_name = "Билет"
         verbose_name_plural = "Билеты"

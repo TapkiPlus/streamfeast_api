@@ -1,8 +1,11 @@
 import logging
 from django.apps import AppConfig
+from django.contrib.admin.apps import AdminConfig
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
+class AdminApiConfig(AdminConfig):
+    default_site = 'api.admin_app.CustomAdminSite'
 
 class ApiConfig(AppConfig):
     name = 'api'
