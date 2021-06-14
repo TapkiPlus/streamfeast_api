@@ -80,33 +80,28 @@ class TicketAdmin(admin.ModelAdmin):
     get_name.short_description = 'Имя'
     get_name.admin_order_field = 'order__firstname'
 
-
     def get_last_name(self, obj):
         return obj.order.lastname
     get_last_name.short_description = 'Фамилия'
     get_last_name.admin_order_field = 'order__lastname'
-
 
     def get_email(self, obj):
         return obj.order.email
     get_email.short_description = 'Email'
     get_email.admin_order_field = 'order__email'
 
-
     def get_phone(self, obj):
         return obj.order.phone
     get_phone.short_description = 'Телефон'
     get_phone.admin_order_field = 'order__phone'
-
 
     def get_when_paid(self, obj):
         return obj.order.when_paid
     get_when_paid.short_description = 'Дата и время оплаты'
     get_when_paid.admin_order_field = 'order__when_paid'
 
-
     search_fields = [
-        'id', 
+        'ticket_id', 
         'order_item__streamer__nickName',
         'order__firstname',
         'order__lastname',
