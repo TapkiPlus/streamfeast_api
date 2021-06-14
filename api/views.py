@@ -1,4 +1,5 @@
 import json
+import csv
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ValidationError
@@ -308,7 +309,16 @@ class StreamerChart(APIView):
             },
         })
 
+class StreamerChartExport(APIView):
 
+    def get(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="report.csv"'},
+        )
+        writer = csv.writer(response)
+        Ticket.streamer_stats_export(writer)
+        return response
 
 class GetStreamerOrders(generics.ListAPIView): 
     serializer_class = ActivitySerializer
