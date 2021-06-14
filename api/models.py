@@ -70,8 +70,8 @@ class Streamer(models.Model):
     nickName = models.CharField("Ник", max_length=255, blank=False, null=True, db_index=True)
     name = models.CharField("Имя Фамилия", max_length=255, blank=False, null=True)
     email = models.CharField("Email", max_length=255, blank=True, null=True)
-    photo = models.ImageField("Аватар", upload_to="speaker_img/", blank=False, null=True)
-    pageHeader = models.ImageField("Обложка", upload_to="speaker_img/", blank=False, null=True)
+    photo = models.ImageField("Аватар", upload_to="speaker_img/", blank=True, null=True)
+    pageHeader = models.ImageField("Обложка", upload_to="speaker_img/", blank=True, null=True)
     nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True)
     about = RichTextUploadingField("Описание", blank=True, null=True)
     streaming = RichTextUploadingField("Что стримит", blank=True, null=True)
@@ -396,19 +396,25 @@ class Place(models.Model):
         verbose_name_plural = "Места"
 
 
-class Activity(models.Model): 
-    day = models.IntegerField("День")
-    start = models.TextField("Начало")
-    end = models.TextField("Окончание")
+class Activity(models.Model):
+
+    class ActiveWhen(models.IntegerChoices):
+        FIRST = 1
+        SECOND = 2
+        BOTH = 3
+
+    priority = models.IntegerField("Номер ПП", default=0)
+    day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
+    start = models.TextField("Начало", blank=True, null=True)
+    end = models.TextField("Окончание", blank=True, null=True)
     title = models.TextField("Название")
     description = models.TextField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
-    place = models.ForeignKey(Place, on_delete=models.RESTRICT, null=False, verbose_name="Место")
-    streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, verbose_name="Участник")
+    place = models.ForeignKey(Place, on_delete=models.RESTRICT, blank=True, null=True, verbose_name="Место")
+    streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
 
     class Meta:
+        ordering = ("priority", "start",)
         verbose_name = "Активность"
         verbose_name_plural = "Активности"
-
-

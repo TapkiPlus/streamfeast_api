@@ -25,6 +25,17 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     ordering = ("id",)
 
+class ActivityStreamerInline(admin.TabularInline):
+    model = Activity.streamers.through
+    verbose_name = "Guest"
+    verbose_name_plural = "Guests"
+
+class ActivityAdmin(admin.ModelAdmin):
+    inlines = [
+        ActivityStreamerInline,
+    ]
+    exclude = ('streamers',)
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -78,6 +89,6 @@ admin.site.register(UserData, UserDataAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PlatronPayment)
 admin.site.register(Place)
-admin.site.register(Activity)
+admin.site.register(Activity, ActivityAdmin)
 # admin.site.register(OrderItem)
 admin.site.register(SocialIcon)
