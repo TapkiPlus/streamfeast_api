@@ -312,10 +312,8 @@ class StreamerChart(APIView):
 class StreamerChartExport(APIView):
 
     def get(self, request):
-        response = HttpResponse(
-            content_type='text/csv',
-            headers={'Content-Disposition': 'attachment; filename="report.csv"'},
-        )
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="report.csv"'
         writer = csv.writer(response)
         Ticket.streamer_stats_export(writer)
         return response
