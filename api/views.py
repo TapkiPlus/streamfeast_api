@@ -315,6 +315,7 @@ class StreamerChartExport(APIView):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
         writer = csv.writer(response)
+        writer.writerow(["Streamer", "Tickets (Qty)", "Amount (RUR)"])
         Ticket.streamer_stats_export(writer)
         return response
 

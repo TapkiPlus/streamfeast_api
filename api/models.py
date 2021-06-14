@@ -458,12 +458,6 @@ class Ticket(models.Model):
         pass
 
 
-
-
-
-
-
-
     class Meta:
         verbose_name = "Билет"
         verbose_name_plural = "Билеты"
