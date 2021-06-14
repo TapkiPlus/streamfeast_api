@@ -197,6 +197,32 @@ class PaymentResult(APIView):
         xml = payment_result(request.data)
         return HttpResponse(content=xml, status=200, content_type="application/xml")
 
+class Checkin(APIView):
+    def get(self, request):
+        qr = request.query_params.get("code")
+        ticket = Ticket.objects.filter(ticket_uuid=qr).first()
+        if ticket is not None:
+            status = ticket.checkin()
+            order = ticket.order
+            item = ticket.order_item
+            streamer_nick = item.streamer.nickName if item.streamer else None
+            resp = { 
+                "status": status,
+                "details": {
+                    "days_qty": item.ticket_type.days_qty,
+                    "streamer": streamer_nick,
+                    "checkin_last": ticket.checkin_last,
+                    "checkin_count": ticket.checkin_count,
+                    "order_id": order.id,
+                    "order_amount": order.amount,
+                    "order_email": order.email,
+                    "order_phone": order.phone
+                }
+            }
+            return Response(resp)
+        else:
+            return Response({ "status": ENTRY_FORBIDDEN_NO_SUCH_TICKET })
+
 
 class TicketClear(APIView):
     def get(self, request):
