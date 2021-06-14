@@ -26,4 +26,6 @@ urlpatterns = [
     path('subscribe_email', views.SubscribeEmail.as_view()),
     path('payment_check', views.PaymentCheck.as_view()),
     path('payment_result', views.PaymentResult.as_view()),
+    path('stats/tickets', views.TicketChart.as_view()),
+    path('stats/streamers', views.StreamerChart.as_view()),
 ]

@@ -1,8 +1,0 @@
-Поздравляем!
-
-Вы идете на стримфест
-Номер заказа {{order.id}} от {{order.created_at}}
-
-{% for item in items %}
-    {{item.quantity}} x {{item.ticket_type.price}} => {{ item.amount }}
-{% endfor %}
