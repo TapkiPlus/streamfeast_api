@@ -209,7 +209,7 @@ class TicketClear(APIView):
       
 class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.all().order_by("priority")
 
 
 class GetActivity(generics.RetrieveAPIView):
