@@ -131,6 +131,13 @@ class UserDataAdmin(admin.ModelAdmin):
     class Meta:
         model = UserData
 
+class PlaceAdmin(admin.ModelAdmin):
+    list_display = [ 'id', 'name', 'level' ]
+
+    class Meta:
+        model = Place
+
+
 
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
@@ -143,7 +150,7 @@ admin.site.register(Cart)
 admin.site.register(UserData, UserDataAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PlatronPayment)
-admin.site.register(Place)
+admin.site.register(Place, PlaceAdmin)
 admin.site.register(Activity)
 # admin.site.register(OrderItem)
 admin.site.register(SocialIcon)

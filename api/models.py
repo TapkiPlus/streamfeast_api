@@ -346,7 +346,7 @@ class OrderItem(models.Model):
 
 
 class Ticket(models.Model):
-    ticket_id = models.TextField("ID", primary_key=True)
+    ticket_id = models.TextField("ID", primary_key=True, editable=False)
     ticket_uuid = models.UUIDField("QR-code", default=uuid.uuid4)
     order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name="Позиция")
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name="Заказ")
@@ -438,10 +438,17 @@ class Subscribe(models.Model):
 
 
 class Place(models.Model): 
-    id = models.AutoField("ID", primary_key=True)
-    name = models.TextField("Место")
-    level = models.TextField("Уровень")
 
+    class Levels(models.IntegerChoices):
+        ONE = 1
+        TWO = 2
+        THREE = 3
+        FOUR = 4
+        FIVE = 5
+        
+    id = models.AutoField("ID", primary_key=True)
+    name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
+    level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
     class Meta:
         verbose_name = "Место"
         verbose_name_plural = "Места"
@@ -449,9 +456,9 @@ class Place(models.Model):
 
 class Activity(models.Model): 
     day = models.IntegerField("День")
-    start = models.TextField("Начало")
-    end = models.TextField("Окончание")
-    title = models.TextField("Название")
+    start = models.CharField("Начало")
+    end = models.CharField("Окончание", max_length=16)
+    title = models.CharField("Название", max_length=16)
     description = models.TextField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
