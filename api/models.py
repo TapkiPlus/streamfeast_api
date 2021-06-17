@@ -112,17 +112,24 @@ class SocialLink(models.Model):
 
 class TicketType(models.Model):
     class Days(models.IntegerChoices):
-        ONE = 1
-        TWO = 2
+        REGULAR_ONE = 1
+        REGULAR_TWO = 2
+        INVITE = 3
+        PRESS  = 4
 
     price = models.IntegerField("Цена", blank=False, null=True)
-    days_qty = models.PositiveSmallIntegerField("На сколько дней?", choices=Days.choices, default=Days.ONE)
+    days_qty = models.PositiveSmallIntegerField("Тип билета", choices=Days.choices, default=Days.REGULAR_ONE)
  
     def __str__(self):
-        if self.days_qty == 1:
+        if self.days_qty == self.Days.REGULAR_ONE:
             return f"Билет на один день : {self.price}"
-        else:
+        elif self.days_qty == self.Days.REGULAR_TWO:
             return f"Билет на два дня : {self.price}"
+        elif self.days_qty == self.Days.INVITE:
+            return "Приглашение"
+        else:
+            return "Билет для прессы"
+
 
     class Meta:
         ordering = ("price",)
@@ -520,3 +527,22 @@ class Activity(models.Model):
     def __str__(self):
         return f"Активность: {self.title}"
 
+
+class Invitation(models.Model):
+
+    email = models.EmailField("E-mail", primary_key=True)
+    quantity = models.PositiveSmallIntegerField("Количество", null=False, blank=False, default=1)
+
+    @staticmethod
+    @transaction.atomic
+    def import_from(rows): 
+        for row in rows:
+            print("Row: {}".format(row))
+            Invitation.objects.create(email=row['email'], quantity=row['quantity'])
+
+    class Meta:
+        verbose_name = "Приглашение"
+        verbose_name_plural = "Приглашения"
+
+    def __str__(self):
+        return f"Приглашение: {self.email}"
