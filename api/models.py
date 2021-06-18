@@ -116,6 +116,7 @@ class TicketType(models.Model):
         REGULAR_TWO = 2
         INVITE = 3
         PRESS  = 4
+        BLOGER  = 5
 
     price = models.IntegerField("Цена", blank=False, null=True)
     days_qty = models.PositiveSmallIntegerField("Тип билета", choices=Days.choices, default=Days.REGULAR_ONE)
@@ -127,8 +128,10 @@ class TicketType(models.Model):
             return f"Билет на два дня : {self.price}"
         elif self.days_qty == self.Days.INVITE:
             return "Приглашение"
+        elif self.days_qty == self.Days.PRESS:
+            return "Приглашение для прессы"
         else:
-            return "Билет для прессы"
+            return "Приглашение блогеру"
 
 
     class Meta:
@@ -537,7 +540,6 @@ class Invitation(models.Model):
     @transaction.atomic
     def import_from(rows): 
         for row in rows:
-            print("Row: {}".format(row))
             Invitation.objects.create(email=row['email'], quantity=row['quantity'])
 
     class Meta:
