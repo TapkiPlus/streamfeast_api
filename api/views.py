@@ -1,4 +1,5 @@
 import json
+import csv
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.exceptions import ValidationError
@@ -147,6 +148,13 @@ class GetQr(APIView):
         else: 
             return Response(status=404)
 
+class GetRecentOrder(generics.RetrieveAPIView):
+    serializer_class = OrderSerializer
+
+    def get_object(self):
+        order = Order.get_recently_paid(self.request.query_params.get('id'))
+        return order
+
 
 class CreateOrder(APIView):
 
@@ -190,6 +198,32 @@ class PaymentResult(APIView):
         xml = payment_result(request.data)
         return HttpResponse(content=xml, status=200, content_type="application/xml")
 
+class Checkin(APIView):
+    def get(self, request):
+        qr = request.query_params.get("code")
+        ticket = Ticket.objects.filter(ticket_uuid=qr).first()
+        if ticket is not None:
+            status = ticket.checkin()
+            order = ticket.order
+            item = ticket.order_item
+            streamer_nick = item.streamer.nickName if item.streamer else None
+            resp = { 
+                "status": status,
+                "details": {
+                    "days_qty": item.ticket_type.days_qty,
+                    "streamer": streamer_nick,
+                    "checkin_last": ticket.checkin_last,
+                    "checkin_count": ticket.checkin_count,
+                    "order_id": order.id,
+                    "order_amount": order.amount,
+                    "order_email": order.email,
+                    "order_phone": order.phone
+                }
+            }
+            return Response(resp)
+        else:
+            return Response({ "status": ENTRY_FORBIDDEN_NO_SUCH_TICKET })
+
 
 class TicketClear(APIView):
     def get(self, request):
@@ -202,7 +236,7 @@ class TicketClear(APIView):
       
 class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
-    queryset = Activity.objects.all()
+    queryset = Activity.objects.all().order_by("priority")
 
 
 class GetActivity(generics.RetrieveAPIView):
@@ -240,6 +274,50 @@ class GetStreamerStats(APIView):
 
         return Response(stats)
 
+
+class TicketChart(APIView):
+
+    def get(self, request):
+        stats = Ticket.ticket_stats()
+        return Response({
+            'title': 'Tickets per day (last 30 days)',
+            'data': {
+                'labels': stats["labels"],
+                'datasets': [{
+                    'label': 'Tickets bought',
+                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
+                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
+                    'data': stats["values"],
+                }]
+            },
+        })
+
+class StreamerChart(APIView):
+
+    def get(self, request):
+        stats = Ticket.streamer_stats()
+        return Response({
+            'title': 'Top 10 streamers',
+            'data': {
+                'labels': stats["labels"],
+                'datasets': [{
+                    'label': 'Tickets bought',
+                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
+                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
+                    'data': stats["values"],
+                }]
+            },
+        })
+
+class StreamerChartExport(APIView):
+
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="report.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Streamer", "Tickets (Qty)", "Amount (RUR)"])
+        Ticket.streamer_stats_export(writer)
+        return response
 
 class GetStreamerOrders(generics.ListAPIView): 
     serializer_class = ActivitySerializer

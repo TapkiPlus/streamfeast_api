@@ -1,17 +1,20 @@
 import base64
-import io
-import string
 import uuid
-from random import choices
 
 import pdfkit
-from .services import qr_code
-from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
-from django.db import transaction
-from django.db.models import Avg, Count, Min, Sum, F
+from django.db import transaction, connection
+from django.db.models import Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
+from datetime import datetime, timedelta
+from ckeditor_uploader.fields import RichTextUploadingField
+from .services import qr_code
+
+ENTRY_ALLOWED = 0
+ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
+ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED = 2
+ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY = 3
 
 class PlatronPayment(models.Model):
     id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
@@ -69,8 +72,8 @@ class Streamer(models.Model):
     nickName = models.CharField("Ник", max_length=255, blank=False, null=True, db_index=True)
     name = models.CharField("Имя Фамилия", max_length=255, blank=False, null=True)
     email = models.CharField("Email", max_length=255, blank=True, null=True)
-    photo = models.ImageField("Аватар", upload_to="speaker_img/", blank=False, null=True)
-    pageHeader = models.ImageField("Обложка", upload_to="speaker_img/", blank=False, null=True)
+    photo = models.ImageField("Аватар", upload_to="speaker_img/", blank=True, null=True)
+    pageHeader = models.ImageField("Обложка", upload_to="speaker_img/", blank=True, null=True)
     nickNameSlug = models.CharField(max_length=255, blank=True, null=True, unique=True, db_index=True)
     about = RichTextUploadingField("Описание", blank=True, null=True)
     streaming = RichTextUploadingField("Что стримит", blank=True, null=True)
@@ -230,6 +233,11 @@ class Order(models.Model):
     failure_desc = models.TextField("Описание ошибки", null=True, blank=True, editable=False)
 
     @staticmethod
+    def get_recently_paid(order_id): 
+        since = datetime.now() - timedelta(minutes=1)
+        return Order.objects.get(id=order_id, when_paid__gt=since)
+
+    @staticmethod
     @transaction.atomic
     def create(session_id, data): 
         cart = Cart.objects.get(session=session_id)
@@ -340,18 +348,40 @@ class OrderItem(models.Model):
 
 
 class Ticket(models.Model):
-    ticket_id = models.TextField("ID", primary_key=True)
+    ticket_id = models.TextField("ID", primary_key=True, editable=False)
     ticket_uuid = models.UUIDField("QR-code", default=uuid.uuid4)
     order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name="Позиция")
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name="Заказ")
     when_cleared = models.DateTimeField("Дата и время погашения", null=True)
     when_sent = models.DateTimeField("Дата и время отправки", null=True)
     send_attempts = models.SmallIntegerField("Количество попыток отправки", null=False, default=0)
+    checkin_count = models.SmallIntegerField("Успешных попыток прохода", null=False, default=0)
+    checkin_last = models.DateTimeField("Дата и время последнего входа", null=True)
 
     def __str__(self):
         tt = self.order_item.ticket_type
         item = self.order_item
         return f"Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days"
+
+    def checkin_allowed(self): 
+        ttype = self.order_item.ticket_type
+        today = datetime.now().day
+        if self.checkin_last is not None and self.checkin_last.day == today:
+            return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
+        elif self.checkin_count >= ttype.days_qty: 
+            return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
+        else:
+            return ENTRY_ALLOWED
+
+
+    def checkin(self): 
+        result = self.checkin_allowed()
+        if result == ENTRY_ALLOWED:
+            Ticket.objects \
+                .filter(ticket_id=self.ticket_id) \
+                .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.now())
+        return result
+        
 
     def pdf(self, filename=False):
         template = get_template("../templates/ticket.html")
@@ -363,6 +393,70 @@ class Ticket(models.Model):
             "encoding": "UTF-8",
         }
         return pdfkit.from_string(html, filename, options)
+
+    @staticmethod
+    def ticket_stats():
+        from django.db import connection
+        labels = []
+        values = []
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                select date(d) as day, count(api_ticket.ticket_id) 
+                from generate_series(
+                current_date - interval '30 day', 
+                current_date, 
+                '1 day'
+                ) d 
+                left join api_ticket on date(api_ticket.when_sent) = d 
+                group by day order by day;
+            """)
+            for row in cursor.fetchall():
+                labels.append(row[0])
+                values.append(row[1])
+                
+        return {
+            "labels": labels,
+            "values": values
+        }
+
+        
+    @staticmethod
+    def streamer_stats():
+        labels = []
+        values = []
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets
+                from api_ticket t
+                inner join api_orderitem i on t.order_item_id = i.id
+                inner join api_streamer s on i.streamer_id = s.id
+                group by nick) select nick, tickets from stats order by tickets desc limit 10;
+            """)
+            for row in cursor.fetchall():
+                labels.append(row[0])
+                values.append(row[1])
+        return {
+            "labels": labels,
+            "values": values
+        }
+
+    @staticmethod
+    def streamer_stats_export(writer):
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(i.amount) amt
+                from api_ticket t
+                inner join api_orderitem i on t.order_item_id = i.id
+                inner join api_streamer s on i.streamer_id = s.id
+                group by nick) select nick, tickets, amt from stats order by tickets desc limit 10;
+            """)
+            for row in cursor.fetchall():
+                writer.writerow([row[0], str(row[1]), str(row[2])])
+        pass
+
 
     class Meta:
         verbose_name = "Билет"
@@ -381,28 +475,48 @@ class Subscribe(models.Model):
 
 
 class Place(models.Model): 
-    id = models.AutoField("ID", primary_key=True)
-    name = models.TextField("Место")
-    level = models.TextField("Уровень")
 
+    class Levels(models.IntegerChoices):
+        ONE = 1
+        TWO = 2
+        THREE = 3
+        FOUR = 4
+        FIVE = 5
+
+    id = models.AutoField("ID", primary_key=True)
+    name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
+    level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
     class Meta:
         verbose_name = "Место"
         verbose_name_plural = "Места"
 
+    def __str__(self):
+        return f"Место: {self.name}"
 
-class Activity(models.Model): 
-    day = models.IntegerField("День")
-    start = models.TextField("Начало")
-    end = models.TextField("Окончание")
-    title = models.TextField("Название")
+
+class Activity(models.Model):
+
+    class ActiveWhen(models.IntegerChoices):
+        FIRST = 1
+        SECOND = 2
+        BOTH = 3
+
+    priority = models.IntegerField("Номер ПП", default=0)
+    day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
+    start = models.CharField("Начало", max_length=16)
+    end = models.CharField("Окончание", max_length=16)
+    title = models.CharField("Название", max_length=32)
     description = models.TextField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
-    place = models.ForeignKey(Place, on_delete=models.RESTRICT, null=False, verbose_name="Место")
-    streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, verbose_name="Участник")
+    place = models.ForeignKey(Place, on_delete=models.RESTRICT, blank=True, null=True, verbose_name="Место")
+    streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
 
     class Meta:
+        ordering = ("priority", "start",)
         verbose_name = "Активность"
         verbose_name_plural = "Активности"
 
+    def __str__(self):
+        return f"Активность: {self.title}"
 

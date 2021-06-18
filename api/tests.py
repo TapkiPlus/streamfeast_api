@@ -36,6 +36,11 @@ class PlatronTestCase(TestCase):
         self.assertEqual(txn, pers)
     """
 
+    def test_recent_order(self): 
+        order = Order.get_recently_paid("77777-01")
+        print("Order: {}".format(order))
+
+
     def test_user_data(self): 
         increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
         inc_fields = {}
@@ -45,6 +50,20 @@ class PlatronTestCase(TestCase):
             UserData.objects.filter(session="123").update(**inc_fields)
         data = UserData.objects.get(session="123")
         print("Data: {} {} {} {}".format(data.returnedToShop, data.clickedPay, data.tryedToPayAgain, data.clickedTechAssistance))
+
+        
+    def test_select_uuid(self): 
+        ticket = Ticket.objects.first()
+        print("uuid: {}".format(ticket.ticket_uuid))
+        t2 = Ticket.objects.filter(ticket_uuid=ticket.ticket_uuid).first()
+        t2.ticket_uuid = "2399457e-7ab6-406f-b68f-d4a21e0171ae"
+        t2.save()
+        print("t2: {}".format(t2))
+        t3 = Ticket.objects.filter(ticket_uuid="2399457e-7ab6-406f-b68f-d4a21e0171ae").first()
+        print("t3: {}".format(t3))
+        
+
+
 
     #to test SMTP uncomment this pls
     #@override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
