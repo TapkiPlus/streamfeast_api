@@ -3,7 +3,7 @@ import uuid
 
 import pdfkit
 from django.db import models
-from django.db import transaction
+from django.db import transaction, connection
 from django.db.models import Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
@@ -414,6 +414,7 @@ class Ticket(models.Model):
             for row in cursor.fetchall():
                 labels.append(row[0])
                 values.append(row[1])
+                
         return {
             "labels": labels,
             "values": values
@@ -422,7 +423,6 @@ class Ticket(models.Model):
         
     @staticmethod
     def streamer_stats():
-        from django.db import connection
         labels = []
         values = []
         with connection.cursor() as cursor:
@@ -442,7 +442,20 @@ class Ticket(models.Model):
             "values": values
         }
 
-
+    @staticmethod
+    def streamer_stats_export(writer):
+        with connection.cursor() as cursor:
+            cursor = connection.cursor()
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(i.amount) amt
+                from api_ticket t
+                inner join api_orderitem i on t.order_item_id = i.id
+                inner join api_streamer s on i.streamer_id = s.id
+                group by nick) select nick, tickets, amt from stats order by tickets desc limit 10;
+            """)
+            for row in cursor.fetchall():
+                writer.writerow([row[0], str(row[1]), str(row[2])])
+        pass
 
 
     class Meta:

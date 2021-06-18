@@ -29,4 +29,5 @@ urlpatterns = [
     path('checkin', views.Checkin.as_view()),
     path('stats/tickets', views.TicketChart.as_view()),
     path('stats/streamers', views.StreamerChart.as_view()),
+    path('stats/streamers-export', views.StreamerChartExport.as_view()),
 ]
