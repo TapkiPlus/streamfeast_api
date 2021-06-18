@@ -227,10 +227,10 @@ class Order(models.Model):
     when_paid = models.DateTimeField("Дата и время оплаты", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.IntegerField("Стоимось", default=0)
-    payment_system = models.TextField("Платежная система", null=True)
-    card_pan = models.TextField("Номер карты", null=True)
-    failure_code = models.IntegerField("Код ошибки", null=True)
-    failure_desc = models.TextField("Описание ошибки", null=True)
+    payment_system = models.TextField("Платежная система", null=True, blank=True, editable=False)
+    card_pan = models.TextField("Номер карты", null=True, blank=True, editable=False)
+    failure_code = models.IntegerField("Код ошибки", null=True, blank=True, editable=False)
+    failure_desc = models.TextField("Описание ошибки", null=True, blank=True, editable=False)
 
     @staticmethod
     def get_recently_paid(order_id): 

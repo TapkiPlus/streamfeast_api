@@ -24,6 +24,11 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     ordering = ("id",)
 
+# @admin.ModelAdmin.action(description='Перевыслать билеты по выбранному заказу')
+def send_again(modeladmin, request, queryset):
+    Ticket.objects.filter(order__in=queryset).update(when_sent=None, send_attempts=0)
+send_again.short_description="Перевыслать билеты по выбранному заказу"
+
 class ActivityStreamerInline(admin.TabularInline):
     model = Activity.streamers.through
     verbose_name = "Guest"
@@ -63,6 +68,7 @@ class OrderAdmin(admin.ModelAdmin):
         "failure_desc"
     ]
     inlines = [OrderItemInline]
+    actions = [send_again]
 
     class Meta:
         model = Order
@@ -161,6 +167,8 @@ class PlaceAdmin(admin.ModelAdmin):
 
 
 
+#disable delete globally
+admin.site.disable_action('delete_selected')
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
 admin.site.register(Faq)
