@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
-from .models import Ticket, OrderItem
+from .models import Ticket, OrderItem, TicketType
 from django.db import transaction
 from datetime import datetime
 
@@ -21,8 +21,8 @@ def order_html(order, tickets):
     return htmly.render(ctx)
 
 def ticket_html(ticket): 
-    tt = ticket.order_item.ticket_type
-    html_template = '../template/1day.html' if tt.days_qty == 1 else '../template/2days.html'
+    tt = ticket.ticket_type
+    html_template = '../template/1day.html' if tt == TicketType.Types.REGULAR_ONE else '../template/2days.html'
     htmly = get_template(html_template)
     ctx = {
         'ticket': ticket,
@@ -38,7 +38,7 @@ def send_application(order):
 
     bccs = ["info@streamfest.ru", "alyona@lisetskiy.com"]
     for t in tickets:
-        streamer = t.order_item.streamer
+        streamer = t.streamer
         if streamer is not None:
             email = streamer.email
             if email is not None and email not in bccs:

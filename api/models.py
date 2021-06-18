@@ -111,7 +111,7 @@ class SocialLink(models.Model):
 
 
 class TicketType(models.Model):
-    class Days(models.IntegerChoices):
+    class Types(models.IntegerChoices):
         REGULAR_ONE = 1
         REGULAR_TWO = 2
         INVITE = 3
@@ -119,16 +119,16 @@ class TicketType(models.Model):
         BLOGER  = 5
 
     price = models.IntegerField("Цена", blank=False, null=True)
-    days_qty = models.PositiveSmallIntegerField("Тип билета", choices=Days.choices, default=Days.REGULAR_ONE)
+    days_qty = models.PositiveSmallIntegerField("Тип билета", choices=Types.choices, default=Types.REGULAR_ONE)
  
     def __str__(self):
-        if self.days_qty == self.Days.REGULAR_ONE:
+        if self.days_qty == TicketType.Types.REGULAR_ONE:
             return f"Билет на один день : {self.price}"
-        elif self.days_qty == self.Days.REGULAR_TWO:
+        elif self.days_qty == TicketType.Types.REGULAR_TWO:
             return f"Билет на два дня : {self.price}"
-        elif self.days_qty == self.Days.INVITE:
+        elif self.days_qty == TicketType.Types.INVITE:
             return "Приглашение"
-        elif self.days_qty == self.Days.PRESS:
+        elif self.days_qty == TicketType.Types.PRESS:
             return "Приглашение для прессы"
         else:
             return "Приглашение блогеру"
@@ -247,11 +247,58 @@ class Order(models.Model):
         since = datetime.now() - timedelta(minutes=1)
         return Order.objects.get(id=order_id, when_paid__gt=since)
 
+
+    @staticmethod
+    @transaction.atomic
+    def create_by_invites(invites):
+        for invite in invites:
+            session=uuid.uuid4
+            user_data, _ = UserData.objects.get_or_create(session=session)
+            user_data.wentToCheckout += 1
+            order = Order.create_order_0(user_data, {"email": invite.email}, session, 0)
+            order.when_paid = datetime.now()
+            item = OrderItem.objects.create(
+                order=order,
+                ticket_type=invite.invite_type,
+                quantity=invite.invite_type, #TODO
+                price=0,
+                streamer=None,
+                amount=0
+            )
+            for _ in range(invite.quantity):
+                    index += 1
+                    id = "{}-{:02d}".format(order.id, index)
+                    Ticket.objects.create(
+                        ticket_id=id,
+                        ticket_type=invite.ticket_type,
+                        price=0,
+                        streamer=None,
+                        order=order
+                    )
+                    Ticket.objects.create(ticket_id=id, order_item=item, order=order)
+
     @staticmethod
     @transaction.atomic
     def create(session_id, data): 
         cart = Cart.objects.get(session=session_id)
         user_data = UserData.objects.get(session=session_id)
+        new_order = Order.create_order_0(user_data, data, session_id, cart.total_price)
+        cart_items = CartItem.objects.filter(parent=cart)
+        index = 0
+        for i in cart_items:
+            index += 1
+            OrderItem.objects.create(
+                order=new_order,
+                ticket_type=i.ticket_type.days_qty,
+                price=i.ticket_type.price,
+                quantity=i.quantity,
+                streamer=i.streamer,
+                amount=i.quantity * i.ticket_type.price
+            )
+        return new_order
+
+    @staticmethod
+    def create_order_0(user_data, data, session_id, amount):
         order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
         print("Creating order id {}".format(order_id))
         new_order = Order.objects.create(
@@ -261,19 +308,8 @@ class Order(models.Model):
             lastname=data.get('lastname'),
             email=data.get('email'),
             phone=data.get('phone'),
-            amount=cart.total_price
+            amount=amount
         )
-        cart_items = CartItem.objects.filter(parent=cart)
-        index = 0
-        for i in cart_items:
-            index += 1
-            OrderItem.objects.create(
-                order=new_order,
-                ticket_type=i.ticket_type,
-                quantity=i.quantity,
-                streamer=i.streamer,
-                amount=i.quantity * i.ticket_type.price
-            )
         return new_order
 
     @transaction.atomic
@@ -288,7 +324,13 @@ class Order(models.Model):
                 for i in range(item.quantity):
                     index += 1
                     id = "{}-{:02d}".format(self.id, index)
-                    Ticket.objects.create(ticket_id=id, order_item=item, order=self)
+                    Ticket.objects.create(
+                        ticket_id=id,
+                        ticket_type=item.ticket_type.days_qty,
+                        price=item.ticket_type.price,
+                        streamer=item.streamer,
+                        order=self
+                    )
             self.save()
 
     def set_unpaid(self):
@@ -306,9 +348,10 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
-    ticket_type = models.ForeignKey(TicketType, on_delete=models.RESTRICT, null=True, blank=True, verbose_name="Билет")
+    ticket_type = models.PositiveSmallIntegerField("Тип билета", choices=TicketType.Types.choices)
+    price = models.IntegerField("Цена", blank=False, null=True)
     quantity = models.IntegerField("Количество", default=1)
-    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, null=True, blank=True, verbose_name="От кого")
+    streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, blank=True, verbose_name="От кого")
     amount = models.IntegerField("Стоимось", default=0)
 
     class Meta:
@@ -352,7 +395,7 @@ class OrderItem(models.Model):
         return qs
 
     def __str__(self):
-        start = "1 день" if self.ticket_type.days_qty == 1 else "2 дня"
+        start = "1 день" if self.ticket_type == TicketType.Types.REGULAR_ONE else "2 дня"
         end = f" от {self.streamer}" if self.streamer else ""
         return f'Билет на {start}{end}'
 
@@ -360,25 +403,26 @@ class OrderItem(models.Model):
 class Ticket(models.Model):
     ticket_id = models.TextField("ID", primary_key=True, editable=False)
     ticket_uuid = models.UUIDField("QR-code", default=uuid.uuid4)
-    order_item = models.ForeignKey(OrderItem, on_delete=models.RESTRICT, null=False, verbose_name="Позиция")
+    ticket_type = models.PositiveSmallIntegerField("Тип билета", choices=TicketType.Types.choices, default=TicketType.Types.REGULAR_ONE)
+    price = models.IntegerField("Цена", blank=False, null=True)
+    streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, blank=True, verbose_name="От кого")
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name="Заказ")
     when_cleared = models.DateTimeField("Дата и время погашения", null=True)
     when_sent = models.DateTimeField("Дата и время отправки", null=True)
     send_attempts = models.SmallIntegerField("Количество попыток отправки", null=False, default=0)
     checkin_count = models.SmallIntegerField("Успешных попыток прохода", null=False, default=0)
     checkin_last = models.DateTimeField("Дата и время последнего входа", null=True)
-
+    
     def __str__(self):
-        tt = self.order_item.ticket_type
-        item = self.order_item
-        return f"Ticket {self.ticket_id} by {item.streamer} for {tt.days_qty} days"
+        from_streamer = f" от {self.streamer}" if self.streamer else ""
+        return f"{self.ticket_type} {from_streamer}"
 
     def checkin_allowed(self): 
-        ttype = self.order_item.ticket_type
         today = datetime.now().day
+        maximum = self.ticket_type if self.ticket_type < 3 else 999
         if self.checkin_last is not None and self.checkin_last.day == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
-        elif self.checkin_count >= ttype.days_qty: 
+        elif self.checkin_count >= maximum: 
             return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
         else:
             return ENTRY_ALLOWED
@@ -535,12 +579,13 @@ class Invitation(models.Model):
 
     email = models.EmailField("E-mail", primary_key=True)
     quantity = models.PositiveSmallIntegerField("Количество", null=False, blank=False, default=1)
+    invite_type = models.PositiveSmallIntegerField("Тип приглашения", null=False, blank=False, default=1, choices=TicketType.Types.choices)
 
     @staticmethod
     @transaction.atomic
     def import_from(rows): 
         for row in rows:
-            Invitation.objects.create(email=row['email'], quantity=row['quantity'])
+            Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=row['type'])
 
     class Meta:
         verbose_name = "Приглашение"

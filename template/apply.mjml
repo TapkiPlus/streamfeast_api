@@ -225,19 +225,19 @@
 						<td style="padding: 0 15px;">
 							<p>
 							Билет на 
-							{% if ticket.order_item.ticket_type.days_qty == 2 %}
+							{% if ticket.ticket_type == 2 %}
 							2 дня 
-							{% elif ticket.order_item.ticket_type.days_qty == 1 %}
+							{% elif ticket.ticket_type == 1 %}
 							1 день 
 							{% endif %}
 
-							{% if ticket.order_item.streamer %}
-								от <b>{{ticket.order_item.streamer.nickName}}</b></br>
+							{% if ticket.streamer %}
+								от <b>{{ticket.streamer.nickName}}</b></br>
 								(вы поддержали участника фестиваля, купив этот билет)
 							{% endif %}
 							</p>
 						</td>
-						<td style="padding: 0 0 0 15px;min-width: 71px">{{ticket.order_item.ticket_type.price}} руб.</td>
+						<td style="padding: 0 0 0 15px;min-width: 71px">{{ticket.price}} руб.</td>
 					</tr>
 					{% endfor %}
 				</mj-table>

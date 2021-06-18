@@ -276,14 +276,14 @@
     <mj-section background-color="#f5f5f5" padding="0 40px">
     
       <mj-column css-class="qr-wrap" padding="0" vertical-align="middle" background-color="#ffffff">
-        <mj-image src="http://www.antonivanovs.ru/img/for_email/QR.png" alt="qr" padding="20px 20px" />
+        <mj-image src="{{site_url}}/api/get_qr?ticket_uuid={{ticket.ticket_uuid}}" alt="qr" padding="20px 20px" />
       </mj-column>
       <mj-column width="69%" css-class="footer-wrap">
         <mj-text color="#333333" css-class="footer" padding="0 0 0 20px">
           <h2>Билет — это QR-код. </br>Распечатайте или сохраните его!</h2>
           <p>Не забудьте его! Без кода вы не попадете на фестиваль. Билет с кодом действителен на проход для одного человека. Его надо будет отсканировать на входе.
           <br/><br/>
-          <a href="http://www.antonivanovs.ru/img/for_email/QR.png" target="_blank"> Если QR-код не видно</a> — он откроется в отдельном окне.
+          <a href="{{site_url}}/api/get_qr?ticket_uuid={{ticket.ticket_uuid}}" target="_blank"> Если QR-код не видно</a> — он откроется в отдельном окне.
           </p>
         </mj-text>
       </mj-column>

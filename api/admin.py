@@ -31,8 +31,15 @@ class ExportCsvMixin:
 
     export_as_csv.short_description = "Export Selected"
 
+def create_orders(modeladmin, request, queryset):
+    invites = Invitation.objects.filter(email__in=queryset)
+    Order.create_by_invites(invites)
+    modeladmin.message_user(request, "Orders were created")
+create_orders.short_description="Создать заказы по приглашениям"
+
+
 class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ['email', 'quantity']
+    list_display = ['email', 'quantity', 'invite_type']
     change_list_template = "admin/invitation_changelist.html"
 
     def get_urls(self):
@@ -47,8 +54,6 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
             csv_file = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
             reader = csv.DictReader(csv_file)
             Invitation.import_from(list(reader))
-            # Create Hero objects from passed in data
-            # ...
             self.message_user(request, "Your csv file has been imported")
             return redirect("..")
         form = CsvImportForm()
@@ -56,6 +61,8 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
         return render(
             request, "admin/csv_form.html", payload
         )
+
+    actions = [create_orders]
 
 class SocialLinkInline(admin.TabularInline):
     model = SocialLink
@@ -221,7 +228,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
 
 #disable delete globally
-admin.site.disable_action('delete_selected')
+#admin.site.disable_action('delete_selected')
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
 admin.site.register(Faq)
