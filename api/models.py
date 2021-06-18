@@ -265,17 +265,16 @@ class Order(models.Model):
                 streamer=None,
                 amount=0
             )
-            for _ in range(invite.quantity):
+            for index in range(invite.quantity):
                     index += 1
                     id = "{}-{:02d}".format(order.id, index)
                     Ticket.objects.create(
                         ticket_id=id,
-                        ticket_type=invite.ticket_type,
+                        ticket_type=invite.invite_type,
                         price=0,
                         streamer=None,
                         order=order
                     )
-                    Ticket.objects.create(ticket_id=id, order_item=item, order=order)
 
     @staticmethod
     @transaction.atomic
