@@ -584,6 +584,10 @@ class Invitation(models.Model):
     @transaction.atomic
     def import_from(rows): 
         for row in rows:
+            invite_type = \
+                     TicketType.Types.INVITE if row['type'] == "streamer" \
+                else TicketType.Types.PRESS if row['type'] == "press" \
+                else TicketType.Types.BLOGER
             Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=row['type'])
 
     class Meta:

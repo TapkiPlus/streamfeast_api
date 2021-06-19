@@ -34,7 +34,7 @@ class ExportCsvMixin:
 def create_orders(modeladmin, request, queryset):
     invites = Invitation.objects.filter(email__in=queryset)
     Order.create_by_invites(invites)
-    modeladmin.message_user(request, "Orders were created")
+    modeladmin.message_user(request, "Заказы были успешно созданы.")
 create_orders.short_description="Создать заказы по приглашениям"
 
 
@@ -54,7 +54,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
             csv_file = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
             reader = csv.DictReader(csv_file)
             Invitation.import_from(list(reader))
-            self.message_user(request, "Your csv file has been imported")
+            self.message_user(request, "СSV файл импортирован!")
             return redirect("..")
         form = CsvImportForm()
         payload = {"form": form}
@@ -236,12 +236,10 @@ admin.site.register(HowTo)
 admin.site.register(TicketType)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Cart)
-#admin.site.register(CartItem)
 admin.site.register(UserData, UserDataAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(PlatronPayment)
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Activity, ActivityAdmin)
 admin.site.register(Invitation, InvitationAdmin)
-# admin.site.register(OrderItem)
 admin.site.register(SocialIcon)
