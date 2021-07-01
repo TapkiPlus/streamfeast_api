@@ -53,7 +53,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
     def import_csv(self, request):
         if request.method == "POST":
             #csv_file = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
-            csv_file = request.FILES["csv_file"].file
+            csv_file = request.FILES["csv_file"].file.read()
             dicts = read_dicts(csv_file)
             Invitation.import_from(dicts)
             self.message_user(request, "СSV файл импортирован!")
