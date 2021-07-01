@@ -8,7 +8,7 @@ from django.urls import path
 from django.contrib import admin
 from django.shortcuts import render, redirect
 
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 from .models import *
 
 
@@ -55,14 +55,16 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
         if request.method == "POST":
             csv_src = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
             #csv_src = request.FILES["csv_file"].file
-            with TemporaryFile(mode='w+') as f:
+            tmp = NamedTemporaryFile()
+
+            with open(tmp.name, 'w') as f: 
                 for line in csv_src:
                     f.write(line)
-                f.seek(0)
-                dicts = read_dicts(f.name)
-                Invitation.import_from(dicts)
-                self.message_user(request, "СSV файл импортирован!")
-                return redirect("..")
+
+            dicts = read_dicts(tmp.name)
+            Invitation.import_from(dicts)
+            self.message_user(request, "СSV файл импортирован!")
+            return redirect("..")
         form = CsvImportForm()
         payload = {"form": form}
         return render(
