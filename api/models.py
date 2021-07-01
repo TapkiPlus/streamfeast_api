@@ -253,14 +253,14 @@ class Order(models.Model):
     def create_by_invites(invites):
         for invite in invites:
             session=uuid.uuid4
-            user_data, _ = UserData.objects.get_or_create(session=session)
+            user_data = UserData.objects.create(session=session, email=invite.email)
             user_data.wentToCheckout += 1
-            order = Order.create_order_0(user_data, {"email": invite.email}, session, 0)
+            order = Order.create_order_0(user_data, session, 0)
             order.when_paid = datetime.now()
             item = OrderItem.objects.create(
                 order=order,
                 ticket_type=invite.invite_type,
-                quantity=invite.invite_type, #TODO
+                quantity=invite.quantity, #TODO
                 price=0,
                 streamer=None,
                 amount=0
@@ -281,7 +281,7 @@ class Order(models.Model):
     def create(session_id, data): 
         cart = Cart.objects.get(session=session_id)
         user_data = UserData.objects.get(session=session_id)
-        new_order = Order.create_order_0(user_data, data, session_id, cart.total_price)
+        new_order = Order.create_order_0(user_data, session_id, cart.total_price)
         cart_items = CartItem.objects.filter(parent=cart)
         index = 0
         for i in cart_items:
@@ -297,7 +297,7 @@ class Order(models.Model):
         return new_order
 
     @staticmethod
-    def create_order_0(user_data, data, session_id, amount):
+    def create_order_0(user_data, session_id, amount):
         order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
         print("Creating order id {}".format(order_id))
         new_order = Order.objects.create(
