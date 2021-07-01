@@ -247,10 +247,10 @@ class Order(models.Model):
         new_order = Order.objects.create(
             id=order_id,
             session=session_id,
-            firstname=data.get('firstname'),
-            lastname=data.get('lastname'),
-            email=data.get('email'),
-            phone=data.get('phone'),
+            firstname=user_data.firstname,
+            lastname=user_data.lastname,
+            email=user_data.email,
+            phone=user_data.phone,
             amount=cart.total_price
         )
         cart_items = CartItem.objects.filter(parent=cart)
