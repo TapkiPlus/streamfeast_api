@@ -1,5 +1,6 @@
-import csv
 import functools
+from clevercsv.write import writer
+from clevercsv.wrappers import read_dicts
 from io import TextIOWrapper
 
 from django import forms
@@ -7,6 +8,7 @@ from django.urls import path
 from django.contrib import admin
 from django.shortcuts import render, redirect
 
+from tempfile import NamedTemporaryFile
 from .models import *
 
 
@@ -21,11 +23,11 @@ class ExportCsvMixin:
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
+        w = writer(response)
 
-        writer.writerow(field_names)
+        w.writerow(field_names)
         for obj in queryset:
-            row = writer.writerow([getattr(obj, field) for field in field_names])
+            row = w.writerow([getattr(obj, field) for field in field_names])
 
         return response
 
@@ -51,9 +53,14 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     def import_csv(self, request):
         if request.method == "POST":
-            csv_file = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
-            reader = csv.DictReader(csv_file)
-            Invitation.import_from(list(reader))
+            csv_src = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
+            tmp = NamedTemporaryFile()
+            with open(tmp.name, 'w') as f: 
+                for line in csv_src:
+                    f.write(line)
+            dicts = read_dicts(tmp.name)
+            Invitation.import_from(dicts)
+            tmp.close()
             self.message_user(request, "СSV файл импортирован!")
             return redirect("..")
         form = CsvImportForm()
