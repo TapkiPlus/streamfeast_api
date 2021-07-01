@@ -59,7 +59,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
                 for line in csv_src:
                     f.write(line)
                 f.seek(0)
-                dicts = read_dicts(f)
+                dicts = read_dicts(f.name)
                 Invitation.import_from(dicts)
                 self.message_user(request, "СSV файл импортирован!")
                 return redirect("..")
