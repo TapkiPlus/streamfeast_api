@@ -12,11 +12,9 @@ class PlatronTestCase(TestCase):
     def setUp(self):
         data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
-        tt1 = TicketType.objects.create(price=42, days_qty=1)
-        tt2 = TicketType.objects.create(price=43, days_qty=2)
         order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
-        OrderItem.objects.create(order=order, ticket_type=tt1, quantity=1, amount=42, streamer=streamer)
-        OrderItem.objects.create(order=order, ticket_type=tt2, quantity=2, amount=86)
+        OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, streamer=streamer)
+        OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86)
         order.set_paid(datetime.now())
         pass
 
