@@ -57,7 +57,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
             #csv_src = request.FILES["csv_file"].file
             with TemporaryFile() as f:
                 for line in csv_src:
-                    f.writelines(line)
+                    f.writeline(line)
                 f.seek(0)
                 dicts = read_dicts(f)
                 Invitation.import_from(dicts)
