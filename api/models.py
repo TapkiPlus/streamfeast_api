@@ -588,7 +588,7 @@ class Invitation(models.Model):
                      TicketType.Types.INVITE if row['type'] == "streamer" \
                 else TicketType.Types.PRESS if row['type'] == "press" \
                 else TicketType.Types.BLOGER
-            Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=row['type'])
+            Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=invite_type)
 
     class Meta:
         verbose_name = "Приглашение"
