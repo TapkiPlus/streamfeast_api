@@ -188,7 +188,7 @@
             font-weight="bold"
             padding-top="0"
           >
-            <p>17 или 18 июля 2021</p>
+            <p>7 или 8 августа 2021</p>
           </mj-text>
         </mj-column> -->
     </mj-section>
@@ -212,7 +212,7 @@
       <mj-column padding="0">
         <mj-text color="#333333" font-size="18px" font-family="Open Sans" line-height="27px" css-class="intro" padding="0">
           <p><b>Пятый международный фестиваль стрим-культуры Стримфест</b></br> Технопарк «Сколково», Москва</p>
-          <p>Приходите <b>17–18 июля</b> — будет здорово! <br/>
+          <p>Приходите <b>7–8 августа</b> — будет здорово! <br/>
             <a href="https://streamfest.ru/activities" css-class="link">Активности</a>, <a href="https://streamfest.ru/timetable" css-class="link">расписание</a>, <a href="https://streamfest.ru/stars" css-class="link">участники</a> и <a href="https://streamfest.ru/faq" css-class="link">ответы на вопросы</a>. 
           </p>
         </mj-text>

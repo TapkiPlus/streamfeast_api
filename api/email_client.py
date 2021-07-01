@@ -63,7 +63,7 @@ def send_oldest_ticket():
     if ticket is not None: 
         order = ticket.order
         try:
-            ticket_header = 'Билет №{} на Стримфест 2021 — 17–18 июля'.format(ticket.ticket_id)
+            ticket_header = 'Билет №{} на Стримфест 2021 — 7–8 августа'.format(ticket.ticket_id)
             ticket_content = ticket_html(ticket)
             msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
             msg.content_subtype = "html"  # Main content is now text/html
