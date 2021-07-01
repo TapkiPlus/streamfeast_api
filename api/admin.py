@@ -1,5 +1,5 @@
-import csv
 import functools
+from clevercsv.write import writer
 from clevercsv.dict_read_write import DictReader
 from io import TextIOWrapper
 
@@ -22,11 +22,11 @@ class ExportCsvMixin:
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
+        w = writer(response)
 
-        writer.writerow(field_names)
+        w.writerow(field_names)
         for obj in queryset:
-            row = writer.writerow([getattr(obj, field) for field in field_names])
+            row = w.writerow([getattr(obj, field) for field in field_names])
 
         return response
 
