@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from datetime import datetime
 from dateutil import parser
 
+from .email_client import send_application
 from .models import *
 from .platron_client import *
 from .serializers import *
@@ -164,6 +165,7 @@ class CreateOrder(APIView):
         order = Order.create(session_id, request.data)
         if order.email in TEST_SET:
             order.set_paid(datetime.now())
+            send_application(order)
             return Response("/success-page?pg_order_id={}".format(order.id), status=200)
         else:
             tx = init_payment(order)
