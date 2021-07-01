@@ -22,7 +22,11 @@ def order_html(order, tickets):
 
 def ticket_html(ticket): 
     tt = ticket.ticket_type
-    html_template = '../template/1day.html' if tt == TicketType.Types.REGULAR_ONE else '../template/2days.html'
+    html_template = '../template/1day.html' if tt == TicketType.Types.REGULAR_ONE \
+        else '../template/2days.html' if tt == TicketType.Types.REGULAR_TWO \
+        else '../template/index.html' if tt == TicketType.Types.BLOGER \
+        else '../template/invite.html' if tt == TicketType.Types.INVITE \
+        else '../template/press.html' # assume this is press!
     htmly = get_template(html_template)
     ctx = {
         'ticket': ticket,

@@ -1,5 +1,6 @@
 import csv
 import functools
+from clevercsv.dict_read_write import DictReader
 from io import TextIOWrapper
 
 from django import forms
@@ -52,7 +53,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
     def import_csv(self, request):
         if request.method == "POST":
             csv_file = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
-            reader = csv.DictReader(csv_file)
+            reader = DictReader(csv_file)
             Invitation.import_from(list(reader))
             self.message_user(request, "СSV файл импортирован!")
             return redirect("..")
