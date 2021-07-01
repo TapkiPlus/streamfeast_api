@@ -252,19 +252,11 @@ class Order(models.Model):
     @transaction.atomic
     def create_by_invites(invites):
         for invite in invites:
-            session=uuid.uuid4
+            session=uuid.uuid4()
             user_data = UserData.objects.create(session=session, email=invite.email)
             user_data.wentToCheckout += 1
             order = Order.create_order_0(user_data, session, 0)
             order.when_paid = datetime.now()
-            item = OrderItem.objects.create(
-                order=order,
-                ticket_type=invite.invite_type,
-                quantity=invite.quantity, #TODO
-                price=0,
-                streamer=None,
-                amount=0
-            )
             for index in range(invite.quantity):
                     index += 1
                     id = "{}-{:02d}".format(order.id, index)
