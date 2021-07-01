@@ -475,8 +475,7 @@ class Ticket(models.Model):
             cursor.execute("""
                 with stats as (select s."nickName" nick, count(t.ticket_id) tickets
                 from api_ticket t
-                inner join api_orderitem i on t.order_item_id = i.id
-                inner join api_streamer s on i.streamer_id = s.id
+                inner join api_streamer s on t.streamer_id = s.id
                 group by nick) select nick, tickets from stats order by tickets desc limit 10;
             """)
             for row in cursor.fetchall():
@@ -492,10 +491,9 @@ class Ticket(models.Model):
         with connection.cursor() as cursor:
             cursor = connection.cursor()
             cursor.execute("""
-                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(i.amount) amt
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(t.price) amt
                 from api_ticket t
-                inner join api_orderitem i on t.order_item_id = i.id
-                inner join api_streamer s on i.streamer_id = s.id
+                inner join api_streamer s on t.streamer_id = s.id
                 group by nick) select nick, tickets, amt from stats order by tickets desc limit 10;
             """)
             for row in cursor.fetchall():

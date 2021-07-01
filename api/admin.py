@@ -54,15 +54,13 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
     def import_csv(self, request):
         if request.method == "POST":
             csv_src = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
-            #csv_src = request.FILES["csv_file"].file
             tmp = NamedTemporaryFile()
-
             with open(tmp.name, 'w') as f: 
                 for line in csv_src:
                     f.write(line)
-
             dicts = read_dicts(tmp.name)
             Invitation.import_from(dicts)
+            tmp.close()
             self.message_user(request, "СSV файл импортирован!")
             return redirect("..")
         form = CsvImportForm()
