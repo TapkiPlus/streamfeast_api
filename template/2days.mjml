@@ -142,7 +142,7 @@
     width=700px 
     background-color=#ffffff
     >
-    <mj-section background-url="http://www.antonivanovs.ru/img/for_email/header-2d.jpg"
+    <mj-section background-url="{{site_url}}/resources/img/for_email/header-2d.png"
                 background-size="100%"
                 background-repeat="no-repeat"
                 background-color="#f5f5f5"
@@ -150,7 +150,7 @@
                 padding="42px 0 50px"
                 >
         <!-- <mj-column width="49%" css-class="header-left">
-          <mj-image width="186px" css-class="logo" padding="0 30px" src="http://www.antonivanovs.ru/img/for_email/logo.png" alt="Стримфест 2021" />
+          <mj-image width="186px" css-class="logo" padding="0 30px" src="{{site_url}}/resources/img/for_email/logo.png" alt="Стримфест 2021" />
         </mj-column>
         <mj-column
           padding="3px 0 0 0"
@@ -215,7 +215,7 @@
         <mj-text color="#333333" font-size="18px" font-family="Open Sans" line-height="27px" css-class="intro" padding="0">
           <p><b>Пятый международный фестиваль стрим-культуры Стримфест</b></br> Технопарк «Сколково», Москва</p>
           <p>Приходите <b>7–8 августа</b> — будет здорово! <br/>
-            <a href="https://streamfest.ru/activities" css-class="link">Активности</a>, <a href="https://streamfest.ru/timetable" css-class="link">расписание</a>, <a href="https://streamfest.ru/stars" css-class="link">участники</a> и <a href="https://streamfest.ru/faq" css-class="link">ответы на вопросы</a>. 
+            <a href="{{site_url}}/activities" css-class="link">Активности</a>, <a href="{{site_url}}/timetable" css-class="link">расписание</a>, <a href="{{site_url}}/stars" css-class="link">участники</a> и <a href="{{site_url}}/faq" css-class="link">ответы на вопросы</a>. 
           </p>
         </mj-text>
       </mj-column>
@@ -227,7 +227,7 @@
         </mj-column>
         <mj-column width="10%" padding="0">
           
-          <mj-image width="32px" src="http://www.antonivanovs.ru/img/for_email/rocket_ico.png" alt="" padding="0" align="center"/>
+          <mj-image width="32px" src="{{site_url}}/resources/img/for_email/rocket_ico.png" alt="" padding="0" align="center"/>
           
         </mj-column>
         <mj-column width="45%">
@@ -244,7 +244,7 @@
           <p>Удобнее всего — на легком метро направления МЦД-1, станция «Сколково». 
               Проложите свой маршрут по <a href="https://yandex.ru/metro/moscow">интерактивной карте</a>. </p>
           <p>Еще можно приехать на такси, своей машине или рейсовом автобусе. 
-              Обязательно посмотрите, <a href="https://streamfest.ru/contact">как лучше проехать</a> на вашем виде транспорта!</p>
+              Обязательно посмотрите, <a href="{{site_url}}/contact">как лучше проехать</a> на вашем виде транспорта!</p>
         </mj-text>
       </mj-column>
     </mj-section>
@@ -255,7 +255,7 @@
         </mj-column>
         <mj-column width="10%" padding="0">
           
-          <mj-image width="26px" src="http://www.antonivanovs.ru/img/for_email/stop_ico.png" alt="" padding="0" align="center"/>
+          <mj-image width="26px" src="{{site_url}}/resources/img/for_email/stop_ico.png" alt="" padding="0" align="center"/>
           
         </mj-column>
         <mj-column width="45%">
@@ -307,7 +307,7 @@
     <mj-section>
       <mj-column>
         <mj-text align="center" css-class="link-footer">
-          <a href="https://www.streamfest.ru" >www.streamfest.ru</a>
+          <a href="{{site_url}}" >www.streamfest.ru</a>
         </mj-text>
       </mj-column>
     </mj-section>

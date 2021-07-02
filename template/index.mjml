@@ -143,7 +143,7 @@
     width=700px 
     background-color=#ffffff
     >
-    <mj-section background-url="http://www.antonivanovs.ru/img/for_email/header-blgr.jpg"
+    <mj-section background-url="{{site_url}}/resources/img/for_email/header-blgr.png"
                 background-size="100%"
                 background-repeat="no-repeat"
                 background-color="#FFFFFF"
@@ -151,7 +151,7 @@
                 padding="42px 0 40px"
                 >
         <!-- <mj-column width="49%">
-          <mj-image width="190px" css-class="logo" src="http://www.antonivanovs.ru/img/for_email/logo.png" alt="Стримфест 2021" />
+          <mj-image width="190px" css-class="logo" src="{{site_url}}/resources/img/for_email/logo.png" alt="Стримфест 2021" />
         </mj-column>
         <mj-column
           padding="10px 0 0 0"
@@ -200,7 +200,7 @@
         <mj-text color="#333333" font-size="18px" font-family="Open Sans" line-height="27px" css-class="intro" padding="0">
           <p><b>Пятый международный фестиваль стрим-культуры Стримфест</b></br> Технопарк «Сколково», Москва</p>
           <p>Приходите <b>7-8 августа</b> — будет здорово! <br/>
-            <a href="https://streamfest.ru/activities" css-class="link">Активности</a>, <a href="https://streamfest.ru/timetable" css-class="link">расписание</a>, <a href="https://streamfest.ru/stars" css-class="link">участники</a> и <a href="https://streamfest.ru/faq" css-class="link">ответы на вопросы</a>. 
+            <a href="{{site_url}}/activities" css-class="link">Активности</a>, <a href="{{site_url}}/timetable" css-class="link">расписание</a>, <a href="{{site_url}}/stars" css-class="link">участники</a> и <a href="{{site_url}}/faq" css-class="link">ответы на вопросы</a>. 
           </p>
         </mj-text>
       </mj-column>
@@ -212,7 +212,7 @@
         </mj-column>
         <mj-column width="10%" padding="0">
           
-          <mj-image width="32px" src="http://www.antonivanovs.ru/img/for_email/rocket_ico.png" alt="" padding="0" align="center"/>
+          <mj-image width="32px" src="{{site_url}}/resources/img/for_email/rocket_ico.png" alt="" padding="0" align="center"/>
           
         </mj-column>
         <mj-column width="45%">
@@ -229,7 +229,7 @@
           <p>Удобнее всего — на легком метро направления МЦД-1, станция «Сколково». 
               Проложите свой маршрут по <a href="https://yandex.ru/metro/moscow">интерактивной карте</a>. </p>
           <p>Еще можно приехать на такси, своей машине или рейсовом автобусе. 
-              Обязательно посмотрите, <a href="https://streamfest.ru/contact">как лучше проехать</a> на вашем виде транспорта!</p>
+              Обязательно посмотрите, <a href="{{site_url}}/contact">как лучше проехать</a> на вашем виде транспорта!</p>
         </mj-text>
       </mj-column>
     </mj-section>
@@ -240,7 +240,7 @@
         </mj-column>
         <mj-column width="10%" padding="0">
           
-          <mj-image width="26px" src="http://www.antonivanovs.ru/img/for_email/stop_ico.png" alt="" padding="0" align="center"/>
+          <mj-image width="26px" src="{{site_url}}/resources/img/for_email/stop_ico.png" alt="" padding="0" align="center"/>
           
         </mj-column>
         <mj-column width="45%">
@@ -273,7 +273,7 @@
         </mj-column>
         <mj-column width="10%" padding="0">
           
-          <mj-image width="22px" src="http://www.antonivanovs.ru/img/for_email/bagde_ico.png" alt="" padding="0" align="center"/>
+          <mj-image width="22px" src="{{site_url}}/resources/img/for_email/bagde_ico.png" alt="" padding="0" align="center"/>
           
         </mj-column>
         <mj-column width="45%">
@@ -307,14 +307,14 @@
     <mj-section background-color="#f5f5f5" padding="0 40px">
     
       <mj-column css-class="qr-wrap" padding="0" vertical-align="middle" background-color="#ffffff">
-        <mj-image src="http://www.antonivanovs.ru/img/for_email/QR.png" alt="qr" padding="20px 20px" />
+        <mj-image src="{{site_url}}/resources/img/for_email/QR.png" alt="qr" padding="20px 20px" />
       </mj-column>
       <mj-column width="69%" css-class="footer-wrap">
         <mj-text color="#333333" css-class="footer" padding="0 0 0 20px">
           <h2>Билет — это QR-код. </br>Распечатайте или сохраните его!</h2>
           <p>Не забудьте его! Без кода вы не попадете на фестиваль. Билет с кодом действителен на проход для одного человека. Его надо будет отсканировать на входе.
           <br/><br/>
-          <a href="http://www.antonivanovs.ru/img/for_email/QR.png" target="_blank"> Если QR-код не видно</a> — он откроется в отдельном окне.
+          <a href="{{site_url}}/resources/img/for_email/QR.png" target="_blank"> Если QR-код не видно</a> — он откроется в отдельном окне.
           </p>
         </mj-text>
       </mj-column>
@@ -323,7 +323,7 @@
     <mj-section>
       <mj-column>
         <mj-text color="#333333" align="center" css-class="link-footer">
-          <a href="https://www.streamfest.ru" >www.streamfest.ru</a>
+          <a href="{{site_url}}" >www.streamfest.ru</a>
         </mj-text>
       </mj-column>
     </mj-section>
