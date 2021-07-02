@@ -307,7 +307,7 @@
     <mj-section background-color="#f5f5f5" padding="0 40px">
     
       <mj-column css-class="qr-wrap" padding="0" vertical-align="middle" background-color="#ffffff">
-        <mj-image src="{{site_url}}/resources/img/for_email/QR.png" alt="qr" padding="20px 20px" />
+        <mj-image src="{{site_url}}/api/get_qr?ticket_uuid={{ticket.ticket_uuid}}" alt="qr" padding="20px 20px" />
       </mj-column>
       <mj-column width="69%" css-class="footer-wrap">
         <mj-text color="#333333" css-class="footer" padding="0 0 0 20px">
