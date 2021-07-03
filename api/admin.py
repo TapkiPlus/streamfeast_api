@@ -41,7 +41,7 @@ create_orders.short_description="Создать заказы по приглаш
 
 
 class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ['email', 'quantity', 'invite_type']
+    list_display = ['email', 'quantity', 'invite_type', 'sent_count']
     change_list_template = "admin/invitation_changelist.html"
 
     def get_urls(self):
