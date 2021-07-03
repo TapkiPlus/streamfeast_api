@@ -51,6 +51,10 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
         ]
         return my_urls + urls
 
+    def delete_queryset(self, request, queryset):
+        new_queryset = queryset.filter(sent_count=0)
+        super().delete_queryset(request, new_queryset)
+
     def import_csv(self, request):
         if request.method == "POST":
             csv_src = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)

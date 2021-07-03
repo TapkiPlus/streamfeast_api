@@ -569,6 +569,8 @@ class Invitation(models.Model):
     email = models.EmailField("E-mail", primary_key=True)
     quantity = models.PositiveSmallIntegerField("Количество", null=False, blank=False, default=1)
     invite_type = models.PositiveSmallIntegerField("Тип приглашения", null=False, blank=False, default=1, choices=TicketType.Types.choices)
+    sent_count = models.PositiveSmallIntegerField("Выслано", null=False, blank=False, default=0)
+
 
     @staticmethod
     @transaction.atomic
