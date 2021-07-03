@@ -267,6 +267,9 @@ class Order(models.Model):
                         streamer=None,
                         order=order
                     )
+            Invitation.objects \
+                .filter(email=invite.email) \
+                .update(sent_count=invite.quantity)
 
     @staticmethod
     @transaction.atomic
