@@ -257,19 +257,20 @@ class Order(models.Model):
             user_data.wentToCheckout += 1
             order = Order.create_order_0(user_data, session, 0)
             order.when_paid = datetime.now()
-            for index in range(invite.quantity):
-                    index += 1
-                    id = "{}-{:02d}".format(order.id, index)
-                    Ticket.objects.create(
-                        ticket_id=id,
-                        ticket_type=invite.invite_type,
-                        price=0,
-                        streamer=None,
-                        order=order
-                    )
-            Invitation.objects \
-                .filter(email=invite.email) \
-                .update(sent_count=invite.quantity)
+            if (invite.sent_count < invite.quantity):
+                for index in range(invite.quantity - invite.sent_count):
+                        index += 1
+                        id = "{}-{:02d}".format(order.id, index)
+                        Ticket.objects.create(
+                            ticket_id=id,
+                            ticket_type=invite.invite_type,
+                            price=0,
+                            streamer=None,
+                            order=order
+                        )
+                Invitation.objects \
+                    .filter(email=invite.email) \
+                    .update(sent_count=invite.quantity)
 
     @staticmethod
     @transaction.atomic
