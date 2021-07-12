@@ -156,7 +156,7 @@ class GetRecentOrder(generics.RetrieveAPIView):
         order = Order.get_recently_paid(self.request.query_params.get('id'))
         return order
 
-TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com"}
+TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com", "mike@lisetskiy.com"}
 class CreateOrder(APIView):
 
     def post(self, request):
