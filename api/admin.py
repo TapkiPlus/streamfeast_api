@@ -41,8 +41,14 @@ create_orders.short_description="Создать заказы по приглаш
 
 
 class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ['email', 'quantity', 'invite_type']
+    readonly_fields = ['sent_count']
+    list_display = ['email', 'quantity', 'invite_type', 'sent_count']
     change_list_template = "admin/invitation_changelist.html"
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj: # editing an existing object
+            return self.readonly_fields + ['email']
+        return self.readonly_fields
 
     def get_urls(self):
         urls = super().get_urls()
@@ -50,6 +56,10 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
             path('import-csv/', self.import_csv),
         ]
         return my_urls + urls
+
+    def delete_queryset(self, request, queryset):
+        new_queryset = queryset.filter(sent_count=0)
+        super().delete_queryset(request, new_queryset)
 
     def import_csv(self, request):
         if request.method == "POST":

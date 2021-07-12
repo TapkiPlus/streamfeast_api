@@ -16,7 +16,8 @@ def order_html(order, tickets):
     htmly = get_template('../template/apply.html')
     ctx = {
         'order': order,
-        'tickets': tickets
+        'tickets': tickets,
+        'site_url': settings.SITE_URL
     }
     return htmly.render(ctx)
 
