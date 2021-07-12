@@ -205,6 +205,39 @@
         </mj-text>
       </mj-column>
     </mj-section>
+
+    <mj-section padding="0 40px">
+      <mj-group css-class="divider" vertical-align="middle" >
+        <mj-column width="45%" padding="0">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="14px 10px 14px 0"/> 
+        </mj-column>
+        <mj-column width="10%" padding="0">
+          
+          <mj-image width="32px" src="{{site_url}}/resources/img/for_email/covid_ico.png" alt="" padding="0" align="center"/>
+          
+        </mj-column>
+        <mj-column width="45%">
+          <mj-divider border-width="2px" border-color="#bac8cf" padding="14px 10px 14px 0"/> 
+        </mj-column>
+      </mj-group>
+      
+      
+    </mj-section>
+    <mj-section padding="18px 40px 22px">
+      <mj-column>
+        <mj-text color="#333333" css-class="content content-1" padding="0">
+          <p><b><mj-text style="color: #FF3333">ВАЖНО!</mj-text> Стримфест пройдет в безопасном формате COVID-free.</b></p>
+          <p>Это новая норма для массовых мероприятий. Для входа вам нужны этот билет, QR-код и паспорт.
+              Если вы не сможете прийти на фестиваль в 2021 году, ваш билет останется действительным на Стримфест 2022.</p>
+          <p>QR-код выдается в трех случаях: привитым от COVID-19 в России, 
+              переболевшим в последние 180 дней и тем, 
+              кто в последние 3 дня получил отрицательный результат ПЦР-теста в лаборатории, подключенной к системе emias.info. 
+              <a href="{{site_url}}/faq">Подробнее о QR-кодах.</a></p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+
     <mj-section padding="0 40px">
       <mj-group css-class="divider" vertical-align="middle" >
         <mj-column width="45%" padding="0">
