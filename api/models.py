@@ -530,7 +530,7 @@ class Place(models.Model):
         FOUR = 4
         FIVE = 5
 
-    id = models.AutoField("ID", primary_key=True)
+    id = models.IntegerField("ID", primary_key=True)
     name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
     level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
     class Meta:
@@ -552,12 +552,13 @@ class Activity(models.Model):
     day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
     start = models.CharField("Начало", max_length=16)
     end = models.CharField("Окончание", max_length=16)
-    title = models.CharField("Название", max_length=32)
-    description = models.TextField("Описание")
+    title = models.CharField("Название", max_length=128)
+    description = RichTextUploadingField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
     place = models.ForeignKey(Place, on_delete=models.RESTRICT, blank=True, null=True, verbose_name="Место")
     streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
+    border_color = models.CharField("Цвет рамки (hex)", max_length=6, null=True, blank=True)
 
     class Meta:
         ordering = ("priority", "start",)
