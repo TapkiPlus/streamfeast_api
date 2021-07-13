@@ -157,7 +157,6 @@ class OrderAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = [
         "ticket_id",
-        "when_cleared",
         "get_streamer",
         "ticket_type",
         "price",
@@ -165,7 +164,8 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
         "get_last_name",
         "get_email",
         "get_phone",
-        "get_when_paid"
+        "get_when_paid",
+        "when_cleared"
     ]
 
     def get_streamer(self, obj):
