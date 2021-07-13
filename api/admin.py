@@ -157,12 +157,10 @@ class OrderAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = [
         "ticket_id",
-        "ticket_type",
-        "price",
         "when_cleared",
         "get_streamer",
-        "get_days_qty",
-        "get_price",
+        "ticket_type",
+        "price",
         "get_name",
         "get_last_name",
         "get_email",
