@@ -122,8 +122,12 @@ class ActivityAdmin(admin.ModelAdmin):
         return result
     get_streamers.short_description = 'Участники'
 
-    def get_place(self, obj): 
-        return f"{obj.place.name} ({obj.place.level})"
+    def get_place(self, obj):
+        if obj.place is None:
+            return "Весь фестиваль"
+        else:
+            return f"{obj.place.name} ({obj.place.level})"
+            
     get_place.short_description = 'Место'
 
     class Meta:
