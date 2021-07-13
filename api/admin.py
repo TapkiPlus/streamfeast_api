@@ -153,6 +153,8 @@ class OrderAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = [
         "ticket_id",
+        "ticket_type",
+        "price",
         "when_cleared",
         "get_streamer",
         "get_days_qty",
@@ -165,20 +167,10 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     ]
 
     def get_streamer(self, obj):
-        streamer = obj.order_item.streamer
+        streamer = obj.streamer
         return streamer.nickName if streamer else None
     get_streamer.short_description = 'От кого'
-    get_streamer.admin_order_field = 'order_item__streamer__nickName'
-
-    def get_days_qty(self, obj):
-        return obj.order_item.ticket_type.days_qty
-    get_days_qty.short_description = 'Дней'
-    get_days_qty.admin_order_field = 'order_item__ticket_type__days_qty'
-
-    def get_price(self, obj):
-        oi = obj.order_item
-        return oi.amount / oi.quantity
-    get_price.short_description = 'Цена'
+    get_streamer.admin_order_field = 'streamer__nickName'
 
     def get_name(self, obj):
         return obj.order.firstname
@@ -207,7 +199,7 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     search_fields = [
         'ticket_id', 
-        'order_item__streamer__nickName',
+        'streamer__nickName',
         'order__firstname',
         'order__lastname',
         'order__email',
