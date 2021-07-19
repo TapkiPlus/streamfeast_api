@@ -444,6 +444,14 @@ class Ticket(models.Model):
         return pdfkit.from_string(html, filename, options)
 
     @staticmethod
+    def get_by_uuid_str(text):
+        try:
+            uuid.UUID(text)
+            return Ticket.objects.filter(ticket_uuid=text).first()
+        except ValueError:
+            return None
+
+    @staticmethod
     def ticket_stats():
         from django.db import connection
         labels = []
