@@ -590,7 +590,9 @@ class Invitation(models.Model):
     def import_from(rows): 
         for row in rows:
             invite_type = \
-                     TicketType.Types.INVITE if row['type'] == "streamer" \
+                     TicketType.Types.REGULAR_ONE if row['type'] == "1d" \
+                else TicketType.Types.REGULAR_TWO if row['type'] == "2d" \
+                else TicketType.Types.INVITE if row['type'] == "streamer" \
                 else TicketType.Types.PRESS if row['type'] == "press" \
                 else TicketType.Types.BLOGER
             Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=invite_type)
