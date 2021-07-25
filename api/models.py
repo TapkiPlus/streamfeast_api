@@ -480,33 +480,23 @@ class Ticket(models.Model):
         
     @staticmethod
     def streamer_stats():
-        labels = []
-        values = []
         with connection.cursor() as cursor:
-            cursor = connection.cursor()
-            cursor.execute("""
-                with stats as (select s."nickName" nick, count(t.ticket_id) tickets
-                from api_ticket t
-                inner join api_streamer s on t.streamer_id = s.id
-                group by nick) select nick, tickets from stats order by tickets desc limit 10;
-            """)
-            for row in cursor.fetchall():
-                labels.append(row[0])
-                values.append(row[1])
-        return {
-            "labels": labels,
-            "values": values
-        }
-
-    @staticmethod
-    def streamer_stats_export(writer):
-        with connection.cursor() as cursor:
-            cursor = connection.cursor()
             cursor.execute("""
                 with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(t.price) amt
                 from api_ticket t
                 inner join api_streamer s on t.streamer_id = s.id
-                group by nick) select nick, tickets, amt from stats order by tickets desc limit 10;
+                group by nick) select nick, tickets, amt from stats order by tickets desc;
+            """)
+            return list(cursor.fetchall())
+
+    @staticmethod
+    def streamer_stats_export(writer):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(t.price) amt
+                from api_ticket t
+                inner join api_streamer s on t.streamer_id = s.id
+                group by nick) select nick, tickets, amt from stats order by tickets desc;
             """)
             for row in cursor.fetchall():
                 writer.writerow([row[0], str(row[1]), str(row[2])])

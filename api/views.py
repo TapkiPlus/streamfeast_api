@@ -302,18 +302,7 @@ class StreamerChart(APIView):
 
     def get(self, request):
         stats = Ticket.streamer_stats()
-        return Response({
-            'title': 'Top 10 streamers',
-            'data': {
-                'labels': stats["labels"],
-                'datasets': [{
-                    'label': 'Tickets bought',
-                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
-                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
-                    'data': stats["values"],
-                }]
-            },
-        })
+        return Response(stats)
 
 class StreamerChartExport(APIView):
 
