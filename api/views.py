@@ -211,12 +211,11 @@ class Checkin(APIView):
         if ticket is not None:
             status = ticket.checkin()
             order = ticket.order
-            item = ticket.order_item
-            streamer_nick = item.streamer.nickName if item.streamer else None
+            streamer_nick = ticket.streamer.nickName if ticket.streamer else None
             resp = { 
                 "status": status,
                 "details": {
-                    "days_qty": item.ticket_type.days_qty,
+                    "days_qty": ticket.ticket_type.days_qty,
                     "streamer": streamer_nick,
                     "checkin_last": ticket.checkin_last,
                     "checkin_count": ticket.checkin_count,
