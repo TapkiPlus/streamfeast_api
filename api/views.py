@@ -215,7 +215,7 @@ class Checkin(APIView):
             resp = { 
                 "status": status,
                 "details": {
-                    "days_qty": ticket.ticket_type.days_qty,
+                    "ticket_type": ticket.ticket_type,
                     "streamer": streamer_nick,
                     "checkin_last": ticket.checkin_last,
                     "checkin_count": ticket.checkin_count,
