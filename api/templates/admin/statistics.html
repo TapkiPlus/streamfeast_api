@@ -75,11 +75,19 @@
   }
 </script>
 <div class="row">
+  <div class="col-3">
+    <button id="export-stats" type="button" >Export ticket stats</button>
+  </div>
+  <div class="col-3">
+    <button id="export-userdata" type="button" >Export user data</button>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-6">
     <canvas id="salesChart"></canvas>
   </div>
   <div class="col-6">
-    <button id="export-stats" type="button" >Export data</button>
     <table id="streamer-grid" class="display" cellspacing="0" width="100%">
     </table>
     <div id="streamer-pager"></div>
@@ -98,6 +106,12 @@
       e.preventDefault();  //stop the browser from following
       window.location.href = "/api/stats/streamers-export";
   });
+
+  $("#export-userdata").click(function(e) {
+      e.preventDefault();  //stop the browser from following
+      window.location.href = "/api/stats/userdata-export";
+  });
+
 
 
 </script>

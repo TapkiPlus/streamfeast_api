@@ -219,8 +219,23 @@ class UserData(models.Model):
     @staticmethod
     def payment_failed(session_id):
         UserData.objects.filter(session=session_id).update(failedPayments=F("failedPayments") + 1)
-        
-
+    
+    @staticmethod
+    def export_all(writer):
+        for data_row in UserData.objects.all:
+            writer.writerow([
+                data_row.firstname,
+                data_row.lastname,
+                data_row.email,
+                data_row.phone,
+                str(data_row.wentToCheckout),
+                str(data_row.returnedToShop),
+                str(data_row.clickedPay),
+                str(data_row.tryedToPayAgain),
+                str(data_row.clickedTechAssistance),
+                str(data_row.successfulPayments),
+                str(data_row.failedPayments)
+            ])
 
     class Meta:
         verbose_name = "Данные пользователя"
