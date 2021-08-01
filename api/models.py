@@ -222,7 +222,7 @@ class UserData(models.Model):
     
     @staticmethod
     def export_all(writer):
-        for data_row in UserData.objects.all:
+        for data_row in UserData.objects.all():
             writer.writerow([
                 data_row.firstname,
                 data_row.lastname,
