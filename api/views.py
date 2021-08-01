@@ -304,13 +304,22 @@ class StreamerChart(APIView):
         return Response(stats)
 
 class StreamerChartExport(APIView):
-
     def get(self, request):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
         writer = csv.writer(response)
         writer.writerow(["Streamer", "Tickets (Qty)", "Amount (RUR)"])
         Ticket.streamer_stats_export(writer)
+        return response
+
+
+class UserdataExport(APIView):
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="report.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Firstname", "Lastname", "Email", "Phone", "WentToCheckout", "ReturnedToShop", "ClickedPay", "TriedToPayAgain", "ClickedTechAssist", "SuccessfulPayments", "FailedPayments"])
+        UserData.export_all(writer)
         return response
 
 class GetStreamerOrders(generics.ListAPIView): 
