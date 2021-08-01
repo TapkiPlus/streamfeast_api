@@ -69,16 +69,11 @@
 
   function loadAllCharts() {
     loadChart(salesChart, `/api/stats/tickets`);
-  //  loadChart(salesPerStreamerChart, `/api/stats/streamers`);
-  //  loadChart(paymentSuccessChart, `/shop/chart/payment-success/${year}/`);
-  //  loadChart(paymentMethodChart, `/shop/chart/payment-method/${year}/`);
   }
 </script>
-<div class="row">
-  <div class="col-3">
+<div class="container">
+  <div class="text-right">
     <button id="export-stats" type="button" >Export ticket stats</button>
-  </div>
-  <div class="col-3">
     <button id="export-userdata" type="button" >Export user data</button>
   </div>
 </div>
