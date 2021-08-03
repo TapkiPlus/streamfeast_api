@@ -230,8 +230,12 @@ class UserDataAdmin(admin.ModelAdmin):
     class Meta:
         model = UserData
 
+class PlaceTimetableAdminInline(admin.TabularInline):
+    model = PlaceTimetable
+
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = [ 'id', 'name', 'level' ]
+    list_display = [ 'id', 'number', 'name', 'level' ]
+    inlines = (PlaceTimetableAdminInline, )
 
     class Meta:
         model = Place
