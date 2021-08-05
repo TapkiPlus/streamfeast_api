@@ -52,7 +52,7 @@ class FastStreamerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Streamer
-        fields = ['id', 'nickName', 'photo', 'email', 'isActive']
+        fields = ['id', 'nickName', 'nickNameSlug', 'photo', 'email', 'isActive']
 
 
 class StreamerSerializer(serializers.ModelSerializer):
