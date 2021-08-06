@@ -239,10 +239,21 @@ class TicketClear(APIView):
         return Response(status=200)
 
       
+class GetPlaces(generics.ListAPIView):
+    serializer_class = PlaceSerializer
+    queryset = Place.objects.all().order_by("number")
+
+class GetPlace(generics.RetrieveAPIView):
+    serializer_class = PlaceSerializer
+
+    def get_object(self):
+        place_id = self.request.query_params.get('place_id')
+        return Place.objects.get(id=place_id)
+
+
 class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all().order_by("priority")
-
 
 class GetActivity(generics.RetrieveAPIView):
     serializer_class = ActivitySerializer

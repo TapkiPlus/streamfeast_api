@@ -544,6 +544,7 @@ class Place(models.Model):
         FIVE = 5
 
     id = models.IntegerField("ID", primary_key=True)
+    number = models.PositiveSmallIntegerField("Номер", unique=True, null=True, blank=True)
     name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
     level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
     class Meta:
@@ -552,6 +553,23 @@ class Place(models.Model):
 
     def __str__(self):
         return f"Место: {self.name}"
+
+class PlaceTimetable(models.Model):
+
+    class ActiveWhen(models.IntegerChoices):
+        FIRST = 1
+        SECOND = 2
+
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Место", related_name='timetable')
+    day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices)
+    start = models.TimeField("Начало")
+    end = models.TimeField("Окончание")
+    description = RichTextUploadingField("Описание")
+    streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
+
+    class Meta:
+        verbose_name = "Строка расписания"
+        verbose_name_plural = "Расписание"
 
 
 class Activity(models.Model):

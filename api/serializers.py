@@ -48,6 +48,12 @@ class SoldTicketTypeSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = '__all__'
 
+class FastStreamerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Streamer
+        fields = ['id', 'nickName', 'nickNameSlug', 'photo', 'email', 'isActive']
+
 
 class StreamerSerializer(serializers.ModelSerializer):
     links = SocialLinkSerializer(many=True, read_only=True, required=False)
@@ -118,22 +124,24 @@ class TicketSerializer(serializers.ModelSerializer):
     order = OrderShortSerializer(read_only=True)
     item = OrderItemSerializer(read_only=True)
 
-    def get_item(self, obj):
-        return OrderItem.objects.get(order=order.id)
-
-    def get_order(self, obj):
-        return OrderItem.objects.get(order=order.id)
-
     class Meta:
         model = Ticket
         fields = '__all__'
 
 
-class PlaceSerializer(serializers.ModelSerializer):
+class PlaceTimetableSerializer(serializers.ModelSerializer):
+    streamers = FastStreamerSerializer(many=True, required=True)
 
     class Meta:
-        model = Place
+        model = PlaceTimetable
         fields = '__all__'
+        extra_fields = ['streamers']
+
+class PlaceSerializer(serializers.ModelSerializer):
+    timetable = PlaceTimetableSerializer(many=True, required=True)
+    class Meta:
+        model = Place
+        fields = ['id', 'number', 'name', 'level', 'timetable']
 
 
 class ActivitySerializer(serializers.ModelSerializer):

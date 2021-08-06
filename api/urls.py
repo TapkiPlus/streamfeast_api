@@ -12,6 +12,8 @@ urlpatterns = [
     path('get_cart', views.GetCart.as_view()),
     path('get_activity', views.GetActivity.as_view()),
     path('get_activities', views.GetActivities.as_view()),
+    path('get_places', views.GetPlaces.as_view()),
+    path('get_place', views.GetPlace.as_view()),
     path('get_qr', views.GetQr.as_view()),
     path('get_order', views.GetRecentOrder.as_view()),
     path('add_item', views.AddItem.as_view()),
