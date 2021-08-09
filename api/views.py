@@ -156,7 +156,7 @@ class GetRecentOrder(generics.RetrieveAPIView):
         order = Order.get_recently_paid(self.request.query_params.get('id'))
         return order
 
-TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com"}
+TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com", "mike@lisetskiy.com"}
 class CreateOrder(APIView):
 
     def post(self, request):
@@ -207,16 +207,15 @@ class PaymentResult(APIView):
 class Checkin(APIView):
     def get(self, request):
         qr = request.query_params.get("code")
-        ticket = Ticket.objects.filter(ticket_uuid=qr).first()
+        ticket = Ticket.get_by_uuid_str(qr)
         if ticket is not None:
             status = ticket.checkin()
             order = ticket.order
-            item = ticket.order_item
-            streamer_nick = item.streamer.nickName if item.streamer else None
+            streamer_nick = ticket.streamer.nickName if ticket.streamer else None
             resp = { 
                 "status": status,
                 "details": {
-                    "days_qty": item.ticket_type.days_qty,
+                    "ticket_type": ticket.ticket_type,
                     "streamer": streamer_nick,
                     "checkin_last": ticket.checkin_last,
                     "checkin_count": ticket.checkin_count,
@@ -240,10 +239,21 @@ class TicketClear(APIView):
         return Response(status=200)
 
       
+class GetPlaces(generics.ListAPIView):
+    serializer_class = PlaceSerializer
+    queryset = Place.objects.all().order_by("number")
+
+class GetPlace(generics.RetrieveAPIView):
+    serializer_class = PlaceSerializer
+
+    def get_object(self):
+        place_id = self.request.query_params.get('place_id')
+        return Place.objects.get(id=place_id)
+
+
 class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all().order_by("priority")
-
 
 class GetActivity(generics.RetrieveAPIView):
     serializer_class = ActivitySerializer
@@ -302,27 +312,25 @@ class StreamerChart(APIView):
 
     def get(self, request):
         stats = Ticket.streamer_stats()
-        return Response({
-            'title': 'Top 10 streamers',
-            'data': {
-                'labels': stats["labels"],
-                'datasets': [{
-                    'label': 'Tickets bought',
-                    # 'backgroundColor': generate_color_palette(len(payment_method_dict)),
-                    # 'borderColor': generate_color_palette(len(payment_method_dict)),
-                    'data': stats["values"],
-                }]
-            },
-        })
+        return Response(stats)
 
 class StreamerChartExport(APIView):
-
     def get(self, request):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
         writer = csv.writer(response)
         writer.writerow(["Streamer", "Tickets (Qty)", "Amount (RUR)"])
         Ticket.streamer_stats_export(writer)
+        return response
+
+
+class UserdataExport(APIView):
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="report.csv"'
+        writer = csv.writer(response)
+        writer.writerow(["Firstname", "Lastname", "Email", "Phone", "WentToCheckout", "ReturnedToShop", "ClickedPay", "TriedToPayAgain", "ClickedTechAssist", "SuccessfulPayments", "FailedPayments"])
+        UserData.export_all(writer)
         return response
 
 class GetStreamerOrders(generics.ListAPIView): 

@@ -219,8 +219,23 @@ class UserData(models.Model):
     @staticmethod
     def payment_failed(session_id):
         UserData.objects.filter(session=session_id).update(failedPayments=F("failedPayments") + 1)
-        
-
+    
+    @staticmethod
+    def export_all(writer):
+        for data_row in UserData.objects.all():
+            writer.writerow([
+                data_row.firstname,
+                data_row.lastname,
+                data_row.email,
+                data_row.phone,
+                str(data_row.wentToCheckout),
+                str(data_row.returnedToShop),
+                str(data_row.clickedPay),
+                str(data_row.tryedToPayAgain),
+                str(data_row.clickedTechAssistance),
+                str(data_row.successfulPayments),
+                str(data_row.failedPayments)
+            ])
 
     class Meta:
         verbose_name = "Данные пользователя"
@@ -444,6 +459,14 @@ class Ticket(models.Model):
         return pdfkit.from_string(html, filename, options)
 
     @staticmethod
+    def get_by_uuid_str(text):
+        try:
+            uuid.UUID(text)
+            return Ticket.objects.filter(ticket_uuid=text).first()
+        except ValueError:
+            return None
+
+    @staticmethod
     def ticket_stats():
         from django.db import connection
         labels = []
@@ -472,33 +495,23 @@ class Ticket(models.Model):
         
     @staticmethod
     def streamer_stats():
-        labels = []
-        values = []
         with connection.cursor() as cursor:
-            cursor = connection.cursor()
-            cursor.execute("""
-                with stats as (select s."nickName" nick, count(t.ticket_id) tickets
-                from api_ticket t
-                inner join api_streamer s on t.streamer_id = s.id
-                group by nick) select nick, tickets from stats order by tickets desc limit 10;
-            """)
-            for row in cursor.fetchall():
-                labels.append(row[0])
-                values.append(row[1])
-        return {
-            "labels": labels,
-            "values": values
-        }
-
-    @staticmethod
-    def streamer_stats_export(writer):
-        with connection.cursor() as cursor:
-            cursor = connection.cursor()
             cursor.execute("""
                 with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(t.price) amt
                 from api_ticket t
                 inner join api_streamer s on t.streamer_id = s.id
-                group by nick) select nick, tickets, amt from stats order by tickets desc limit 10;
+                group by nick) select nick, tickets, amt from stats order by tickets desc;
+            """)
+            return list(cursor.fetchall())
+
+    @staticmethod
+    def streamer_stats_export(writer):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                with stats as (select s."nickName" nick, count(t.ticket_id) tickets, sum(t.price) amt
+                from api_ticket t
+                inner join api_streamer s on t.streamer_id = s.id
+                group by nick) select nick, tickets, amt from stats order by tickets desc;
             """)
             for row in cursor.fetchall():
                 writer.writerow([row[0], str(row[1]), str(row[2])])
@@ -530,7 +543,8 @@ class Place(models.Model):
         FOUR = 4
         FIVE = 5
 
-    id = models.AutoField("ID", primary_key=True)
+    id = models.IntegerField("ID", primary_key=True)
+    number = models.PositiveSmallIntegerField("Номер", unique=True, null=True, blank=True)
     name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
     level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
     class Meta:
@@ -539,6 +553,23 @@ class Place(models.Model):
 
     def __str__(self):
         return f"Место: {self.name}"
+
+class PlaceTimetable(models.Model):
+
+    class ActiveWhen(models.IntegerChoices):
+        FIRST = 1
+        SECOND = 2
+
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Место", related_name='timetable')
+    day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices)
+    start = models.TimeField("Начало")
+    end = models.TimeField("Окончание")
+    description = RichTextUploadingField("Описание")
+    streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
+
+    class Meta:
+        verbose_name = "Строка расписания"
+        verbose_name_plural = "Расписание"
 
 
 class Activity(models.Model):
@@ -552,12 +583,13 @@ class Activity(models.Model):
     day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
     start = models.CharField("Начало", max_length=16)
     end = models.CharField("Окончание", max_length=16)
-    title = models.CharField("Название", max_length=32)
-    description = models.TextField("Описание")
+    title = models.CharField("Название", max_length=128)
+    description = RichTextUploadingField("Описание")
     image = models.ImageField("Картинка", blank=False, null=False, upload_to="activity_images/")
     icon = models.ImageField("Иконка", blank=False, null=False, upload_to="activity_icons/")
     place = models.ForeignKey(Place, on_delete=models.RESTRICT, blank=True, null=True, verbose_name="Место")
     streamers = models.ManyToManyField(Streamer, verbose_name="Участник")
+    border_color = models.CharField("Цвет рамки (hex)", max_length=6, null=True, blank=True)
 
     class Meta:
         ordering = ("priority", "start",)
@@ -581,7 +613,9 @@ class Invitation(models.Model):
     def import_from(rows): 
         for row in rows:
             invite_type = \
-                     TicketType.Types.INVITE if row['type'] == "streamer" \
+                     TicketType.Types.REGULAR_ONE if row['type'] == "1d" \
+                else TicketType.Types.REGULAR_TWO if row['type'] == "2d" \
+                else TicketType.Types.INVITE if row['type'] == "streamer" \
                 else TicketType.Types.PRESS if row['type'] == "press" \
                 else TicketType.Types.BLOGER
             Invitation.objects.create(email=row['email'], quantity=row['quantity'], invite_type=invite_type)

@@ -122,8 +122,12 @@ class ActivityAdmin(admin.ModelAdmin):
         return result
     get_streamers.short_description = 'Участники'
 
-    def get_place(self, obj): 
-        return f"{obj.place.name} ({obj.place.level})"
+    def get_place(self, obj):
+        if obj.place is None:
+            return "Весь фестиваль"
+        else:
+            return f"{obj.place.name} ({obj.place.level})"
+            
     get_place.short_description = 'Место'
 
     class Meta:
@@ -153,32 +157,22 @@ class OrderAdmin(admin.ModelAdmin):
 class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = [
         "ticket_id",
-        "when_cleared",
         "get_streamer",
-        "get_days_qty",
-        "get_price",
+        "ticket_type",
+        "price",
         "get_name",
         "get_last_name",
         "get_email",
         "get_phone",
-        "get_when_paid"
+        "get_when_paid",
+        "when_cleared"
     ]
 
     def get_streamer(self, obj):
-        streamer = obj.order_item.streamer
+        streamer = obj.streamer
         return streamer.nickName if streamer else None
     get_streamer.short_description = 'От кого'
-    get_streamer.admin_order_field = 'order_item__streamer__nickName'
-
-    def get_days_qty(self, obj):
-        return obj.order_item.ticket_type.days_qty
-    get_days_qty.short_description = 'Дней'
-    get_days_qty.admin_order_field = 'order_item__ticket_type__days_qty'
-
-    def get_price(self, obj):
-        oi = obj.order_item
-        return oi.amount / oi.quantity
-    get_price.short_description = 'Цена'
+    get_streamer.admin_order_field = 'streamer__nickName'
 
     def get_name(self, obj):
         return obj.order.firstname
@@ -207,7 +201,7 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     search_fields = [
         'ticket_id', 
-        'order_item__streamer__nickName',
+        'streamer__nickName',
         'order__firstname',
         'order__lastname',
         'order__email',
@@ -236,8 +230,12 @@ class UserDataAdmin(admin.ModelAdmin):
     class Meta:
         model = UserData
 
+class PlaceTimetableAdminInline(admin.TabularInline):
+    model = PlaceTimetable
+
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = [ 'id', 'name', 'level' ]
+    list_display = [ 'id', 'number', 'name', 'level' ]
+    inlines = (PlaceTimetableAdminInline, )
 
     class Meta:
         model = Place

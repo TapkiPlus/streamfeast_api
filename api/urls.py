@@ -12,6 +12,8 @@ urlpatterns = [
     path('get_cart', views.GetCart.as_view()),
     path('get_activity', views.GetActivity.as_view()),
     path('get_activities', views.GetActivities.as_view()),
+    path('get_places', views.GetPlaces.as_view()),
+    path('get_place', views.GetPlace.as_view()),
     path('get_qr', views.GetQr.as_view()),
     path('get_order', views.GetRecentOrder.as_view()),
     path('add_item', views.AddItem.as_view()),
@@ -30,4 +32,5 @@ urlpatterns = [
     path('stats/tickets', views.TicketChart.as_view()),
     path('stats/streamers', views.StreamerChart.as_view()),
     path('stats/streamers-export', views.StreamerChartExport.as_view()),
+    path('stats/userdata-export', views.UserdataExport.as_view()),
 ]
