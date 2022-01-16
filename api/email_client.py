@@ -38,7 +38,7 @@ def ticket_html(ticket):
 
 def send_application(order):
     tickets = Ticket.objects.filter(order=order)
-    order_header = 'Стримфест 2021 — подтверждение заказа №{}'.format(order.id)
+    order_header = 'Стримфест 2022 — подтверждение заказа №{}'.format(order.id)
     order_content = order_html(order, tickets)
 
     bccs = ["info@streamfest.ru", "alyona@lisetskiy.com"]
@@ -68,7 +68,7 @@ def send_oldest_ticket():
     if ticket is not None: 
         order = ticket.order
         try:
-            ticket_header = 'Билет №{} на Стримфест 2021 — 7–8 августа'.format(ticket.ticket_id)
+            ticket_header = 'Билет №{} на Стримфест 2022 — 25–26 июня'.format(ticket.ticket_id)
             ticket_content = ticket_html(ticket)
             msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
             msg.content_subtype = "html"  # Main content is now text/html

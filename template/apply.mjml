@@ -183,7 +183,7 @@
 		>
 		<mj-section padding="10px 0 60px" css-class="logo-wrap">
 				<mj-column width="100%"  >				
-					<mj-image width="186px" css-class="logo" padding="0 30px" src="{{site_url}}/resources/img/for_email/logo-blue.png" alt="Стримфест 2021" />
+					<mj-image width="186px" css-class="logo" padding="0 30px" src="{{site_url}}/resources/img/for_email/logo-blue.png" alt="Стримфест 2022" />
 				</mj-column>
 		</mj-section>
 		<mj-section padding-top="0" >
@@ -198,8 +198,8 @@
 			<mj-column padding="0">
 				<mj-text color="#333333" font-size="16px" font-family="Open Sans" line-height="27px" css-class="intro red" padding="0">
 					<p>
-						Поздравляем, вы идете на Стримфест 2021 — международный фестиваль стрим-культуры. 
-						Ждем вас 7–8 августа в Технопарке «Сколково»!
+						Поздравляем, вы идете на Стримфест 2022 — международный фестиваль стрим-культуры. 
+						Ждем вас 25–26 июня в Технопарке «Сколково»!
 						<br/>
 						<br/>
 						Если вы купили билет(ы) от участника фестиваля, то это письмо-оповещение придет и ему тоже.

@@ -1,8 +1,8 @@
 <mjml>
   <mj-head>
-    <mj-title>Это ваш билет на Стримфест 2021. Сохраните или распечатайте QR-код из этого письма!</mj-title>
+    <mj-title>Это ваш билет на Стримфест 2022. Сохраните или распечатайте QR-код из этого письма!</mj-title>
     <mj-preview>
-      Это ваш билет на Стримфест 2021. Сохраните или распечатайте QR-код из этого письма!
+      Это ваш билет на Стримфест 2022. Сохраните или распечатайте QR-код из этого письма!
     </mj-preview>
     <mj-style>
       body {
@@ -150,7 +150,7 @@
                 padding="42px 0 50px"
                 >
         <!-- <mj-column width="49%" css-class="header-left">
-          <mj-image width="186px" css-class="logo" padding="0 30px" src="{{site_url}}/resources/img/for_email/logo.png" alt="Стримфест 2021" />
+          <mj-image width="186px" css-class="logo" padding="0 30px" src="{{site_url}}/resources/img/for_email/logo.png" alt="Стримфест 2022" />
         </mj-column>
         <mj-column
           padding="3px 0 0 0"
@@ -190,7 +190,7 @@
             font-weight="bold"
             padding-top="0"
           >
-            <p>7-8 августа 2021</p>
+            <p>25–26 июня 2022</p>
           </mj-text>
         </mj-column> -->
     </mj-section>
@@ -214,7 +214,7 @@
       <mj-column padding="0">
         <mj-text color="#333333" font-size="18px" font-family="Open Sans" line-height="27px" css-class="intro" padding="0">
           <p><b>Пятый международный фестиваль стрим-культуры Стримфест</b></br> Технопарк «Сколково», Москва</p>
-          <p>Приходите <b>7–8 августа</b> — будет здорово! <br/>
+          <p>Приходите <b>25–26 июня</b> — будет здорово! <br/>
             <a href="{{site_url}}/activities" css-class="link">Активности</a>, <a href="{{site_url}}/timetable" css-class="link">расписание</a>, <a href="{{site_url}}/stars" css-class="link">участники</a> и <a href="{{site_url}}/faq" css-class="link">ответы на вопросы</a>. 
           </p>
         </mj-text>
@@ -243,7 +243,7 @@
         <mj-text color="#333333" css-class="content content-1" padding="0">
           <p><b style="color: #FF3333">ВАЖНО!</b><b> Стримфест пройдет в безопасном формате COVID-free.</b></p>
           <p>Это новая норма для массовых мероприятий. Для входа вам нужны этот билет, QR-код и паспорт.
-              Если вы не сможете прийти на фестиваль в 2021 году, ваш билет останется действительным на Стримфест 2022.</p>
+              Если вы не сможете прийти на фестиваль в 2022 году, ваш билет останется действительным на Стримфест 2022.</p>
           <p>QR-код выдается в трех случаях: привитым от COVID-19 в России, 
               переболевшим в последние 180 дней и тем, 
               кто в последние 3 дня получил отрицательный результат ПЦР-теста в лаборатории, подключенной к системе emias.info. 
