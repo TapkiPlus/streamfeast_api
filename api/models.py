@@ -9,6 +9,7 @@ from django.template.loader import get_template
 from pytils.translit import slugify
 from datetime import datetime, timedelta
 from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor.fields import RichTextField
 from .services import qr_code
 
 ENTRY_ALLOWED = 0
@@ -25,18 +26,34 @@ class PlatronPayment(models.Model):
         verbose_name = "Платеж"
         verbose_name_plural = "Платежи"
 
-class Faq(models.Model):
-    order_number = models.IntegerField("№ П/П", default=100)
-    question = models.CharField("Вопрос", max_length=255, blank=False, null=True)
-    answer = RichTextUploadingField("Ответ", max_length=255, blank=False, null=True)
+class FaqCommon(models.Model):
+    category = models.SmallIntegerField("Категория", blank=False, null=False, default=1)
+    ordering_number = models.IntegerField("№ П/П", default=100)
+    question = models.CharField("Вопрос", max_length=255, blank=False, null=True, unique=True)
+    answer = RichTextField("Ответ", blank=False, null=False)
 
     def __str__(self):
         return f"{self.id} Вопрос : {self.question}"
 
     class Meta:
-        ordering = ("order_number",)
+        ordering = ("category", "ordering_number",)
         verbose_name = "FAQ"
         verbose_name_plural = "FAQ"
+
+class FaqParticipant(models.Model):
+    ordering_number = models.IntegerField("№ П/П", default=100)
+    icon = models.ImageField("Иконка", upload_to="icons/", blank=False, null=True)
+    expanded = models.BooleanField("Раскрыто по умолчанию", null=False, default=False)
+    question = models.CharField("Вопрос", max_length=255, blank=False, null=True, unique=True)
+    answer = RichTextField("Ответ", blank=False, null=False)
+
+    def __str__(self):
+        return f"{self.id} Вопрос : {self.question}"
+
+    class Meta:
+        ordering = ("ordering_number",)
+        verbose_name = "Стать участником"
+        verbose_name_plural = "Стать участником"
 
 
 class HowTo(models.Model):

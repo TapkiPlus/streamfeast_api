@@ -3,11 +3,15 @@ from rest_framework import serializers
 from .models import *
 
 
-class FaqSerializer(serializers.ModelSerializer):
+class FaqCommonSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Faq
+        model = FaqCommon
         fields = '__all__'
 
+class FaqParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FaqParticipant
+        fields = '__all__'
 
 class HowToSerializer(serializers.ModelSerializer):
     class Meta:
