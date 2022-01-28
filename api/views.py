@@ -38,11 +38,11 @@ class GetStreamers(generics.ListAPIView):
 
 class GetFaqCommon(generics.ListAPIView):
     serializer_class = FaqCommonSerializer
-    queryset = FaqCommon.objects.all
+    queryset = FaqCommon.objects.all()
 
 class GetFaqParticipant(generics.ListAPIView):
     serializer_class = FaqParticipantSerializer
-    queryset = FaqParticipant.objects.all
+    queryset = FaqParticipant.objects.all()
 
 class GetTicketTypes(generics.ListAPIView):
     serializer_class = TicketTypeSerializer
