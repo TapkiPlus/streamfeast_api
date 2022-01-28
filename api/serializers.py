@@ -13,11 +13,6 @@ class FaqParticipantSerializer(serializers.ModelSerializer):
         model = FaqParticipant
         fields = '__all__'
 
-class HowToSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HowTo
-        fields = '__all__'
-
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:

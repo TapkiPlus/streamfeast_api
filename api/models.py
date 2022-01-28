@@ -55,23 +55,6 @@ class FaqParticipant(models.Model):
         verbose_name = "Стать участником"
         verbose_name_plural = "Стать участником"
 
-
-class HowTo(models.Model):
-    order_number = models.IntegerField("№ П/П", default=100)
-    question = models.TextField("Вопрос", blank=False, null=True)
-    answer = RichTextUploadingField("Ответ", blank=False, null=True)
-    icon = models.ImageField("Иконка", upload_to="icons/", blank=False, null=True)
-    is_open_by_default = models.BooleanField("Открыто по умолчанию", default=False)
-
-    def __str__(self):
-        return f"{self.id} Вопрос : {self.question}"
-
-    class Meta:
-        ordering = ("order_number",)
-        verbose_name = "Как стать участником"
-        verbose_name_plural = "Как стать участником"
-
-
 class SocialIcon(models.Model):
     name = models.CharField("Название сети", max_length=255, blank=False, null=True)
     icon = models.ImageField("Обложка", upload_to="speaker_img/", blank=False, null=True)
