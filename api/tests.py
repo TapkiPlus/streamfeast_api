@@ -1,10 +1,28 @@
 from django.test import TestCase
 
+from api.modul_client import ModulbankClient
+
 from .models import *
 from .platron_client import *
 from .email_client import send_application
 from django.test.utils import override_settings
 from datetime import datetime
+
+# Modulbank testing suite
+class ModuleTestCase(TestCase): 
+    def setUp(self): 
+        data = UserData.objects.create(session="123")
+        streamer = Streamer.objects.create(name="Vasya")
+        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
+        OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, streamer=streamer)
+        OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86)
+
+        
+    def test_make_payment(self): 
+        client = ModulbankClient("sf.tagobar.ru/api")
+        order = Order.objects.get(id="77777-01")
+        client.make_purchase(order)
+
 
 # Create your tests here.
 class PlatronTestCase(TestCase):

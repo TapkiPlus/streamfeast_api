@@ -258,6 +258,13 @@ class Order(models.Model):
     failure_desc = models.TextField("Описание ошибки", null=True, blank=True, editable=False)
 
     @staticmethod
+    def get_with_items(oid: str): 
+        order = Order.objects.get(id=oid)
+        items = OrderItem.objects.filter(order_id=oid)
+        return (order, items)
+
+
+    @staticmethod
     def get_recently_paid(order_id): 
         since = datetime.now() - timedelta(minutes=1)
         return Order.objects.get(id=order_id, when_paid__gt=since)
