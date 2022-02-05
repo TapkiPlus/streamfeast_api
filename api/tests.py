@@ -1,9 +1,8 @@
 from django.test import TestCase
-
-from api.modul_client import ModulbankClient
+from django.test import Client
+from api import modul_client
 
 from .models import *
-from .platron_client import *
 from .email_client import send_application
 from django.test.utils import override_settings
 from datetime import datetime
@@ -14,18 +13,43 @@ class ModuleTestCase(TestCase):
         data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
         order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
-        OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, streamer=streamer)
-        OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86)
+        OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, price=42, streamer=streamer)
+        OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86, price=43)
 
         
-    def test_make_payment(self): 
-        client = ModulbankClient("sf.tagobar.ru/api")
-        order = Order.objects.get(id="77777-01")
-        client.make_purchase(order)
+    # def test_make_payment(self): 
+    #     modul_client.make_purchase("77777-01")
+
+    def test_complete_payment(self):
+        cli = Client()
+        response = cli.post("/api/payment_result", {
+            'testing': '1',
+            'pan_mask': '220011******4440',
+            'unix_timestamp': '1570161434',
+            'salt': 'DB9481A6554924BFD2F2279B5AD05B9D',
+            'rrn': '927703219385',
+            'transaction_id': '0EyuFLLZ9DagCXy8O67Q6x',
+            'original_amount': '10.00',
+            'auth_number': '2164219385',
+            'amount': '10.00',
+            'created_datetime': '2019-10-04 03:56:09',
+            'auth_code': '201471',
+            'signature': '622e1486dba17d05d080c6734131205a75d59188',
+            'client_phone': '+79999999999',
+            'client_email': 'example@example.ru',
+            'state': 'COMPLETE',
+            'order_id': '77777-01',
+            'currency': 'RUB',
+            'merchant': '51cb8a0f-6fb8-4a20-98b1-9fd85dc47500',
+            'payment_method': 'card',
+            'meta': '{"bill_id": "vlICmFjY7nST9KARa5RsSJ"}'
+        })
+        print("Response status: " + str(response.status_code))
+        # print("Response contents: " + response.content)
 
 
 # Create your tests here.
-class PlatronTestCase(TestCase):
+class TicketTestCase(TestCase):
 
     def setUp(self):
         data = UserData.objects.create(session="123")
@@ -42,15 +66,6 @@ class PlatronTestCase(TestCase):
         all_tickets = Ticket.objects.all()
         for ticket in all_tickets: 
             print("Ticket: {}, {}, {}".format(ticket.ticket_id, ticket.when_sent, ticket.send_attempts))
-
-    """
-    def test_platron_init_and_cancel(self):
-        txn = init_payment(Order.objects.first())
-        print(txn.redirect_url)
-        txn.save()
-        pers = PlatronPayment.objects.first()
-        self.assertEqual(txn, pers)
-    """
 
     def test_recent_order(self): 
         order = Order.get_recently_paid("77777-01")

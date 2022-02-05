@@ -10,10 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime
 from dateutil import parser
+from api import modul_client
 
 from .email_client import send_application
 from .models import *
-from .platron_client import *
 from .serializers import *
 from .services import *
 
@@ -158,7 +158,6 @@ class GetRecentOrder(generics.RetrieveAPIView):
 
 TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com", "mike@lisetskiy.com"}
 class CreateOrder(APIView):
-
     def post(self, request):
         session_id = request.data['session_id']
         UserData.checkout(session_id)
@@ -168,9 +167,11 @@ class CreateOrder(APIView):
             send_application(order)
             return Response("/success-page?pg_order_id={}".format(order.id), status=200)
         else:
-            tx = init_payment(order)
-            tx.save()
-            return Response(tx.redirect_url, status=200)
+            resp = self.module_client.make_purchase(order.id)
+            return Response(resp.text, resp.status_code)
+            # tx = init_payment(order)
+            # tx.save()
+            # return Response(tx.redirect_url, status=200)
 
 
 class GetTicketType(generics.RetrieveAPIView):
@@ -193,16 +194,10 @@ class SubscribeEmail(APIView):
             return Response(status=400)
 
 
-class PaymentCheck(APIView):
-    def post(self, request):
-        xml = payment_check(request.data)
-        return HttpResponse(content=xml, status=200, content_type="application/xml")
-
-
 class PaymentResult(APIView):
     def post(self, request):
-        xml = payment_result(request.data)
-        return HttpResponse(content=xml, status=200, content_type="application/xml")
+        code = modul_client.payment_result(request.data)
+        return HttpResponse(status=code)
 
 class Checkin(APIView):
     def get(self, request):
