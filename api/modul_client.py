@@ -25,13 +25,10 @@ _items = {
 
 def payment_result(params): 
     signature = get_signature(params)
-    if True:
-    # if params["signature"] == signature:
-        # try:
+    if params["signature"] == signature:
+        try:
             # save txn
             form = ModulTxnForm(params)
-            for e in form.errors:
-                print("Error: " + e)
             form.save()
 
             # set order paid
@@ -46,9 +43,9 @@ def payment_result(params):
             else:
                 order.set_unpaid()
             return 200
-        # except:
-        #     print("Internal error")
-        #     return 500
+        except:
+            print("Internal error")
+            return 500
     else:
         print("Incorrect signature!")
         return 401
