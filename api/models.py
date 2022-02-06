@@ -359,7 +359,6 @@ class Order(models.Model):
     @staticmethod
     def create_order_0(user_data, session_id, amount):
         order_id = "{:05d}-{:02d}".format(user_data.id, user_data.wentToCheckout)
-        print("Creating order id {}".format(order_id))
         new_order = Order.objects.create(
             id=order_id,
             session=session_id,

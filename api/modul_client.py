@@ -87,9 +87,6 @@ def make_purchase(order_id: str):
     params_copy["unix_timestamp"] = int(time())
     params_copy["success_url"] = "{}/success-page?pg_order_id={}".format(__host, order.id)
 
-    for key, value in params_copy.items():
-        print(key, ' : ', value)
-
     # make signature afterwards
     signature = get_signature(params_copy)
     params_copy["signature"] = signature
