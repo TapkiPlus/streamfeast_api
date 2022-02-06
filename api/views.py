@@ -167,7 +167,7 @@ class CreateOrder(APIView):
             send_application(order)
             return Response("/success-page?pg_order_id={}".format(order.id), status=200)
         else:
-            resp = self.module_client.make_purchase(order.id)
+            resp = modul_client.make_purchase(order.id)
             return Response(resp.text, resp.status_code)
             # tx = init_payment(order)
             # tx.save()
