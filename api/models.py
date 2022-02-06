@@ -1,5 +1,6 @@
 import base64
 import uuid
+from django.forms import ModelForm
 
 import pdfkit
 from django.db import models
@@ -17,14 +18,50 @@ ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
 ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED = 2
 ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY = 3
 
-class PlatronPayment(models.Model):
-    id = models.CharField("PaymentId", max_length=32, blank=False, primary_key=True, editable=False, null=False)
-    status = models.BooleanField("Status", editable=False)
-    redirect_url = models.CharField("RedirectURL", max_length=255, blank=False, unique=True, editable=False, null=False)
+class ModulTxn(models.Model): 
+
+    class Modes(models.IntegerChoices):
+        PROD = 0
+        TEST = 1
+
+    class States(models.TextChoices):
+        OK = "COMPLETE"
+        ERR = "FAILED"
+
+    testing = models.PositiveSmallIntegerField("Testing", choices=Modes.choices, blank=False, null=False)
+    pan_mask = models.CharField("Pan mask", max_length=32, blank=False, null=False)
+    unix_timestamp = models.IntegerField("Unix timestamp", blank=False, null=False)
+    salt = models.CharField("Salt", max_length=32, blank=False, null=False)
+    rrn = models.BigIntegerField("RRN", blank=False, null=False)
+    transaction_id = models.CharField("Tx Id", max_length=32, blank=False, null=False, primary_key=True)
+    original_amount: models.DecimalField('Original amount', null=False, blank=False)
+    auth_number = models.BigIntegerField("Auth number", blank=False, null=False)
+    amount: models.DecimalField('Amount', null=False, blank=False)
+    created_datetime: models.DateTimeField("Created datetime", null=False, blank=False)
+    auth_code = models.IntegerField("Auth code", blank=False, null=False)
+    signature = models.CharField("Signature", max_length=64, blank=False, null=False)
+    client_phone = models.CharField("Client phone", max_length=32, blank=False, null=False)
+    client_email = models.CharField("Client email", max_length=64, blank=False, null=False)
+    state: models.CharField("State", max_length=32, choices=States.choices, blank=False, null=False)
+    order_id: models.CharField("Order id", max_length=32, blank=False, null=False)
+    currency = models.CharField("Currency", max_length=3, blank=False, null=False),
+    merchant = models.CharField("Merchant", max_length=64, blank=False, null=False),
+    payment_method = models.CharField("Payment Method", max_length=64, blank=False, null=False)
+    meta = models.TextField("Meta", null=True, blank=True) #'{"bill_id": "vlICmFjY7nST9KARa5RsSJ"}'
+
+    def __str__(self):
+        return f"{self.id} Transaction : {self.question}"
 
     class Meta:
-        verbose_name = "Платеж"
-        verbose_name_plural = "Платежи"
+        # ordering = ("created_datetime",)
+        verbose_name = "ModulTxn"
+        verbose_name_plural = "ModulTxns"
+
+class ModulTxnForm(ModelForm):
+    class Meta:
+        model = ModulTxn
+        fields = '__all__'
+
 
 class FaqCommon(models.Model):
     category = models.SmallIntegerField("Категория", blank=False, null=False, default=1)
@@ -256,6 +293,13 @@ class Order(models.Model):
     card_pan = models.TextField("Номер карты", null=True, blank=True, editable=False)
     failure_code = models.IntegerField("Код ошибки", null=True, blank=True, editable=False)
     failure_desc = models.TextField("Описание ошибки", null=True, blank=True, editable=False)
+
+    @staticmethod
+    def get_with_items(oid: str): 
+        order = Order.objects.get(id=oid)
+        items = OrderItem.objects.filter(order_id=oid)
+        return (order, items)
+
 
     @staticmethod
     def get_recently_paid(order_id): 
