@@ -244,10 +244,10 @@ class PlaceAdmin(admin.ModelAdmin):
 
 #disable delete globally
 #admin.site.disable_action('delete_selected')
+admin.site.register(FaqCommon)
+admin.site.register(FaqParticipant)
 admin.site.register(Subscribe)
 admin.site.register(Streamer, StreamerAdmin)
-admin.site.register(Faq)
-admin.site.register(HowTo)
 admin.site.register(TicketType)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Cart)
