@@ -90,8 +90,7 @@ def make_purchase(order_id: str):
     signature = get_signature(params_copy)
     params_copy["signature"] = signature
 
-    resp = requests.post(__api_url, data = params_copy)
-    print("Result: {}".format(resp.text))
+    resp = requests.post(__api_url, data = params_copy, allow_redirects=False)
     return resp
 
 

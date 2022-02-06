@@ -17,8 +17,8 @@ class ModuleTestCase(TestCase):
         OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86, price=43)
 
         
-    # def test_make_payment(self): 
-    #     modul_client.make_purchase("77777-01")
+    def test_make_payment(self): 
+        modul_client.make_purchase("77777-01")
 
     def test_complete_payment(self):
         cli = Client()
