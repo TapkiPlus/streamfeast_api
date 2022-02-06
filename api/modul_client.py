@@ -27,6 +27,10 @@ def payment_result(params):
     signature = get_signature(params)
     test_mode = bool(params["testing"])
     existing_signature = params["signature"]
+    print("Incoming transaction:")
+    for k,v in params.items(): 
+        print(f" || {k} -> {v}")
+    print(" `----------------------", flush=True)
     if test_mode or existing_signature == signature:
         try:
             # save txn
