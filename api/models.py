@@ -47,15 +47,15 @@ class ModulTxn(models.Model):
     currency = models.CharField("Currency", max_length=3, blank=False, null=False),
     merchant = models.CharField("Merchant", max_length=64, blank=False, null=False),
     payment_method = models.CharField("Payment Method", max_length=64, blank=False, null=False)
-    meta = models.TextField("Meta", null=True, blank=True) #'{"bill_id": "vlICmFjY7nST9KARa5RsSJ"}'
+    meta = models.TextField("Meta", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.id} Transaction : {self.question}"
+        return f"Order {self.order_id}: transaction #{self.id}"
 
     class Meta:
-        # ordering = ("created_datetime",)
-        verbose_name = "ModulTxn"
-        verbose_name_plural = "ModulTxns"
+        ordering = ("unix_timestamp",)
+        verbose_name = "Транзакция"
+        verbose_name_plural = "Транзакции"
 
 class ModulTxnForm(ModelForm):
     class Meta:
@@ -74,8 +74,8 @@ class FaqCommon(models.Model):
 
     class Meta:
         ordering = ("category", "ordering_number",)
-        verbose_name = "FAQ"
-        verbose_name_plural = "FAQ"
+        verbose_name = "FAQ: вопрос гостей"
+        verbose_name_plural = "FAQ: вопросы гостей"
 
 class FaqParticipant(models.Model):
     ordering_number = models.IntegerField("№ П/П", default=100)
@@ -89,8 +89,8 @@ class FaqParticipant(models.Model):
 
     class Meta:
         ordering = ("ordering_number",)
-        verbose_name = "Стать участником"
-        verbose_name_plural = "Стать участником"
+        verbose_name = "FAQ: вопрос участников"
+        verbose_name_plural = "FAQ: вопросы участников"
 
 class SocialIcon(models.Model):
     name = models.CharField("Название сети", max_length=255, blank=False, null=True)
