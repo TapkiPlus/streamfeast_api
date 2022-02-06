@@ -31,14 +31,14 @@ class ModulTxn(models.Model):
     testing = models.PositiveSmallIntegerField("Testing", choices=Modes.choices, blank=False, null=False)
     pan_mask = models.CharField("Pan mask", max_length=32, blank=False, null=False)
     unix_timestamp = models.IntegerField("Unix timestamp", blank=False, null=False)
-    salt = models.CharField("Salt", max_length=32, blank=False, null=False)
-    rrn = models.BigIntegerField("RRN", blank=False, null=False)
+    salt = models.CharField("Salt", max_length=32, blank=True, null=True)
+    rrn = models.BigIntegerField("RRN", blank=True, null=True)
     transaction_id = models.CharField("Tx Id", max_length=32, blank=False, null=False, primary_key=True)
     original_amount: models.DecimalField('Original amount', null=False, blank=False)
-    auth_number = models.BigIntegerField("Auth number", blank=False, null=False)
+    auth_number = models.BigIntegerField("Auth number", blank=True, null=True)
     amount: models.DecimalField('Amount', null=False, blank=False)
     created_datetime: models.DateTimeField("Created datetime", null=False, blank=False)
-    auth_code = models.IntegerField("Auth code", blank=False, null=False)
+    auth_code = models.IntegerField("Auth code", blank=True, null=True)
     signature = models.CharField("Signature", max_length=64, blank=False, null=False)
     client_phone = models.CharField("Client phone", max_length=32, blank=False, null=False)
     client_email = models.CharField("Client email", max_length=64, blank=False, null=False)
@@ -303,7 +303,7 @@ class Order(models.Model):
 
     @staticmethod
     def get_recently_paid(order_id): 
-        since = datetime.now() - timedelta(minutes=1)
+        since = datetime.utcnow() - timedelta(minutes=1)
         return Order.objects.get(id=order_id, when_paid__gt=since)
 
 
