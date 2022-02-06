@@ -73,7 +73,7 @@ def send_oldest_ticket():
             msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
             msg.content_subtype = "html"  # Main content is now text/html
             msg.send() # potentially unsafe method
-            ticket.when_sent = datetime.now()
+            ticket.when_sent = datetime.utcnow()
         except Exception as err: 
             logging.exception("Failed to send ticket", exc_info = True)
             ticket.send_attempts +=1 

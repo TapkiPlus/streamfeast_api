@@ -12,7 +12,7 @@ class ModuleTestCase(TestCase):
     def setUp(self): 
         data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
-        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
+        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com", created_at=datetime.utcnow())
         OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, price=42, streamer=streamer)
         OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86, price=43)
 
@@ -62,7 +62,7 @@ class TicketTestCase(TestCase):
         order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com")
         OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, streamer=streamer)
         OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86)
-        order.set_paid(datetime.now())
+        order.set_paid(datetime.utcnow())
         pass
 
     def test_sent(self): 
@@ -115,12 +115,12 @@ class TicketTestCase(TestCase):
 
     def test_summary(self):
         streamer = Streamer.objects.get(name="Vasya")
-        result = OrderItem.summary_by_uid(streamer.uniqUrl, end = datetime.now())
+        result = OrderItem.summary_by_uid(streamer.uniqUrl, end = datetime.utcnow())
         print("Summary: {}".format(result))
 
     def test_stats(self):
         streamer = Streamer.objects.get(name="Vasya")
-        result = OrderItem.items_by_uid(streamer.uniqUrl, end = datetime.now())
+        result = OrderItem.items_by_uid(streamer.uniqUrl, end = datetime.utcnow())
         print("Stats: {}".format(result))
 
     def test_summary_stats(self): 

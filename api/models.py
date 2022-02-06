@@ -34,16 +34,16 @@ class ModulTxn(models.Model):
     salt = models.CharField("Salt", max_length=32, blank=True, null=True)
     rrn = models.BigIntegerField("RRN", blank=True, null=True)
     transaction_id = models.CharField("Tx Id", max_length=32, blank=False, null=False, primary_key=True)
-    original_amount: models.DecimalField('Original amount', null=False, blank=False)
+    original_amount = models.DecimalField('Original amount', null=False, blank=False, decimal_places=2, max_digits=8)
     auth_number = models.BigIntegerField("Auth number", blank=True, null=True)
-    amount: models.DecimalField('Amount', null=False, blank=False)
-    created_datetime: models.DateTimeField("Created datetime", null=False, blank=False)
+    amount = models.DecimalField('Amount', null=False, blank=False, decimal_places=2, max_digits=8)
+    created_datetime = models.DateTimeField("Created datetime", null=False, blank=False)
     auth_code = models.IntegerField("Auth code", blank=True, null=True)
     signature = models.CharField("Signature", max_length=64, blank=False, null=False)
     client_phone = models.CharField("Client phone", max_length=32, blank=False, null=False)
     client_email = models.CharField("Client email", max_length=64, blank=False, null=False)
-    state: models.CharField("State", max_length=32, choices=States.choices, blank=False, null=False)
-    order_id: models.CharField("Order id", max_length=32, blank=False, null=False)
+    state = models.CharField("State", max_length=32, choices=States.choices, blank=False, null=False)
+    order_id = models.CharField("Order id", max_length=32, blank=False, null=False)
     currency = models.CharField("Currency", max_length=3, blank=False, null=False),
     merchant = models.CharField("Merchant", max_length=64, blank=False, null=False),
     payment_method = models.CharField("Payment Method", max_length=64, blank=False, null=False)
@@ -287,7 +287,7 @@ class Order(models.Model):
     email = models.CharField("Email", max_length=255, blank=False, null=False)
     phone = models.CharField("Телефон", max_length=255, blank=True, null=True)
     when_paid = models.DateTimeField("Дата и время оплаты", null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField("Дата и время создания", null=False)
     amount = models.IntegerField("Стоимось", default=0)
     payment_system = models.TextField("Платежная система", null=True, blank=True, editable=False)
     card_pan = models.TextField("Номер карты", null=True, blank=True, editable=False)
@@ -315,7 +315,7 @@ class Order(models.Model):
             user_data = UserData.objects.create(session=session, email=invite.email)
             user_data.wentToCheckout += 1
             order = Order.create_order_0(user_data, session, 0)
-            order.when_paid = datetime.now()
+            order.when_paid = datetime.utcnow()
             if (invite.sent_count < invite.quantity):
                 for index in range(invite.quantity - invite.sent_count):
                         index += 1
@@ -362,6 +362,7 @@ class Order(models.Model):
             lastname=user_data.lastname,
             email=user_data.email,
             phone=user_data.phone,
+            created_at=datetime.utcnow(),
             amount=amount
         )
         return new_order
@@ -472,7 +473,7 @@ class Ticket(models.Model):
         return f"{self.ticket_type} {from_streamer}"
 
     def checkin_allowed(self): 
-        today = datetime.now().day
+        today = datetime.utcnow().day
         maximum = self.ticket_type if self.ticket_type < 3 else 999
         if self.checkin_last is not None and self.checkin_last.day == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
@@ -487,7 +488,7 @@ class Ticket(models.Model):
         if result == ENTRY_ALLOWED:
             Ticket.objects \
                 .filter(ticket_id=self.ticket_id) \
-                .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.now())
+                .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.utcnow())
         return result
         
 
