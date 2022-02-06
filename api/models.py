@@ -8,8 +8,7 @@ from django.db import transaction, connection
 from django.db.models import Sum, F
 from django.template.loader import get_template
 from pytils.translit import slugify
-from datetime import timedelta
-from django.utils import timezone
+from datetime import datetime, timedelta
 from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor.fields import RichTextField
 from .services import qr_code
@@ -18,7 +17,6 @@ ENTRY_ALLOWED = 0
 ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
 ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED = 2
 ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY = 3
-
 
 class ModulTxn(models.Model): 
 
@@ -305,7 +303,7 @@ class Order(models.Model):
 
     @staticmethod
     def get_recently_paid(order_id): 
-        since = timezone.now() - timedelta(minutes=1)
+        since = datetime.utcnow() - timedelta(minutes=1)
         print(f"Looking for paid order {order_id} paid after {since}", flush=True)
         return Order.objects.get(id=order_id, when_paid__gt=since)
 
@@ -318,7 +316,7 @@ class Order(models.Model):
             user_data = UserData.objects.create(session=session, email=invite.email)
             user_data.wentToCheckout += 1
             order = Order.create_order_0(user_data, session, 0)
-            order.when_paid = timezone.now()
+            order.when_paid = datetime.utcnow()
             if (invite.sent_count < invite.quantity):
                 for index in range(invite.quantity - invite.sent_count):
                         index += 1
@@ -365,7 +363,7 @@ class Order(models.Model):
             lastname=user_data.lastname,
             email=user_data.email,
             phone=user_data.phone,
-            created_at=timezone.now(),
+            created_at=datetime.utcnow(),
             amount=amount
         )
         return new_order
@@ -476,7 +474,7 @@ class Ticket(models.Model):
         return f"{self.ticket_type} {from_streamer}"
 
     def checkin_allowed(self): 
-        today = timezone.now().day
+        today = datetime.utcnow().day
         maximum = self.ticket_type if self.ticket_type < 3 else 999
         if self.checkin_last is not None and self.checkin_last.day == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
@@ -491,7 +489,7 @@ class Ticket(models.Model):
         if result == ENTRY_ALLOWED:
             Ticket.objects \
                 .filter(ticket_id=self.ticket_id) \
-                .update(checkin_count=F("checkin_count") + 1, checkin_last=timezone.now())
+                .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.utcnow())
         return result
         
 
