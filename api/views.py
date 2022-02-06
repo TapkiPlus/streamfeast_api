@@ -1,4 +1,3 @@
-import json
 import csv
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -8,7 +7,7 @@ from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from datetime import datetime
+from django.utils import timezone
 from dateutil import parser
 from api import modul_client
 
@@ -161,7 +160,7 @@ class CreateOrder(APIView):
         UserData.checkout(session_id)
         order = Order.create(session_id, request.data)
         if order.email in TEST_SET:
-            order.set_paid(datetime.utcnow())
+            order.set_paid(timezone.now())
             send_application(order)
             return Response("/success-page?pg_order_id={}".format(order.id), status=200)
         else:
@@ -227,7 +226,7 @@ class TicketClear(APIView):
     def get(self, request):
         id = request.query_params.ticket_uuid
         ticket = Ticket.objects.get(ticket_uuid=request.param.ticket_uuid)
-        ticket.when_cleared = datetime.utcnow()
+        ticket.when_cleared = timezone.now()
         ticket.save()
         return Response(status=200)
 

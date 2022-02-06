@@ -5,7 +5,7 @@ from django.template import Context
 from django.conf import settings
 from .models import Ticket, OrderItem, TicketType
 from django.db import transaction
-from datetime import datetime
+from django.utils import timezone
 
 import logging
 
@@ -73,7 +73,7 @@ def send_oldest_ticket():
             msg = EmailMessage(ticket_header, ticket_content, SOURCE_EMAIL, [order.email])
             msg.content_subtype = "html"  # Main content is now text/html
             msg.send() # potentially unsafe method
-            ticket.when_sent = datetime.utcnow()
+            ticket.when_sent = timezone.now()
         except Exception as err: 
             logging.exception("Failed to send ticket", exc_info = True)
             ticket.send_attempts +=1 
