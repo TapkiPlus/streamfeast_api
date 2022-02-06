@@ -25,7 +25,9 @@ _items = {
 
 def payment_result(params): 
     signature = get_signature(params)
-    if params["signature"] == signature:
+    test_mode = bool(params["testing"])
+    existing_signature = params["signature"]
+    if test_mode or existing_signature == signature:
         try:
             # save txn
             form = ModulTxnForm(params)
@@ -37,7 +39,7 @@ def payment_result(params):
             order.payment_system = params["payment_method"]
             order.card_pan = params.get("pan_mask", "")
             date = parser.parse(params["created_datetime"])
-            if params["state"] == "COMPLETED":
+            if params["state"] == "COMPLETE":
                 order.set_paid(date)
                 send_application(order)
             else:
@@ -62,7 +64,7 @@ def make_purchase(order_id: str):
         price: int
         sno: str = "usn_income"
         payment_object: str = "service"
-        payment_method: str = "full_payment"
+        payment_method: str = "advance"
         vat: str = "none"    
 
     def to_receipt_item(oi: OrderItem):
@@ -76,7 +78,7 @@ def make_purchase(order_id: str):
     params_copy["amount"] = order.amount
     params_copy["client_phone"] = order.phone
     params_copy["client_email"] = order.email
-    params_copy["callback_url"] = "{}/api/paid".format(__host)
+    params_copy["callback_url"] = "{}/api/payment_result".format(__host)
     params_copy["description"] = "Заказ №{}".format(order.id)
     params_copy["unix_timestamp"] = int(time())
     params_copy["success_url"] = "{}/success-page?pg_order_id={}".format(__host, order.id)
