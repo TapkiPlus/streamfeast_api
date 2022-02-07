@@ -300,18 +300,6 @@ class Order(models.Model):
         items = OrderItem.objects.filter(order_id=oid)
         return (order, items)
 
-
-    @staticmethod
-    def get_recently_paid(order_id): 
-        # FIXME: cannot return PAID order because 
-        # modulbank notifies us after 
-        # he returns success to a user
-        # since = datetime.utcnow() - timedelta(minutes=1)
-        # print(f"Looking for paid order {order_id} paid after {since}", flush=True)
-        # return Order.objects.get(id=order_id, when_paid__gt=since)
-        return Order.objects.get(id=order_id)
-
-
     @staticmethod
     @transaction.atomic
     def create_by_invites(invites):

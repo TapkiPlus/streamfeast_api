@@ -72,11 +72,6 @@ class TicketTestCase(TestCase):
         for ticket in all_tickets: 
             print("Ticket: {}, {}, {}".format(ticket.ticket_id, ticket.when_sent, ticket.send_attempts))
 
-    def test_recent_order(self): 
-        order = Order.get_recently_paid("77777-01")
-        print("Order: {}".format(order))
-
-
     def test_user_data(self): 
         increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
         inc_fields = {}

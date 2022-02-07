@@ -147,12 +147,6 @@ class GetQr(APIView):
         else: 
             return Response(status=404)
 
-class GetRecentOrder(generics.RetrieveAPIView):
-    serializer_class = OrderSerializer
-
-    def get_object(self):
-        order = Order.get_recently_paid(self.request.query_params.get('id'))
-        return order
 
 TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com", "mike@lisetskiy.com"}
 class CreateOrder(APIView):

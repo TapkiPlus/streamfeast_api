@@ -15,7 +15,6 @@ urlpatterns = [
     path('get_places', views.GetPlaces.as_view()),
     path('get_place', views.GetPlace.as_view()),
     path('get_qr', views.GetQr.as_view()),
-    path('get_order', views.GetRecentOrder.as_view()),
     path('add_item', views.AddItem.as_view()),
     path('add_item_quantity', views.AddItemQuantity.as_view()),
     path('delete_item_quantity', views.DeleteItemQuantity.as_view()),
