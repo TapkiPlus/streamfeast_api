@@ -2,35 +2,29 @@ import os
 import environ
 from pathlib import Path
 
+# READ ENV from Environment (+ .env file)
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
-environ.Env.read_env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+# crucial settings
 SITE_URL = env("BACKEND_EXTERNAL_URL")
-BASE_URL = ''
+SECRET_KEY = env("SECRET_KEY") 
+DEBUG = env("DEBUG", default=False)
 
-SECRET_KEY = '$sgr9(w7g-5$1c=ip@0ex52rfyd$i5_8qtk28zi9nwy0br^23('
+DATABASES = { "default": env.db() }
+EMAIL_CONFIG = env.email_url("EMAIL_CONFIG")
 
-DEBUG = True
 
+
+#==============================================#
+
+#cors
 CSRF_COOKIE_NAME = "csrftoken"
 CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = ['*']
 
-CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
-CKEDITOR_UPLOAD_PATH = "uploads/"
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'tickets@streamfest.ru'
-
-# FIXME: set current password in production#
-EMAIL_HOST_PASSWORD = '************'
-
-DEFAULT_FROM_EMAIL = 'tickets@streamfest.ru'
-EMAIL_USE_TLS = True
-
+#logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -45,6 +39,7 @@ LOGGING = {
     },
 }
 
+#middleware
 INSTALLED_APPS = [
     'api.apps.AdminApiConfig',
     'django.contrib.auth',
@@ -71,8 +66,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'streamfeast_api.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -91,23 +84,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'streamfeast_api.wsgi.application'
-
-DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': 'test2',
-        # 'USER' : 'root',
-        # 'PASSWORD': 'i12345',
-        # 'HOST': 'localhost', 
-        # 'PORT': '3306'  
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'streamfest',
-        'USER' : 'streamfest',
-        'PASSWORD': 'J-I802kJ73nlDF832',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -130,11 +106,13 @@ DATETIME_FORMAT = 'd.m.Y H:i:s'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = False
+ROOT_URLCONF = 'streamfeast_api.urls'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+STATICFILES_DIRS = [ os.path.join(BASE_DIR, "static") ]
 
 MEDIA_URL = f'/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
+CKEDITOR_UPLOAD_PATH = "uploads/"
