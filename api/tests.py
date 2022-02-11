@@ -20,7 +20,8 @@ class ModuleTestCase(TestCase):
     #@override_settings(PAYMENT_KEY='2618109CC214F9AFE0F855AE582A9BC4')
     #@override_settings(PAYMENT_MERCHANT_ID='c2659e97-cf26-421e-8a2e-91973e9bb5c2')
     def test_make_payment(self): 
-        modul_client.make_purchase("77777-01")
+        resp=modul_client.make_purchase("77777-01")
+        print(f"Resp: {resp}")
 
     def test_complete_payment(self):
         cli = Client()
