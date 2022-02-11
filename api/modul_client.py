@@ -5,9 +5,7 @@ import dataclasses
 import hashlib
 import base64
 import random, string
-from http.client import responses
 import json
-from django.conf import Settings
 import requests
 from time import time
 from dateutil import parser
@@ -75,7 +73,7 @@ def make_purchase(order_id: str):
 
     receipt_items = map(lambda oi: dataclasses.asdict(to_receipt_item(oi)), order_items)
 
-    params_copy = {       
+    txn_params = {       
         "salt": randomStr(32),
         "merchant": settings.PAYMENT_MERCHANT_ID,
         "receipt_contact": 'tickets@streamfest.ru',
@@ -92,10 +90,10 @@ def make_purchase(order_id: str):
     }
 
     # make signature afterwards
-    signature = get_signature(params_copy)
-    params_copy["signature"] = signature
+    signature = get_signature(txn_params)
+    txn_params["signature"] = signature
 
-    resp = requests.post(__api_url, data = params_copy, allow_redirects=False)
+    resp = requests.post(__api_url, data = txn_params, allow_redirects=False)
     return resp
 
 
