@@ -8,7 +8,7 @@ env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # crucial settings
-SITE_URL = env("BACKEND_EXTERNAL_URL")
+SITE_URL = env("TARGET_HOSTNAME")
 SECRET_KEY = env("SECRET_KEY") 
 DEBUG = env("DEBUG", default=False)
 
