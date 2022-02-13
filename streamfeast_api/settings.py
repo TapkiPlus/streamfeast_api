@@ -15,6 +15,7 @@ DEBUG = env("DEBUG", default=False)
 DATABASES = {"default": env.db()}
 EMAIL_CONFIG = env.email_url("EMAIL_CONFIG")
 
+PAYMENT_TEST_MODE = bool(env("PAYMENT_TEST_MODE"))
 PAYMENT_MERCHANT_ID = env("PAYMENT_MERCHANT_ID")
 PAYMENT_KEY = env("PAYMENT_KEY")
 

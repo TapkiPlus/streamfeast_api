@@ -15,10 +15,10 @@ from .email_client import send_application
 
 from api.models import ModulTxnForm, Order, OrderItem, UserData
 
-__testing_mode = 1
 __api_url = "https://pay.modulbank.ru/pay"
 
 
+__testing_mode = settings.PAYMENT_TEST_MODE
 __secret_key = settings.PAYMENT_KEY
 __host = settings.SITE_URL
 
@@ -26,7 +26,8 @@ __host = settings.SITE_URL
 def payment_result(params):
     calculated_signature = get_signature(params)
     existing_signature = params["signature"]
-    testing = params["testing"] == "1"
+    # allow testing only if enabled globally
+    testing = params["testing"] == "1" and __testing_mode
     if testing or existing_signature == calculated_signature:
         try:
             # save txn (should it be one txn with set_paid?)
