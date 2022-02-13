@@ -30,15 +30,20 @@ def payment_result(params):
     testing = params["testing"] == "1" and __testing_mode
     if testing or existing_signature == calculated_signature:
         try:
-            # save txn (should it be one txn with set_paid?)
-            txn: ModulTxn = ModulTxnForm(params).save()
+            form = ModulTxnForm(params)
+            if form.errors:
+                logging.error(f"Modulbank Txn couldn't be validated: {form.errors}")
+                return 500
+            else:
+                # save txn (should it be one txn with set_paid?)
+                txn: ModulTxn = form.save()
 
-            # then pay an order
-            order = Order.set_paid_by(txn)
+                # then pay an order
+                order = Order.set_paid_by(txn)
 
-            # if everything was fine - send application
-            send_application(order)
-            return 200
+                # if everything was fine - send application
+                send_application(order)
+                return 200
         except Exception as e:
             logging.error(e, exc_info=True)
             return 500
