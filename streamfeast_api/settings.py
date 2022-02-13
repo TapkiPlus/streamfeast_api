@@ -55,7 +55,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['default'],
-            'level': 'WARNING',
+            'level': 'INFO',
             'propagate': True
         },
         'django.request': { # SQL logs go here

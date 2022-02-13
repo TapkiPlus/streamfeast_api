@@ -48,7 +48,9 @@ class ModulTxn(models.Model):
     meta = models.TextField("Meta", null=True, blank=True)
 
     def __str__(self):
-        return f"Transaction #{json.dumps(self.__dict__)}"
+        from .serializers import ModulTxnSerializer
+        seri = json.dumps(ModulTxnSerializer(self).data, indent=4)
+        return f"Transaction #{seri}"
 
     class Meta:
         ordering = ("unix_timestamp",)
@@ -360,7 +362,7 @@ class Order(models.Model):
     @staticmethod
     @transaction.atomic
     def set_paid_by(txn: ModulTxn): 
-        order: Order = Order.objects.get(txn.order_id)
+        order: Order = Order.objects.get(id=txn.order_id)
         if order.when_paid is None:
             if txn.state == ModulTxn.States.OK: 
                 Cart.clear_cart(order.session)
@@ -382,14 +384,14 @@ class Order(models.Model):
                             order=order
                         )
                 order.save()
-                logging.info(f"Successful payment by {txn}")
+                logging.info(f"Successful payment by \n{txn}")
                 return order
             else:
                 # Payment was rejected by the payment system
                 UserData.payment_failed(order.session)
-                raise RuntimeError(f"Failed payment attempt by {txn}")
+                raise RuntimeError(f"Failed payment attempt by \n{txn}")
         else:
-            raise RuntimeError(f"Adversary payment attempt by {txn}")
+            raise RuntimeError(f"Adversary payment attempt by \n{txn}")
 
     def __str__(self):
         return f"Заказ {self.id} от {self.firstname} оплачен: {self.when_paid}"
