@@ -50,7 +50,7 @@ class ModulTxn(models.Model):
     def __str__(self):
         from .serializers import ModulTxnSerializer
         seri = json.dumps(ModulTxnSerializer(self).data, indent=4)
-        return f"Transaction #{seri}"
+        return f"Transaction:\n{seri}"
 
     class Meta:
         ordering = ("unix_timestamp",)
@@ -384,17 +384,19 @@ class Order(models.Model):
                             order=order
                         )
                 order.save()
-                logging.info(f"Successful payment by \n{txn}")
+                logging.info(f"Successful payment by: {txn}")
                 return order
             else:
                 # Payment was rejected by the payment system
                 UserData.payment_failed(order.session)
-                raise RuntimeError(f"Failed payment attempt by \n{txn}")
+                raise RuntimeError(f"Failed payment attempt by: {txn}")
         else:
-            raise RuntimeError(f"Adversary payment attempt by \n{txn}")
+            raise RuntimeError(f"Adversary payment attempt by: {txn}")
 
     def __str__(self):
-        return f"Заказ {self.id} от {self.firstname} оплачен: {self.when_paid}"
+        from .serializers import OrderSerializer
+        seri = json.dumps(OrderSerializer(self).data, indent=4)
+        return f"Order:\n{seri}"
 
     class Meta:
         verbose_name = "Заказ"
