@@ -13,7 +13,7 @@ from time import time
 from dateutil import parser
 from .email_client import send_application
 
-from api.models import ModulTxnForm, Order, OrderItem, UserData
+from api.models import ModulTxn, ModulTxnForm, Order, OrderItem, UserData
 
 __api_url = "https://pay.modulbank.ru/pay"
 
