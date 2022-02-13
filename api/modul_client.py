@@ -1,36 +1,30 @@
 from dataclasses import dataclass
+from django.conf import settings
+
 import dataclasses
 import hashlib
 import base64
-from http.client import responses
+import random, string
 import json
 import requests
 from time import time
 from dateutil import parser
 from .email_client import send_application
 
-from api.models import ModulTxn, ModulTxnForm, Order, OrderItem
+from api.models import ModulTxnForm, Order, OrderItem
 
-__api_url = "https://pay.modulbank.ru/pay"
-__secret_key = "2618109CC214F9AFE0F855AE582A9BC4"
 __testing_mode = 1
-__host = "http://sf.tagobar.ru"
+__api_url = "https://pay.modulbank.ru/pay"
 
-_items = {       
-    "salt": 'dPUTLtbMfcTGzkaBnGtseKlcQymCLrYI',
-    "merchant": 'c2659e97-cf26-421e-8a2e-91973e9bb5c2',
-    "receipt_contact": 'test@mail.com',
-}
+
+__secret_key = settings.PAYMENT_KEY
+__host = settings.SITE_URL
 
 
 def payment_result(params): 
     signature = get_signature(params)
     test_mode = bool(params["testing"])
     existing_signature = params["signature"]
-    print("Incoming transaction:")
-    for k,v in params.items(): 
-        print(f" || {k} -> {v}")
-    print(" `----------------------", flush=True)
     if test_mode or existing_signature == signature:
         try:
             # save txn
@@ -73,25 +67,33 @@ def make_purchase(order_id: str):
 
     def to_receipt_item(oi: OrderItem):
         return ModulReceiptItem(str(oi), oi.quantity, oi.price)
+
+    def randomStr(size: int): 
+        ''.join(random.choice(string.ascii_letters) for x in range(size))
+
     receipt_items = map(lambda oi: dataclasses.asdict(to_receipt_item(oi)), order_items)
 
-    params_copy = _items.copy()
-    params_copy["testing"] = 1 if __testing_mode else 0
-    params_copy["order_id"] = order.id
-    params_copy["receipt_items"] = json.dumps(list(receipt_items))
-    params_copy["amount"] = order.amount
-    params_copy["client_phone"] = order.phone
-    params_copy["client_email"] = order.email
-    params_copy["callback_url"] = "{}/api/payment_result".format(__host)
-    params_copy["description"] = "Заказ №{}".format(order.id)
-    params_copy["unix_timestamp"] = int(time())
-    params_copy["success_url"] = "{}/success-page?pg_order_id={}".format(__host, order.id)
+    txn_params = {       
+        "salt": randomStr(32),
+        "merchant": settings.PAYMENT_MERCHANT_ID,
+        "receipt_contact": 'tickets@streamfest.ru',
+        "testing": 1 if __testing_mode else 0,
+        "order_id": order.id,
+        "receipt_items": json.dumps(list(receipt_items)),
+        "amount": order.amount,
+        "client_phone": order.phone,
+        "client_email": order.email,
+        "callback_url": "{}/api/payment_result".format(__host),
+        "description": "Заказ №{}".format(order.id),
+        "unix_timestamp": int(time()),
+        "success_url": "{}/success-page?pg_order_id={}".format(__host, order.id)
+    }
 
     # make signature afterwards
-    signature = get_signature(params_copy)
-    params_copy["signature"] = signature
+    signature = get_signature(txn_params)
+    txn_params["signature"] = signature
 
-    resp = requests.post(__api_url, data = params_copy, allow_redirects=False)
+    resp = requests.post(__api_url, data = txn_params, allow_redirects=False)
     return resp
 
 
