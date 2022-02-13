@@ -105,17 +105,10 @@ class TicketTestCase(ModulTestCase):
         print("t3: {}".format(t3))
 
     # to test SMTP uncomment this pls
-    # @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
-
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
     def test_order_paid(self):
-        pass
-        # order = Order.objects.last()
-        # send_application(order)
-        # tickets = Ticket.objects.all()
-        # for t in tickets:
-        #     file = t.pdf(filename=f'{t.ticket_id}.pdf')
-        #     print("FFF")
-        #     print(file)
+        order = Order.objects.last()
+        send_application(order)
 
     def test_summary(self):
         streamer = Streamer.objects.get(name="Vasya")

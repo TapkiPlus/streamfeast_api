@@ -12,9 +12,14 @@ SITE_URL = env("TARGET_HOSTNAME")
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", default=False)
 
+# DB
 DATABASES = {"default": env.db()}
-EMAIL_CONFIG = env.email_url("EMAIL_CONFIG")
 
+# Email
+EMAIL_CONFIG = env.email_url("EMAIL_CONFIG")
+vars().update(EMAIL_CONFIG)
+
+# Payment
 PAYMENT_TEST_MODE = bool(env("PAYMENT_TEST_MODE"))
 PAYMENT_MERCHANT_ID = env("PAYMENT_MERCHANT_ID")
 PAYMENT_KEY = env("PAYMENT_KEY")

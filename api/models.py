@@ -501,17 +501,6 @@ class Ticket(models.Model):
                 .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.utcnow())
         return result
 
-    def pdf(self, filename=False):
-        template = get_template("../templates/ticket.html")
-        image = qr_code(str(self.ticket_uuid))
-        encoded = str(base64.b64encode(image))[2:-1]
-        html = template.render({"t": self, "qr": encoded})
-        options = {
-            "page-size": "Letter",
-            "encoding": "UTF-8",
-        }
-        return pdfkit.from_string(html, filename, options)
-
     @staticmethod
     def get_by_uuid_str(text):
         try:

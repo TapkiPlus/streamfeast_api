@@ -32,7 +32,7 @@ def payment_result(params):
         try:
             form = ModulTxnForm(params)
             if form.errors:
-                logging.error(f"Modulbank Txn couldn't be validated: {form.errors}")
+                logging.error(f"Modulbank Txn couldn't be validated: {form.errors.as_data()}")
                 return 500
             else:
                 # save txn (should it be one txn with set_paid?)
