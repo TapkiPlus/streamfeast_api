@@ -59,11 +59,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
+        'apscheduler.executors.default': {  # Stop spamming job scheduler logs
+            'handlers': ['default'],
+            'level': 'WARN',
+            'propagate': False
+        },
         'django.request': {  # SQL logs go here
             'handlers': ['request_handler'],
             'level': 'WARN',
             'propagate': False
-        },
+        }
     }
 }
 
