@@ -38,18 +38,18 @@ LOGGING = {
     'handlers': {
         'default': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'be.log'),
-            'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'when': 'midnight',
+            'backupCount': 10,
             'formatter': 'standard',
         },
         'request_handler': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'db.log'),
-            'maxBytes': 1024*1024*5,  # 5 MB
-            'backupCount': 5,
+            'when': 'midnight',
+            'backupCount': 3,
             'formatter': 'standard',
         },
     },
@@ -61,7 +61,7 @@ LOGGING = {
         },
         'django.request': {  # SQL logs go here
             'handlers': ['request_handler'],
-            'level': 'DEBUG',
+            'level': 'WARN',
             'propagate': False
         },
     }
