@@ -1,4 +1,8 @@
-import base64, uuid, json, logging, pdfkit
+import base64
+import uuid
+import json
+import logging
+import pdfkit
 
 from django.forms import ModelForm
 from django.db import models
@@ -16,7 +20,8 @@ ENTRY_FORBIDDEN_NO_SUCH_TICKET = 1
 ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED = 2
 ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY = 3
 
-class ModulTxn(models.Model): 
+
+class ModulTxn(models.Model):
 
     class Modes(models.IntegerChoices):
         PROD = 0
@@ -57,6 +62,7 @@ class ModulTxn(models.Model):
         verbose_name = "Транзакция"
         verbose_name_plural = "Транзакции"
 
+
 class ModulTxnForm(ModelForm):
     class Meta:
         model = ModulTxn
@@ -77,6 +83,7 @@ class FaqCommon(models.Model):
         verbose_name = "FAQ: вопрос гостей"
         verbose_name_plural = "FAQ: вопросы гостей"
 
+
 class FaqParticipant(models.Model):
     ordering_number = models.IntegerField("№ П/П", default=100)
     icon = models.ImageField("Иконка", upload_to="icons/", blank=False, null=True)
@@ -91,6 +98,7 @@ class FaqParticipant(models.Model):
         ordering = ("ordering_number",)
         verbose_name = "FAQ: вопрос участников"
         verbose_name_plural = "FAQ: вопросы участников"
+
 
 class SocialIcon(models.Model):
     name = models.CharField("Название сети", max_length=255, blank=False, null=True)
@@ -116,7 +124,7 @@ class Streamer(models.Model):
     streaming = RichTextUploadingField("Что стримит", blank=True, null=True)
     isAtHome = models.BooleanField("Отображать на главной?", default=False)
     sells = models.BooleanField("Отображать блок билетов и подпись?", default=True)
-    isActive = models.BooleanField("Отображать?", default=False) 
+    isActive = models.BooleanField("Отображать?", default=False)
     uniqUrl = models.TextField("Хеш для ссылки (/profile/)", default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
@@ -152,12 +160,12 @@ class TicketType(models.Model):
         REGULAR_ONE = 1
         REGULAR_TWO = 2
         INVITE = 3
-        PRESS  = 4
-        BLOGER  = 5
+        PRESS = 4
+        BLOGER = 5
 
     price = models.IntegerField("Цена", blank=False, null=True)
     days_qty = models.PositiveSmallIntegerField("Тип билета", choices=Types.choices, default=Types.REGULAR_ONE)
- 
+
     def __str__(self):
         if self.days_qty == TicketType.Types.REGULAR_ONE:
             return f"Билет на один день : {self.price}"
@@ -169,7 +177,6 @@ class TicketType(models.Model):
             return "Приглашение для прессы"
         else:
             return "Приглашение блогеру"
-
 
     class Meta:
         ordering = ("price",)
@@ -227,20 +234,20 @@ class CartItem(models.Model):
         verbose_name = "Позиция корзины"
         verbose_name_plural = "Позиции в корзинах"
 
- 
+
 class UserData(models.Model):
     session = models.CharField("Сессия", max_length=255, blank=False, unique=True)
     firstname = models.CharField("Имя", max_length=255, blank=True, null=True)
     lastname = models.CharField("Фамилия", max_length=255, blank=True, null=True)
     email = models.CharField("Email", max_length=255, blank=True, null=True)
     phone = models.CharField("Телефон", max_length=255, blank=True, null=True)
-    wentToCheckout = models.IntegerField("Количество переходов к оформлению билета", default=0) #done
-    returnedToShop = models.IntegerField("Количество переходов на покупку билета снова", default=0) #done
-    clickedPay = models.IntegerField("Количество нажатий на оплатить", default=0) #done
-    tryedToPayAgain = models.IntegerField("Количество нажатий попробовать еще раз", default=0) #done
-    clickedTechAssistance = models.IntegerField("Количество кликов на техпомощь", default=0) #done
-    successfulPayments = models.IntegerField("Количество успешных платежей", default=0) #done
-    failedPayments = models.IntegerField("Количество безуспешных платежей", default=0) #done
+    wentToCheckout = models.IntegerField("Количество переходов к оформлению билета", default=0)  # done
+    returnedToShop = models.IntegerField("Количество переходов на покупку билета снова", default=0)  # done
+    clickedPay = models.IntegerField("Количество нажатий на оплатить", default=0)  # done
+    tryedToPayAgain = models.IntegerField("Количество нажатий попробовать еще раз", default=0)  # done
+    clickedTechAssistance = models.IntegerField("Количество кликов на техпомощь", default=0)  # done
+    successfulPayments = models.IntegerField("Количество успешных платежей", default=0)  # done
+    failedPayments = models.IntegerField("Количество безуспешных платежей", default=0)  # done
 
     def __str__(self):
         return f"{self.firstname}"
@@ -256,7 +263,7 @@ class UserData(models.Model):
     @staticmethod
     def payment_failed(session_id):
         UserData.objects.filter(session=session_id).update(failedPayments=F("failedPayments") + 1)
-    
+
     @staticmethod
     def export_all(writer):
         for data_row in UserData.objects.all():
@@ -295,7 +302,7 @@ class Order(models.Model):
     failure_desc = models.TextField("Описание ошибки", null=True, blank=True, editable=False)
 
     @staticmethod
-    def get_with_items(oid: str): 
+    def get_with_items(oid: str):
         order = Order.objects.get(id=oid)
         items = OrderItem.objects.filter(order_id=oid)
         return (order, items)
@@ -304,29 +311,29 @@ class Order(models.Model):
     @transaction.atomic
     def create_by_invites(invites):
         for invite in invites:
-            session=uuid.uuid4()
+            session = uuid.uuid4()
             user_data = UserData.objects.create(session=session, email=invite.email)
             user_data.wentToCheckout += 1
             order = Order.create_order_0(user_data, session, 0)
             order.when_paid = datetime.utcnow()
             if (invite.sent_count < invite.quantity):
                 for index in range(invite.quantity - invite.sent_count):
-                        index += 1
-                        id = "{}-{:02d}".format(order.id, index)
-                        Ticket.objects.create(
-                            ticket_id=id,
-                            ticket_type=invite.invite_type,
-                            price=0,
-                            streamer=None,
-                            order=order
-                        )
+                    index += 1
+                    id = "{}-{:02d}".format(order.id, index)
+                    Ticket.objects.create(
+                        ticket_id=id,
+                        ticket_type=invite.invite_type,
+                        price=0,
+                        streamer=None,
+                        order=order
+                    )
                 Invitation.objects \
                     .filter(email=invite.email) \
                     .update(sent_count=invite.quantity)
 
     @staticmethod
     @transaction.atomic
-    def create(session_id, data): 
+    def create(session_id, data):
         cart = Cart.objects.get(session=session_id)
         user_data = UserData.objects.get(session=session_id)
         new_order = Order.create_order_0(user_data, session_id, cart.total_price)
@@ -361,10 +368,10 @@ class Order(models.Model):
 
     @staticmethod
     @transaction.atomic
-    def set_paid_by(txn: ModulTxn): 
+    def set_paid_by(txn: ModulTxn):
         order: Order = Order.objects.get(id=txn.order_id)
         if order.when_paid is None:
-            if txn.state == ModulTxn.States.OK: 
+            if txn.state == ModulTxn.States.OK:
                 Cart.clear_cart(order.session)
                 UserData.payment_success(order.session)
                 order.payment_system = txn.payment_method
@@ -417,37 +424,38 @@ class OrderItem(models.Model):
         verbose_name_plural = "Позиции заказов"
 
     @staticmethod
-    def items_by_uid(uid, start = None, end = None):
-        raw = OrderItem.objects
-        if start: 
-            raw = raw.filter(order__when_paid__gt=start)
-        if end:
-            raw = raw.filter(order__when_paid__lt=end)
-        qs = raw.filter( \
-            order__when_paid__isnull=False, \
-            streamer__uniqUrl=uid \
-        ) \
-         .annotate(order_pk = F("order__id"), when_paid = F("order__when_paid"), qty = F("quantity"), name = F("order__firstname"), email = F("order__email")) \
-         .values("order_pk", "when_paid", "qty", "name", "email") \
-         .order_by("-when_paid")
-         
-        return qs
-
-    @staticmethod
-    def summary_by_uid(uid, start = None, end = None):
+    def items_by_uid(uid, start=None, end=None):
         raw = OrderItem.objects
         if start:
             raw = raw.filter(order__when_paid__gt=start)
         if end:
             raw = raw.filter(order__when_paid__lt=end)
-        qs = raw.filter( \
-            order__when_paid__isnull=False, \
-            streamer__uniqUrl=uid \
+        qs = raw.filter(
+            order__when_paid__isnull=False, streamer__uniqUrl=uid).annotate(
+            order_pk=F("order__id"),
+            when_paid=F("order__when_paid"),
+            qty=F("quantity"),
+            name=F("order__firstname"),
+            email=F("order__email")).values(
+            "order_pk", "when_paid", "qty", "name", "email").order_by("-when_paid")
+
+        return qs
+
+    @staticmethod
+    def summary_by_uid(uid, start=None, end=None):
+        raw = OrderItem.objects
+        if start:
+            raw = raw.filter(order__when_paid__gt=start)
+        if end:
+            raw = raw.filter(order__when_paid__lt=end)
+        qs = raw.filter(
+            order__when_paid__isnull=False,
+            streamer__uniqUrl=uid
         ) \
-         .values("ticket_type") \
-         .annotate(type = F("ticket_type"), qty = Sum("quantity"), amt = Sum("amount")) \
-         .values("type", "qty", "amt") \
-         .order_by("type")
+            .values("ticket_type") \
+            .annotate(type=F("ticket_type"), qty=Sum("quantity"), amt=Sum("amount")) \
+            .values("type", "qty", "amt") \
+            .order_by("type")
 
         return qs
 
@@ -460,7 +468,8 @@ class OrderItem(models.Model):
 class Ticket(models.Model):
     ticket_id = models.TextField("ID", primary_key=True, editable=False)
     ticket_uuid = models.UUIDField("QR-code", default=uuid.uuid4)
-    ticket_type = models.PositiveSmallIntegerField("Тип билета", choices=TicketType.Types.choices, default=TicketType.Types.REGULAR_ONE)
+    ticket_type = models.PositiveSmallIntegerField(
+        "Тип билета", choices=TicketType.Types.choices, default=TicketType.Types.REGULAR_ONE)
     price = models.IntegerField("Цена", blank=False, null=True)
     streamer = models.ForeignKey(Streamer, on_delete=models.RESTRICT, null=True, blank=True, verbose_name="От кого")
     order = models.ForeignKey(Order, on_delete=models.RESTRICT, null=False, verbose_name="Заказ")
@@ -469,30 +478,28 @@ class Ticket(models.Model):
     send_attempts = models.SmallIntegerField("Количество попыток отправки", null=False, default=0)
     checkin_count = models.SmallIntegerField("Успешных попыток прохода", null=False, default=0)
     checkin_last = models.DateTimeField("Дата и время последнего входа", null=True)
-    
+
     def __str__(self):
         from_streamer = f" от {self.streamer}" if self.streamer else ""
         return f"{self.ticket_type} {from_streamer}"
 
-    def checkin_allowed(self): 
+    def checkin_allowed(self):
         today = datetime.utcnow().day
         maximum = self.ticket_type if self.ticket_type < 3 else 999
         if self.checkin_last is not None and self.checkin_last.day == today:
             return ENTRY_FORBIDDEN_ALREADY_ENTRERED_TODAY
-        elif self.checkin_count >= maximum: 
+        elif self.checkin_count >= maximum:
             return ENTRY_FORBIDDEN_ENTRY_ATTEMPTS_EXCEEDED
         else:
             return ENTRY_ALLOWED
 
-
-    def checkin(self): 
+    def checkin(self):
         result = self.checkin_allowed()
         if result == ENTRY_ALLOWED:
             Ticket.objects \
                 .filter(ticket_id=self.ticket_id) \
                 .update(checkin_count=F("checkin_count") + 1, checkin_last=datetime.utcnow())
         return result
-        
 
     def pdf(self, filename=False):
         template = get_template("../templates/ticket.html")
@@ -533,13 +540,12 @@ class Ticket(models.Model):
             for row in cursor.fetchall():
                 labels.append(row[0])
                 values.append(row[1])
-                
+
         return {
             "labels": labels,
             "values": values
         }
 
-        
     @staticmethod
     def streamer_stats():
         with connection.cursor() as cursor:
@@ -564,7 +570,6 @@ class Ticket(models.Model):
                 writer.writerow([row[0], str(row[1]), str(row[2])])
         pass
 
-
     class Meta:
         verbose_name = "Билет"
         verbose_name_plural = "Билеты"
@@ -581,7 +586,7 @@ class Subscribe(models.Model):
         verbose_name_plural = "Подписки"
 
 
-class Place(models.Model): 
+class Place(models.Model):
 
     class Levels(models.IntegerChoices):
         ONE = 1
@@ -594,6 +599,7 @@ class Place(models.Model):
     number = models.PositiveSmallIntegerField("Номер", unique=True, null=True, blank=True)
     name = models.CharField("Название", unique=True, max_length=64, null=False, blank=False)
     level = models.PositiveSmallIntegerField("Уровень", choices=Levels.choices, default=Levels.ONE)
+
     class Meta:
         verbose_name = "Место"
         verbose_name_plural = "Места"
@@ -601,13 +607,15 @@ class Place(models.Model):
     def __str__(self):
         return f"Место: {self.name}"
 
+
 class PlaceTimetable(models.Model):
 
     class ActiveWhen(models.IntegerChoices):
         FIRST = 1
         SECOND = 2
 
-    place = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True, verbose_name="Место", related_name='timetable')
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, blank=True, null=True,
+                              verbose_name="Место", related_name='timetable')
     day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices)
     start = models.TimeField("Начало")
     end = models.TimeField("Окончание")
@@ -651,16 +659,16 @@ class Invitation(models.Model):
 
     email = models.EmailField("E-mail", primary_key=True)
     quantity = models.PositiveSmallIntegerField("Количество", null=False, blank=False, default=1)
-    invite_type = models.PositiveSmallIntegerField("Тип приглашения", null=False, blank=False, default=1, choices=TicketType.Types.choices)
+    invite_type = models.PositiveSmallIntegerField(
+        "Тип приглашения", null=False, blank=False, default=1, choices=TicketType.Types.choices)
     sent_count = models.PositiveSmallIntegerField("Выслано", null=False, blank=False, default=0)
-
 
     @staticmethod
     @transaction.atomic
-    def import_from(rows): 
+    def import_from(rows):
         for row in rows:
             invite_type = \
-                     TicketType.Types.REGULAR_ONE if row['type'] == "1d" \
+                TicketType.Types.REGULAR_ONE if row['type'] == "1d" \
                 else TicketType.Types.REGULAR_TWO if row['type'] == "2d" \
                 else TicketType.Types.INVITE if row['type'] == "streamer" \
                 else TicketType.Types.PRESS if row['type'] == "press" \

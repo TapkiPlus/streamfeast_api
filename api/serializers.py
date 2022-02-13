@@ -8,16 +8,19 @@ class FaqCommonSerializer(serializers.ModelSerializer):
         model = FaqCommon
         fields = '__all__'
 
+
 class FaqParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = FaqParticipant
         fields = '__all__'
 
+
 class ModulTxnSerializer(serializers.ModelSerializer):
     class Meta:
         model = ModulTxn
         fields = '__all__'
-        
+
+
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
@@ -50,6 +53,7 @@ class SoldTicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = '__all__'
+
 
 class FastStreamerSerializer(serializers.ModelSerializer):
 
@@ -140,8 +144,10 @@ class PlaceTimetableSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_fields = ['streamers']
 
+
 class PlaceSerializer(serializers.ModelSerializer):
     timetable = PlaceTimetableSerializer(many=True, required=True)
+
     class Meta:
         model = Place
         fields = ['id', 'number', 'name', 'level', 'timetable']

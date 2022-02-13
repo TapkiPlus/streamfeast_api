@@ -3,10 +3,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.urls import path
 
+
 def admin_statistics_view(request):
     return render(request, 'admin/statistics.html', {
         'title': 'Statistics'
     })
+
 
 class CustomAdminSite(admin.AdminSite):
 

@@ -15,6 +15,7 @@ from .models import *
 class CsvImportForm(forms.Form):
     csv_file = forms.FileField()
 
+
 class ExportCsvMixin:
     def export_as_csv(self, request, queryset):
 
@@ -33,11 +34,14 @@ class ExportCsvMixin:
 
     export_as_csv.short_description = "Export Selected"
 
+
 def create_orders(modeladmin, request, queryset):
     invites = Invitation.objects.filter(email__in=queryset)
     Order.create_by_invites(invites)
     modeladmin.message_user(request, "Заказы были успешно созданы.")
-create_orders.short_description="Создать заказы по приглашениям"
+
+
+create_orders.short_description = "Создать заказы по приглашениям"
 
 
 class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -46,7 +50,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
     change_list_template = "admin/invitation_changelist.html"
 
     def get_readonly_fields(self, request, obj=None):
-        if obj: # editing an existing object
+        if obj:  # editing an existing object
             return self.readonly_fields + ['email']
         return self.readonly_fields
 
@@ -65,7 +69,7 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
         if request.method == "POST":
             csv_src = TextIOWrapper(request.FILES["csv_file"].file, encoding=request.encoding)
             tmp = NamedTemporaryFile()
-            with open(tmp.name, 'w') as f: 
+            with open(tmp.name, 'w') as f:
                 for line in csv_src:
                     f.write(line)
             dicts = read_dicts(tmp.name)
@@ -81,10 +85,12 @@ class InvitationAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     actions = [create_orders]
 
+
 class SocialLinkInline(admin.TabularInline):
     model = SocialLink
     extra = 0
     ordering = ("id",)
+
 
 class StreamerAdmin(admin.ModelAdmin):
     list_display = ['orderPP', 'nickName', 'name', 'email', 'isAtHome', 'isActive', 'uniqUrl']
@@ -96,23 +102,30 @@ class StreamerAdmin(admin.ModelAdmin):
     class Meta:
         model = Streamer
 
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 1
     ordering = ("id",)
 
 # @admin.ModelAdmin.action(description='Перевыслать билеты по выбранному заказу')
+
+
 def send_again(modeladmin, request, queryset):
     Ticket.objects.filter(order__in=queryset).update(when_sent=None, send_attempts=0)
-send_again.short_description="Перевыслать билеты по выбранному заказу"
+
+
+send_again.short_description = "Перевыслать билеты по выбранному заказу"
+
 
 class ActivityStreamerInline(admin.TabularInline):
     model = Activity.streamers.through
     verbose_name = "Guest"
     verbose_name_plural = "Guests"
 
+
 class ActivityAdmin(admin.ModelAdmin):
-    inlines = [ ActivityStreamerInline, ]
+    inlines = [ActivityStreamerInline, ]
     exclude = ('streamers',)
     list_display = ['title', 'priority', 'day', 'start', 'end', 'get_place', 'get_streamers']
 
@@ -127,11 +140,12 @@ class ActivityAdmin(admin.ModelAdmin):
             return "Весь фестиваль"
         else:
             return f"{obj.place.name} ({obj.place.level})"
-            
+
     get_place.short_description = 'Место'
 
     class Meta:
         model = Activity
+
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
@@ -153,6 +167,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Order
+
 
 class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = [
@@ -200,7 +215,7 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
     get_when_paid.admin_order_field = 'order__when_paid'
 
     search_fields = [
-        'ticket_id', 
+        'ticket_id',
         'streamer__nickName',
         'order__firstname',
         'order__lastname',
@@ -210,6 +225,7 @@ class TicketAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     class Meta:
         model = Ticket
+
 
 class UserDataAdmin(admin.ModelAdmin):
     list_display = ['firstname',
@@ -230,20 +246,21 @@ class UserDataAdmin(admin.ModelAdmin):
     class Meta:
         model = UserData
 
+
 class PlaceTimetableAdminInline(admin.TabularInline):
     model = PlaceTimetable
 
+
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = [ 'id', 'number', 'name', 'level' ]
+    list_display = ['id', 'number', 'name', 'level']
     inlines = (PlaceTimetableAdminInline, )
 
     class Meta:
         model = Place
 
 
-
-#disable delete globally
-#admin.site.disable_action('delete_selected')
+# disable delete globally
+# admin.site.disable_action('delete_selected')
 admin.site.register(FaqCommon)
 admin.site.register(FaqParticipant)
 admin.site.register(Subscribe)

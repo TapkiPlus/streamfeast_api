@@ -5,7 +5,8 @@ import logging
 import dataclasses
 import hashlib
 import base64
-import random, string
+import random
+import string
 import json
 import requests
 from time import time
@@ -22,7 +23,7 @@ __secret_key = settings.PAYMENT_KEY
 __host = settings.SITE_URL
 
 
-def payment_result(params): 
+def payment_result(params):
     calculated_signature = get_signature(params)
     existing_signature = params["signature"]
     testing = params["testing"] == "1"
@@ -50,24 +51,24 @@ def make_purchase(order_id: str):
     order, order_items = Order.get_with_items(order_id)
 
     @dataclass(init=True)
-    class ModulReceiptItem: 
+    class ModulReceiptItem:
         name: str
         quantity: int
         price: int
         sno: str = "usn_income"
         payment_object: str = "service"
         payment_method: str = "advance"
-        vat: str = "none"    
+        vat: str = "none"
 
     def to_receipt_item(oi: OrderItem):
         return ModulReceiptItem(str(oi), oi.quantity, oi.price)
 
-    def randomStr(size: int): 
+    def randomStr(size: int):
         ''.join(random.choice(string.ascii_letters) for x in range(size))
 
     receipt_items = map(lambda oi: dataclasses.asdict(to_receipt_item(oi)), order_items)
 
-    txn_params = {       
+    txn_params = {
         "salt": randomStr(32),
         "merchant": settings.PAYMENT_MERCHANT_ID,
         "receipt_contact": 'tickets@streamfest.ru',
@@ -87,7 +88,7 @@ def make_purchase(order_id: str):
     signature = get_signature(txn_params)
     txn_params["signature"] = signature
 
-    resp = requests.post(__api_url, data = txn_params, allow_redirects=False)
+    resp = requests.post(__api_url, data=txn_params, allow_redirects=False)
     return resp
 
 
@@ -118,13 +119,8 @@ def get_signature(params: dict) -> str:
 
     '''Двойное шифрование sha1 на основе секретного ключа'''
     def double_sha1(data):
-        sha1_hex = lambda s: hashlib.sha1(s.encode('utf-8')).hexdigest()
+        def sha1_hex(s): return hashlib.sha1(s.encode('utf-8')).hexdigest()
         digest = sha1_hex(__secret_key + sha1_hex(__secret_key + data))
         return digest
 
-
     return double_sha1(get_raw_signature(params))
-
-
-
-

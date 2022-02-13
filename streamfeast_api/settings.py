@@ -9,23 +9,23 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # crucial settings
 SITE_URL = env("TARGET_HOSTNAME")
-SECRET_KEY = env("SECRET_KEY") 
+SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", default=False)
 
-DATABASES = { "default": env.db() }
+DATABASES = {"default": env.db()}
 EMAIL_CONFIG = env.email_url("EMAIL_CONFIG")
 
-PAYMENT_MERCHANT_ID=env("PAYMENT_MERCHANT_ID")
-PAYMENT_KEY=env("PAYMENT_KEY")
+PAYMENT_MERCHANT_ID = env("PAYMENT_MERCHANT_ID")
+PAYMENT_KEY = env("PAYMENT_KEY")
 
 #==============================================#
 
-#cors
+# cors
 CSRF_COOKIE_NAME = "csrftoken"
 CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = ['*']
 
-#logging
+# logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -36,20 +36,20 @@ LOGGING = {
     },
     'handlers': {
         'default': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'be.log'),
-            'maxBytes': 1024*1024*5, # 5 MB
+            'maxBytes': 1024*1024*5,  # 5 MB
             'backupCount': 5,
-            'formatter':'standard',
+            'formatter': 'standard',
         },
         'request_handler': {
-                'level':'DEBUG',
-                'class':'logging.handlers.RotatingFileHandler',
-                'filename': os.path.join(BASE_DIR, 'logs', 'db.log'),
-                'maxBytes': 1024*1024*5, # 5 MB
-                'backupCount': 5,
-                'formatter':'standard',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'db.log'),
+            'maxBytes': 1024*1024*5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'standard',
         },
     },
     'loggers': {
@@ -58,7 +58,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True
         },
-        'django.request': { # SQL logs go here
+        'django.request': {  # SQL logs go here
             'handlers': ['request_handler'],
             'level': 'DEBUG',
             'propagate': False
@@ -66,7 +66,7 @@ LOGGING = {
     }
 }
 
-#middleware
+# middleware
 INSTALLED_APPS = [
     'api.apps.AdminApiConfig',
     'django.contrib.auth',
@@ -97,8 +97,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'template']
-        ,
+        'DIRS': [BASE_DIR / 'template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

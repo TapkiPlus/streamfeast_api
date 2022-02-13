@@ -1,6 +1,7 @@
 import io
 import pyqrcode
 
+
 def qr_code(source_string):
     code = pyqrcode.create(source_string)
     buf = io.BytesIO()

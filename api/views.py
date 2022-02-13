@@ -40,9 +40,11 @@ class GetFaqCommon(generics.ListAPIView):
     serializer_class = FaqCommonSerializer
     queryset = FaqCommon.objects.all()
 
+
 class GetFaqParticipant(generics.ListAPIView):
     serializer_class = FaqParticipantSerializer
     queryset = FaqParticipant.objects.all()
+
 
 class GetTicketTypes(generics.ListAPIView):
     serializer_class = TicketTypeSerializer
@@ -57,6 +59,7 @@ class GetCart(generics.RetrieveAPIView):
         result, _ = Cart.objects.get_or_create(session=session_id)
         return result
 
+
 class DeleteItem(APIView):
     def post(self, request):
         session_id = request.data.get('session_id')
@@ -66,6 +69,7 @@ class DeleteItem(APIView):
         cart, _ = Cart.objects.get_or_create(session=session_id)
         cart.calculate_cart_price()
         return Response(CartSerializer(cart).data)
+
 
 class AddItemQuantity(APIView):
     def post(self, request):
@@ -77,6 +81,7 @@ class AddItemQuantity(APIView):
         cart, _ = Cart.objects.get_or_create(session=session_id)
         cart.calculate_cart_price()
         return Response(CartSerializer(cart).data)
+
 
 class DeleteItemQuantity(APIView):
     def post(self, request):
@@ -110,11 +115,12 @@ class AddItem(APIView):
         cart.save()
         return Response(CartSerializer(cart).data)
 
+
 class SaveUserData(APIView):
     def post(self, request):
         from django.db.models import F
         session_id = request.data.get('session_id')
-        allowed = ["firstname", "lastname", "email", "phone"] 
+        allowed = ["firstname", "lastname", "email", "phone"]
         update = {k: v for k, v in request.data.items() if k in allowed}
         if update:
             UserData.objects.update_or_create(session=session_id, defaults=update)
@@ -124,9 +130,9 @@ class SaveUserData(APIView):
         for k, _ in request.data.items():
             if k in increments:
                 inc_fields[k] = F(k) + 1
-        if inc_fields:             
+        if inc_fields:
             UserData.objects.filter(session=session_id).update(**inc_fields)
-        
+
         return Response(status=200)
 
 
@@ -144,11 +150,13 @@ class GetQr(APIView):
         if Ticket.objects.filter(ticket_uuid=uuid).exists():
             response = HttpResponse(content=qr_code(uuid), content_type="image/png")
             return response
-        else: 
+        else:
             return Response(status=404)
 
 
 TEST_SET = {"wasiliy.zadow@yandex.ru", "dzenmassta@gmail.com", "alyona@lisetskiy.com", "mike@lisetskiy.com"}
+
+
 class CreateOrder(APIView):
     def post(self, request):
         session_id = request.data['session_id']
@@ -191,6 +199,7 @@ class PaymentResult(APIView):
         code = modul_client.payment_result(request.data)
         return HttpResponse(status=code)
 
+
 class Checkin(APIView):
     def get(self, request):
         qr = request.query_params.get("code")
@@ -199,7 +208,7 @@ class Checkin(APIView):
             status = ticket.checkin()
             order = ticket.order
             streamer_nick = ticket.streamer.nickName if ticket.streamer else None
-            resp = { 
+            resp = {
                 "status": status,
                 "details": {
                     "ticket_type": ticket.ticket_type,
@@ -214,7 +223,7 @@ class Checkin(APIView):
             }
             return Response(resp)
         else:
-            return Response({ "status": ENTRY_FORBIDDEN_NO_SUCH_TICKET })
+            return Response({"status": ENTRY_FORBIDDEN_NO_SUCH_TICKET})
 
 
 class TicketClear(APIView):
@@ -225,10 +234,11 @@ class TicketClear(APIView):
         ticket.save()
         return Response(status=200)
 
-      
+
 class GetPlaces(generics.ListAPIView):
     serializer_class = PlaceSerializer
     queryset = Place.objects.all().order_by("number")
+
 
 class GetPlace(generics.RetrieveAPIView):
     serializer_class = PlaceSerializer
@@ -242,6 +252,7 @@ class GetActivities(generics.ListAPIView):
     serializer_class = ActivitySerializer
     queryset = Activity.objects.all().order_by("priority")
 
+
 class GetActivity(generics.RetrieveAPIView):
     serializer_class = ActivitySerializer
 
@@ -250,7 +261,7 @@ class GetActivity(generics.RetrieveAPIView):
         return Activity.objects.get(id=activity_id)
 
 
-class GetStreamerStats(APIView): 
+class GetStreamerStats(APIView):
 
     def post(self, request):
         uid = request.data.get("streamer_uuid")
@@ -264,7 +275,7 @@ class GetStreamerStats(APIView):
         streamer = Streamer.objects.get(uniqUrl=uid)
         summary = OrderItem.summary_by_uid(uid, start, end)
         items = OrderItem.items_by_uid(uid, start, end)
-        
+
         stats = {
             "streamer": {
                 "name": streamer.name,
@@ -295,11 +306,13 @@ class TicketChart(APIView):
             },
         })
 
+
 class StreamerChart(APIView):
 
     def get(self, request):
         stats = Ticket.streamer_stats()
         return Response(stats)
+
 
 class StreamerChartExport(APIView):
     def get(self, request):
@@ -316,19 +329,23 @@ class UserdataExport(APIView):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
         writer = csv.writer(response)
-        writer.writerow(["Firstname", "Lastname", "Email", "Phone", "WentToCheckout", "ReturnedToShop", "ClickedPay", "TriedToPayAgain", "ClickedTechAssist", "SuccessfulPayments", "FailedPayments"])
+        writer.writerow(["Firstname", "Lastname", "Email", "Phone", "WentToCheckout", "ReturnedToShop",
+                        "ClickedPay", "TriedToPayAgain", "ClickedTechAssist", "SuccessfulPayments", "FailedPayments"])
         UserData.export_all(writer)
         return response
 
-class GetStreamerOrders(generics.ListAPIView): 
+
+class GetStreamerOrders(generics.ListAPIView):
     serializer_class = ActivitySerializer
+
     def get(self, request):
         uid = request.data["streamer_uuid"]
-        queryset = OrderItem.objects.filter( \
-            order__when_paid__isnull=False, \
-            streamer__uniqUrl=uid \
+        queryset = OrderItem.objects.filter(
+            order__when_paid__isnull=False,
+            streamer__uniqUrl=uid
         )
 
-class GetStreamerOrdersTotals(APIView): 
+
+class GetStreamerOrdersTotals(APIView):
     def get(self, request):
         uid = request.data["streamer_uuid"]

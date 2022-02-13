@@ -33,19 +33,21 @@ class ModulTestCase(TestCase):
     }
 
 # Modulbank testing suite
-class ModuleTestCase(ModulTestCase): 
-    def setUp(self): 
+
+
+class ModuleTestCase(ModulTestCase):
+    def setUp(self):
         data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
-        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com", created_at=datetime.utcnow())
+        order = Order.objects.create(id="77777-01", amount=128,
+                                     email="dzenmassta@gmail.com", created_at=datetime.utcnow())
         OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, price=42, streamer=streamer)
         OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86, price=43)
 
-        
-    #@override_settings(PAYMENT_KEY='2618109CC214F9AFE0F855AE582A9BC4')
-    #@override_settings(PAYMENT_MERCHANT_ID='c2659e97-cf26-421e-8a2e-91973e9bb5c2')
-    def test_make_payment(self): 
-        resp=modul_client.make_purchase("77777-01")
+    # @override_settings(PAYMENT_KEY='2618109CC214F9AFE0F855AE582A9BC4')
+    # @override_settings(PAYMENT_MERCHANT_ID='c2659e97-cf26-421e-8a2e-91973e9bb5c2')
+    def test_make_payment(self):
+        resp = modul_client.make_purchase("77777-01")
         print(f"Resp: {resp}")
 
     def test_complete_payment(self):
@@ -55,7 +57,7 @@ class ModuleTestCase(ModulTestCase):
         assert response.status_code == 200
 
         paid_order = Order.objects.get(id="77777-01")
-        for key, value in paid_order.__dict__.items(): 
+        for key, value in paid_order.__dict__.items():
             print(key + " -> " + str(value))
         assert paid_order.when_paid
 
@@ -65,7 +67,8 @@ class TicketTestCase(ModulTestCase):
     def setUp(self):
         data = UserData.objects.create(session="123")
         streamer = Streamer.objects.create(name="Vasya")
-        order = Order.objects.create(id="77777-01", amount=128, email="dzenmassta@gmail.com", created_at=datetime.utcnow())
+        order = Order.objects.create(id="77777-01", amount=128,
+                                     email="dzenmassta@gmail.com", created_at=datetime.utcnow())
         OrderItem.objects.create(order=order, ticket_type=1, quantity=1, amount=42, price=42, streamer=streamer)
         OrderItem.objects.create(order=order, ticket_type=2, quantity=2, amount=86, price=43)
         # set paid
@@ -73,25 +76,25 @@ class TicketTestCase(ModulTestCase):
         Order.set_paid_by(txn)
         pass
 
-    def test_sent(self): 
+    def test_sent(self):
         queryset = Order.objects.filter(id="77777-01")
         Ticket.objects.filter(order__in=queryset).update(when_sent=None, send_attempts=5)
         all_tickets = Ticket.objects.all()
-        for ticket in all_tickets: 
+        for ticket in all_tickets:
             print("Ticket: {}, {}, {}".format(ticket.ticket_id, ticket.when_sent, ticket.send_attempts))
 
-    def test_user_data(self): 
+    def test_user_data(self):
         increments = ["returnedToShop", "clickedPay", "tryedToPayAgain", "clickedTechAssistance"]
         inc_fields = {}
         for k in increments:
             inc_fields[k] = F(k) + 5
-        if inc_fields:             
+        if inc_fields:
             UserData.objects.filter(session="123").update(**inc_fields)
         data = UserData.objects.get(session="123")
-        print("Data: {} {} {} {}".format(data.returnedToShop, data.clickedPay, data.tryedToPayAgain, data.clickedTechAssistance))
+        print("Data: {} {} {} {}".format(data.returnedToShop, data.clickedPay,
+              data.tryedToPayAgain, data.clickedTechAssistance))
 
-        
-    def test_select_uuid(self): 
+    def test_select_uuid(self):
         ticket = Ticket.objects.first()
         print("uuid: {}".format(ticket.ticket_uuid))
         t2 = Ticket.objects.filter(ticket_uuid=ticket.ticket_uuid).first()
@@ -100,12 +103,10 @@ class TicketTestCase(ModulTestCase):
         print("t2: {}".format(t2))
         t3 = Ticket.objects.filter(ticket_uuid="2399457e-7ab6-406f-b68f-d4a21e0171ae").first()
         print("t3: {}".format(t3))
-        
 
+    # to test SMTP uncomment this pls
+    # @override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
 
-
-    #to test SMTP uncomment this pls
-    #@override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
     def test_order_paid(self):
         pass
         # order = Order.objects.last()
@@ -118,15 +119,15 @@ class TicketTestCase(ModulTestCase):
 
     def test_summary(self):
         streamer = Streamer.objects.get(name="Vasya")
-        result = OrderItem.summary_by_uid(streamer.uniqUrl, end = datetime.utcnow())
+        result = OrderItem.summary_by_uid(streamer.uniqUrl, end=datetime.utcnow())
         print("Summary: {}".format(result))
 
     def test_stats(self):
         streamer = Streamer.objects.get(name="Vasya")
-        result = OrderItem.items_by_uid(streamer.uniqUrl, end = datetime.utcnow())
+        result = OrderItem.items_by_uid(streamer.uniqUrl, end=datetime.utcnow())
         print("Stats: {}".format(result))
 
-    def test_summary_stats(self): 
+    def test_summary_stats(self):
         import json
         from django.core.serializers.json import DjangoJSONEncoder
         streamer = Streamer.objects.get(name="Vasya")
