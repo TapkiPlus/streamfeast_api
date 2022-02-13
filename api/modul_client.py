@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from django.conf import settings
 
+import logging
 import dataclasses
 import hashlib
 import base64
@@ -11,7 +12,7 @@ from time import time
 from dateutil import parser
 from .email_client import send_application
 
-from api.models import ModulTxnForm, Order, OrderItem
+from api.models import ModulTxnForm, Order, OrderItem, UserData
 
 __testing_mode = 1
 __api_url = "https://pay.modulbank.ru/pay"
@@ -22,32 +23,25 @@ __host = settings.SITE_URL
 
 
 def payment_result(params): 
-    signature = get_signature(params)
-    test_mode = bool(params["testing"])
+    calculated_signature = get_signature(params)
     existing_signature = params["signature"]
-    if test_mode or existing_signature == signature:
+    testing = params["testing"] == "1"
+    if testing or existing_signature == calculated_signature:
         try:
-            # save txn
-            form = ModulTxnForm(params)
-            form.save()
+            # save txn (should it be one txn with set_paid?)
+            txn: ModulTxn = ModulTxnForm(params).save()
 
-            # set order paid
-            order_id = params["order_id"]
-            order = Order.objects.get(id=order_id)
-            order.payment_system = params["payment_method"]
-            order.card_pan = params.get("pan_mask", "")
-            date = parser.parse(params["created_datetime"])
-            if params["state"] == "COMPLETE":
-                order.set_paid(date)
-                send_application(order)
-            else:
-                order.set_unpaid()
+            # then pay an order
+            order = Order.set_paid_by(txn)
+
+            # if everything was fine - send application
+            send_application(order)
             return 200
-        except:
-            print("Internal error")
+        except Exception as e:
+            logging.error(e, exc_info=True)
             return 500
     else:
-        print("Incorrect signature!")
+        logging.warning(f"Incorrect signature value: Expected {calculated_signature} but got {existing_signature}")
         return 401
 
 

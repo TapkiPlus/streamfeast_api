@@ -1,8 +1,6 @@
-import base64
-import uuid
-from django.forms import ModelForm
+import base64, uuid, json, logging, pdfkit
 
-import pdfkit
+from django.forms import ModelForm
 from django.db import models
 from django.db import transaction, connection
 from django.db.models import Sum, F
@@ -50,7 +48,9 @@ class ModulTxn(models.Model):
     meta = models.TextField("Meta", null=True, blank=True)
 
     def __str__(self):
-        return f"Order {self.order_id}: transaction #{self.id}"
+        from .serializers import ModulTxnSerializer
+        seri = json.dumps(ModulTxnSerializer(self).data, indent=4)
+        return f"Transaction:\n{seri}"
 
     class Meta:
         ordering = ("unix_timestamp",)
@@ -359,34 +359,44 @@ class Order(models.Model):
         )
         return new_order
 
+    @staticmethod
     @transaction.atomic
-    def set_paid(self, date):
-        if self.when_paid is None:
-            Cart.clear_cart(self.session)
-            UserData.payment_success(self.session)
-            self.when_paid = date
-            items = OrderItem.objects.filter(order=self)
-            index = 0
-            for item in items:
-                for i in range(item.quantity):
-                    index += 1
-                    id = "{}-{:02d}".format(self.id, index)
-                    Ticket.objects.create(
-                        ticket_id=id,
-                        ticket_type=item.ticket_type,
-                        price=item.price,
-                        streamer=item.streamer,
-                        order=self
-                    )
-            self.save()
-
-    def set_unpaid(self):
-        if self.when_paid is None: 
-            UserData.payment_failed(self.session)
-
+    def set_paid_by(txn: ModulTxn): 
+        order: Order = Order.objects.get(id=txn.order_id)
+        if order.when_paid is None:
+            if txn.state == ModulTxn.States.OK: 
+                Cart.clear_cart(order.session)
+                UserData.payment_success(order.session)
+                order.payment_system = txn.payment_method
+                order.card_pan = txn.pan_mask
+                order.when_paid = txn.created_datetime
+                items = OrderItem.objects.filter(order=order)
+                index = 0
+                for item in items:
+                    for i in range(item.quantity):
+                        index += 1
+                        id = "{}-{:02d}".format(order.id, index)
+                        Ticket.objects.create(
+                            ticket_id=id,
+                            ticket_type=item.ticket_type,
+                            price=item.price,
+                            streamer=item.streamer,
+                            order=order
+                        )
+                order.save()
+                logging.info(f"Successful payment by: {txn}")
+                return order
+            else:
+                # Payment was rejected by the payment system
+                UserData.payment_failed(order.session)
+                raise RuntimeError(f"Failed payment attempt by: {txn}")
+        else:
+            raise RuntimeError(f"Adversary payment attempt by: {txn}")
 
     def __str__(self):
-        return f"Заказ {self.id} от {self.firstname} оплачен: {self.when_paid}"
+        from .serializers import OrderSerializer
+        seri = json.dumps(OrderSerializer(self).data, indent=4)
+        return f"Order:\n{seri}"
 
     class Meta:
         verbose_name = "Заказ"

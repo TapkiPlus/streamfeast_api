@@ -13,7 +13,11 @@ class FaqParticipantSerializer(serializers.ModelSerializer):
         model = FaqParticipant
         fields = '__all__'
 
-
+class ModulTxnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModulTxn
+        fields = '__all__'
+        
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType

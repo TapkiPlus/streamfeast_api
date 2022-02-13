@@ -56,7 +56,6 @@ class ModuleTestCase(TestCase):
         assert paid_order.when_paid
 
 
-# Create your tests here.
 class TicketTestCase(TestCase):
 
     def setUp(self):
