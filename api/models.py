@@ -72,7 +72,7 @@ class ModulTxnForm(ModelForm):
 class FaqCommon(models.Model):
     category = models.SmallIntegerField("Категория", blank=False, null=False, default=1)
     ordering_number = models.IntegerField("№ П/П", default=100)
-    question = models.CharField("Вопрос", max_length=255, blank=False, null=True, unique=True)
+    question = RichTextField("Вопрос", blank=False, null=True, unique=True)
     answer = RichTextField("Ответ", blank=False, null=False)
 
     def __str__(self):
@@ -88,7 +88,7 @@ class FaqParticipant(models.Model):
     ordering_number = models.IntegerField("№ П/П", default=100)
     icon = models.ImageField("Иконка", upload_to="icons/", blank=False, null=True)
     expanded = models.BooleanField("Раскрыто по умолчанию", null=False, default=False)
-    question = models.CharField("Вопрос", max_length=255, blank=False, null=True, unique=True)
+    question = RichTextField("Вопрос", blank=False, null=False, unique=True)
     answer = RichTextField("Ответ", blank=False, null=False)
 
     def __str__(self):
