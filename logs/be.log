@@ -1,0 +1,12 @@
+2022-02-19 18:32:42,330 [WARNING] root: [+] Starting tasks executors
+2022-02-19 18:32:42,370 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2022-02-19 18:32:42,371 [INFO] apscheduler.scheduler: Added job "send_oldest" to job store "default"
+2022-02-19 18:32:42,371 [INFO] apscheduler.scheduler: Scheduler started
+2022-02-19 18:33:26,578 [WARNING] root: [+] Starting tasks executors
+2022-02-19 18:33:26,617 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2022-02-19 18:33:26,617 [INFO] apscheduler.scheduler: Added job "send_oldest" to job store "default"
+2022-02-19 18:33:26,617 [INFO] apscheduler.scheduler: Scheduler started
+2022-02-19 18:40:59,928 [WARNING] root: [+] Starting tasks executors
+2022-02-19 18:40:59,967 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2022-02-19 18:40:59,967 [INFO] apscheduler.scheduler: Added job "send_oldest" to job store "default"
+2022-02-19 18:40:59,967 [INFO] apscheduler.scheduler: Scheduler started
