@@ -622,6 +622,7 @@ class Activity(models.Model):
         FIRST = 1
         SECOND = 2
         BOTH = 3
+        NEVER = 4
 
     priority = models.IntegerField("Номер ПП", default=0)
     day = models.PositiveSmallIntegerField("День", choices=ActiveWhen.choices, default=ActiveWhen.BOTH)
